@@ -1,0 +1,15 @@
+module.exports = {
+  cliSidebar: [
+    'intro',
+    {
+      type: 'category',
+      label: 'Commands',
+      items: [],
+      link: {
+        type: 'generated-index',
+        title: 'Commands',
+        description: 'CLI command reference',
+      },
+    },
+  ],
+};
