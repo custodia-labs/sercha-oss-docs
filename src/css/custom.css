@@ -1,30 +1,275 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Sercha Brand Styles
+ * Palette C — Refined: Neutral, progressive palette with indigo-violet accent
  */
 
-/* You can override the default Infima variables here. */
+/* Import Inter font for UI */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ===========================
+   Sercha Brand Color Palette
+   =========================== */
+
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  /* ===== Primary Neutral Colors ===== */
+  /* Background and Surfaces */
+  --sercha-snow: #FAFAFA;           /* Primary background */
+  --sercha-mist: #ECECEC;           /* Secondary surfaces, cards */
+  --sercha-silverline: #C7C8CC;     /* Borders, dividers */
+
+  /* Typography */
+  --sercha-ink-slate: #333F50;      /* Headings, core text */
+  --sercha-fog-grey: #7B8088;       /* Secondary text, captions */
+
+  /* ===== Accent Colors (Brand Identity) ===== */
+  --sercha-indigo: #6675FF;         /* Main accent, primary actions */
+  --sercha-indigo-soft: #E2E5FF;    /* Soft backgrounds, focus states */
+
+  /* ===== Supporting Functional Colors ===== */
+  --sercha-success-green: #10B981;  /* Success indicators */
+  --sercha-terminal-red: #FF5F56;   /* Terminal UI decoration */
+  --sercha-terminal-yellow: #FFBD2E;/* Terminal UI decoration */
+  --sercha-terminal-green: #27C93F; /* Terminal UI decoration */
+
+  /* ===== Typography ===== */
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  --ifm-font-family-monospace: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+
+  /* ===== Docusaurus Color Mappings (Light Mode) ===== */
+  /* Primary accent - Sercha Indigo */
+  --ifm-color-primary: #6675FF;
+  --ifm-color-primary-dark: #4d5eff;
+  --ifm-color-primary-darker: #3d4fff;
+  --ifm-color-primary-darkest: #1e31ff;
+  --ifm-color-primary-light: #7f8cff;
+  --ifm-color-primary-lighter: #8f9bff;
+  --ifm-color-primary-lightest: #b8c1ff;
+
+  /* Background - Snow */
+  --ifm-background-color: #FAFAFA;
+  --ifm-background-surface-color: #FAFAFA;
+
+  /* Cards and secondary surfaces - Mist */
+  --ifm-card-background-color: #ECECEC;
+  --ifm-hover-overlay: #ECECEC;
+
+  /* Typography */
+  --ifm-color-content: #333F50;           /* Ink Slate - main text */
+  --ifm-color-content-secondary: #7B8088; /* Fog Grey - secondary text */
+  --ifm-heading-color: #333F50;           /* Ink Slate - headings */
+
+  /* Borders and dividers - Silverline */
+  --ifm-color-emphasis-300: #C7C8CC;
+  --ifm-hr-border-color: #C7C8CC;
+  --ifm-table-border-color: #C7C8CC;
+
+  /* Success state */
+  --ifm-color-success: #10B981;
+  --ifm-color-success-dark: #0e9f6e;
+
+  /* Code blocks */
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(102, 117, 255, 0.1);
+  --ifm-code-background: #ECECEC;
+
+  /* Links - use accent color */
+  --ifm-link-color: #6675FF;
+  --ifm-link-hover-color: #4d5eff;
+
+  /* Navbar */
+  --ifm-navbar-background-color: #FAFAFA;
+  --ifm-navbar-link-color: #333F50;
+  --ifm-navbar-link-hover-color: #6675FF;
+
+  /* Footer */
+  --ifm-footer-background-color: #333F50;
+  --ifm-footer-color: #FAFAFA;
+  --ifm-footer-link-color: #E2E5FF;
+  --ifm-footer-link-hover-color: #6675FF;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* ===========================
+   Dark Mode Overrides
+   =========================== */
+
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  /* Adjust colors for dark mode readability */
+  --ifm-color-primary: #7f8cff;           /* Lighter indigo for dark bg */
+  --ifm-color-primary-dark: #6675FF;
+  --ifm-color-primary-darker: #5666ff;
+  --ifm-color-primary-darkest: #3d4fff;
+  --ifm-color-primary-light: #8f9bff;
+  --ifm-color-primary-lighter: #9fabff;
+  --ifm-color-primary-lightest: #c8ceff;
+
+  /* Dark mode backgrounds */
+  --ifm-background-color: #1a1b1e;
+  --ifm-background-surface-color: #242526;
+
+  /* Cards in dark mode */
+  --ifm-card-background-color: #242526;
+  --ifm-hover-overlay: #2e2f31;
+
+  /* Typography in dark mode */
+  --ifm-color-content: #e3e4e6;
+  --ifm-color-content-secondary: #b4b5b8;
+  --ifm-heading-color: #ffffff;
+
+  /* Borders in dark mode */
+  --ifm-color-emphasis-300: #3e4042;
+  --ifm-hr-border-color: #3e4042;
+  --ifm-table-border-color: #3e4042;
+
+  /* Code blocks in dark mode */
+  --docusaurus-highlighted-code-line-bg: rgba(127, 140, 255, 0.2);
+  --ifm-code-background: #2e2f31;
+
+  /* Navbar in dark mode */
+  --ifm-navbar-background-color: #1a1b1e;
+  --ifm-navbar-link-color: #e3e4e6;
+  --ifm-navbar-link-hover-color: #7f8cff;
+
+  /* Footer remains Ink Slate */
+  --ifm-footer-background-color: #333F50;
+  --ifm-footer-color: #FAFAFA;
+  --ifm-footer-link-color: #E2E5FF;
+  --ifm-footer-link-hover-color: #7f8cff;
+}
+
+/* ===========================
+   Component Styling
+   =========================== */
+
+/* Buttons - Sercha Indigo accent */
+.button--primary {
+  background-color: var(--sercha-indigo);
+  border-color: var(--sercha-indigo);
+  color: white;
+}
+
+.button--primary:hover {
+  background-color: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+}
+
+/* Soft variant buttons */
+.button--secondary {
+  background-color: var(--sercha-indigo-soft);
+  border-color: var(--sercha-indigo-soft);
+  color: var(--sercha-indigo);
+}
+
+.button--secondary:hover {
+  background-color: var(--sercha-indigo);
+  border-color: var(--sercha-indigo);
+  color: white;
+}
+
+/* Badges and pills */
+.badge--primary {
+  background-color: var(--sercha-indigo-soft);
+  color: var(--sercha-indigo);
+}
+
+/* Code inline */
+code {
+  background-color: var(--ifm-code-background);
+  color: var(--sercha-indigo);
+  border: 1px solid var(--sercha-silverline);
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+}
+
+[data-theme='dark'] code {
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+/* Admonitions - use neutral + accent */
+.admonition-note {
+  border-left-color: var(--sercha-indigo);
+}
+
+.admonition-tip {
+  border-left-color: var(--sercha-success-green);
+}
+
+/* Focus states - Sercha Indigo Soft */
+*:focus-visible {
+  outline: 2px solid var(--sercha-indigo);
+  outline-offset: 2px;
+}
+
+/* Navigation active states */
+.menu__link--active {
+  color: var(--sercha-indigo);
+  background-color: var(--sercha-indigo-soft);
+}
+
+[data-theme='dark'] .menu__link--active {
+  background-color: rgba(127, 140, 255, 0.15);
+}
+
+/* Hero section styling */
+.hero {
+  background-color: var(--sercha-snow);
+  border-bottom: 1px solid var(--sercha-silverline);
+}
+
+[data-theme='dark'] .hero {
+  background-color: var(--ifm-background-color);
+  border-bottom-color: var(--ifm-color-emphasis-300);
+}
+
+.hero__title {
+  color: var(--sercha-ink-slate);
+}
+
+[data-theme='dark'] .hero__title {
+  color: var(--ifm-heading-color);
+}
+
+.hero__subtitle {
+  color: var(--sercha-fog-grey);
+}
+
+[data-theme='dark'] .hero__subtitle {
+  color: var(--ifm-color-content-secondary);
+}
+
+/* ===========================
+   Utility Classes
+   =========================== */
+
+/* Neutral-first interface: 80-90% neutral usage */
+.sercha-surface {
+  background-color: var(--sercha-mist);
+}
+
+.sercha-accent {
+  color: var(--sercha-indigo);
+}
+
+.sercha-accent-bg {
+  background-color: var(--sercha-indigo-soft);
+  color: var(--sercha-indigo);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Success indicators */
+.sercha-success {
+  color: var(--sercha-success-green);
+}
+
+/* Terminal decoration colors (for code examples) */
+.terminal-dot-red {
+  color: var(--sercha-terminal-red);
+}
+
+.terminal-dot-yellow {
+  color: var(--sercha-terminal-yellow);
+}
+
+.terminal-dot-green {
+  color: var(--sercha-terminal-green);
 }
