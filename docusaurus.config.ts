@@ -18,6 +18,7 @@ const config: Config = {
   url: 'https://docs.sercha.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
   baseUrl: '/',
+  trailingSlash: true,
 
   organizationName: 'custodia-labs',
   projectName: 'sercha-oss-docs',
