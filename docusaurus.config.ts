@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Sercha Documentation',
   tagline: 'Privacy-focused local search for your data',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -18,7 +18,7 @@ const config: Config = {
   url: 'https://docs.sercha.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
   baseUrl: '/',
-  trailingSlash: true,
+  trailingSlash: false,
 
   organizationName: 'custodia-labs',
   projectName: 'sercha-oss-docs',
@@ -32,6 +32,12 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
+  // Enable Mermaid for architecture diagrams
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
 
   plugins: [
     // CLI docs (versioned)
@@ -89,15 +95,14 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/sercha-logo.png',
     colorMode: {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Sercha',
       logo: {
         alt: 'Sercha Logo',
-        src: 'img/logo.svg',
+        src: 'img/sercha-logo.png',
       },
       items: [
         {
@@ -130,7 +135,7 @@ const config: Config = {
           items: [
             {
               label: 'CLI',
-              to: '/cli/intro',
+              to: '/cli/overview',
             },
             {
               label: 'Core',
@@ -174,6 +179,10 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: ['go', 'bash', 'json', 'yaml'],
+    },
+    mermaid: {
+      theme: {light: 'neutral', dark: 'dark'},
     },
   } satisfies Preset.ThemeConfig,
 };
