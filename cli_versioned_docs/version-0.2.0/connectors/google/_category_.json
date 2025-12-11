@@ -1,0 +1,8 @@
+{
+  "label": "Google",
+  "position": 5,
+  "link": {
+    "type": "doc",
+    "id": "cli/connectors/google/overview"
+  }
+}
