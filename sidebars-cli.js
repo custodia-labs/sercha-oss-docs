@@ -54,6 +54,8 @@ module.exports = {
       items: [
         'connectors/filesystem',
         'connectors/github',
+        'connectors/dropbox',
+        'connectors/notion',
         {
           type: 'category',
           label: 'Google',
@@ -62,6 +64,16 @@ module.exports = {
             'connectors/google/gmail',
             'connectors/google/drive',
             'connectors/google/calendar',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Microsoft 365',
+          link: { type: 'doc', id: 'connectors/microsoft/overview' },
+          items: [
+            'connectors/microsoft/onedrive',
+            'connectors/microsoft/outlook',
+            'connectors/microsoft/calendar',
           ],
         },
       ],

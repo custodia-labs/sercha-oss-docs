@@ -52,9 +52,8 @@ Download from [GitHub Releases](https://github.com/custodia-labs/sercha-cli/rele
 | Platform | File |
 |----------|------|
 | macOS (Apple Silicon) | `sercha_*_darwin_arm64.tar.gz` |
-| macOS (Intel) | `sercha_*_darwin_amd64.tar.gz` |
-| Linux (ARM64) | `sercha_*_linux_arm64.tar.gz` |
 | Linux (x86_64) | `sercha_*_linux_amd64.tar.gz` |
+| Linux (ARM64) | `sercha_*_linux_arm64.tar.gz` |
 
 :::caution Xapian Required
 Binary downloads require Xapian to be installed:

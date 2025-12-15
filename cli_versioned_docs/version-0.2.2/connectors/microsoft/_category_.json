@@ -1,0 +1,8 @@
+{
+  "label": "Microsoft 365",
+  "position": 6,
+  "link": {
+    "type": "doc",
+    "id": "cli/connectors/microsoft/overview"
+  }
+}
