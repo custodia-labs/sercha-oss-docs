@@ -131,7 +131,7 @@ function OpenSource() {
           <Link className={clsx('button button--primary', styles.heroBtn)} href="https://github.com/sercha-oss/sercha-core">
             GitHub
           </Link>
-          <Link className={clsx('button button--secondary', styles.heroBtn)} href="https://discord.gg/PYagaAGf">
+          <Link className={clsx('button button--secondary', styles.heroBtn)} href="https://discord.gg/Hpj7e6k6Et">
             Discord
           </Link>
         </div>

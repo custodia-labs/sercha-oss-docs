@@ -140,14 +140,16 @@ const config: Config = {
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://discord.gg/PYagaAGf',
-          label: 'Discord',
+          href: 'https://discord.gg/Hpj7e6k6Et',
           position: 'right',
+          className: 'header-discord-link',
+          'aria-label': 'Discord community',
         },
         {
           href: 'https://github.com/sercha-oss/sercha-core',
-          label: 'GitHub',
           position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },
@@ -165,7 +167,7 @@ const config: Config = {
         {
           title: 'Community',
           items: [
-            {label: 'Discord', href: 'https://discord.gg/PYagaAGf'},
+            {label: 'Discord', href: 'https://discord.gg/Hpj7e6k6Et'},
             {label: 'GitHub', href: 'https://github.com/sercha-oss/sercha-core'},
             {label: 'Issues', href: 'https://github.com/sercha-oss/sercha-core/issues'},
           ],

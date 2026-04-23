@@ -32,6 +32,13 @@ Connectors integrate external data sources with Sercha. Each connector handles a
       <span>Pages, databases, and nested content. Authenticates via OAuth.</span>
     </div>
   </div>
+  <div className="connector-card">
+    <img src="/assets/logos/microsoft/microsoft_onedrive_icon.png" alt="OneDrive" />
+    <div className="connector-card-body">
+      <strong><a href="/connectors/onedrive">OneDrive</a></strong>
+      <span>Files and folders from personal OneDrive. Incremental sync via Microsoft Graph delta queries. Authenticates via OAuth.</span>
+    </div>
+  </div>
 </div>
 
 ## Planned
@@ -48,7 +55,5 @@ These connectors are tracked as GitHub issues. Contributions welcome.
 | <img className="connector-logo" src="/assets/logos/miro/miro-icon.svg" alt="Miro" /> Miro | [#41](https://github.com/sercha-oss/sercha-core/issues/41) | OAuth |
 | <img className="connector-logo" src="/assets/logos/google/google_drive_icon.png" alt="Google Drive" /> Google Drive | [#43](https://github.com/sercha-oss/sercha-core/issues/43) | OAuth (Google) |
 | <img className="connector-logo" src="/assets/logos/google/google_drive_icon.png" alt="Google Docs" /> Google Docs | [#43](https://github.com/sercha-oss/sercha-core/issues/43) | OAuth (Google) |
-| <img className="connector-logo" src="/assets/logos/microsoft/microsoft_onedrive_icon.png" alt="OneDrive" /> OneDrive | [#44](https://github.com/sercha-oss/sercha-core/issues/44) | OAuth (Microsoft) |
-| <img className="connector-logo" src="/assets/logos/microsoft/microsoft_sharepoiint.png" alt="SharePoint" /> SharePoint | [#44](https://github.com/sercha-oss/sercha-core/issues/44) | OAuth (Microsoft) |
 | <img className="connector-logo" src="/assets/logos/atlassian/confluence.svg" alt="Confluence" /> Confluence | [#45](https://github.com/sercha-oss/sercha-core/issues/45) | OAuth (Atlassian) |
 | <img className="connector-logo" src="/assets/logos/atlassian/jira.svg" alt="Jira" /> Jira | [#45](https://github.com/sercha-oss/sercha-core/issues/45) | OAuth (Atlassian) |

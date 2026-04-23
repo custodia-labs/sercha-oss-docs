@@ -3,5 +3,7 @@ module.exports = {
     'overview',
     'github',
     'localfs',
+    'notion',
+    'onedrive',
   ],
 };
