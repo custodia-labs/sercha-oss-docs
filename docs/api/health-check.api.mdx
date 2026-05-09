@@ -1,13 +1,13 @@
 ---
 id: health-check
 title: "Health check"
-description: "Returns the health status of the API and its components"
+description: "Returns 200 if the service is up, with status of each dependency in the body"
 sidebar_label: "Health check"
 hide_title: true
 hide_table_of_contents: true
-api: eJztVVFv0zAQ/iuWn9ekG0Ka+lamAQPEJjrEw7qHq3NtvLm28TkdJcp/3zkJXboyCYk3xFOSs7/Pd99959SyQFJB+6idlRP5BWMVLIlYoigRTCwFRYgVCbdsg9OrCwG2EDqSUG7tnUUbSR7JgMQfhCQntTwZj9Njn3tqzADS028ZqpyNHEoI8N5oBQmR31GC1ZJUiWtIbz44jyHq7pDB8QlZFDrBwFzt7drHrJEIVniYnPMdWPQ7xNIFUdk+yf1S49Yzg6QYtF3J5kh2Eh2SzmWPn0vBdHO5I5zLQ55mF3GLO1QxMe/zaVvojS4qGAjZ6yh/A34pLbfBANyMbn0iDtIscBWgwOLPsmxS7PX41eFBlxYT4doFHHZ+p8L/3v8DvU9BWPFRN/J9l87tEWsdS1fwxhVG5vHA4YnMd/kSBk4kgWpZBcNrZYx+kufGKTClozg5HZ8e5+B1vjnmgobb6OV9t4laVUHH7SxZp+v8G4SAYVqlJJ4L8uHbtejWRXT3aDPx1oU1xCRNH6/bhaZVRCcMl1Fg4C8L66RGYnZB/2y9+yQbJ/URt61s2i5d51sbQbV277EzDKoEcTmbMXC/xpWOZbXIuN25qii6QsPIwIJyajEjxXOVa6KKqzzwy1XQG1Db0dIxFgvBdsHggyYUxGWpMl3lmeiPP0sjyuPCDkMSy8qYUcQfsb3qiSfQRq1+4UAFRyS2rgpsRWvZCMxfQARBHFNIGZfCo4z8OxhUOvXALREn2XivUi704eEhg3Y1c2GV91DKP12cnX+enY8YkpVxbVKVUUcz0K1NnCthymSorvZjPoK3erYHpz5IoTOo4IPUvXymWP10F/3Fb7BvfRIv9wbYLk1fbN1PwU0/cWlMkoFTpK4XQPg1mKZJ4e8Vhi3H+XUDQcMiVXxzy0y989LY3LO1WFSl0KcR24CpOtM9u0Wb4Ti+O79mPz4CHU3HqQ==
+api: eJytVMFy0zAQ/ZUdnRM77amTW2EKFBjokDIcmh420sZW60hCkhOMJ//OynZTp6EzHMgl9mrf27frt2qFoiC9dlFbI+biG8XamwDnsxnoNcSSIJDfakmgA9RuAjsdSwgRYx3AroFQlqDIkVFkZAPadKCVVY2YCE/BWRMoiHkrmDP9HRdcjNl78hFbX4eJpDWRTEx4dK7SEhM+fwiJpBVBlrTB9OS8deSj7ktKu+H6DOzeUCmdYFjdHGUdYzYUAhZ0KtW6HgxDBqyth9qUhFUsGxjVmojYOGYQIXptCrGfiKGTE9KlGPBLAUy3FAfCpTjl2R8idvVAMibmYz5tlN5qVbPMgyDoGcVfwK/JslvyWFXDB5jDiUxFhUdF6t9Uph8HseBSd+JDL+d+wrOOpVWcWFBkHoccnov8oDd5j3wCtaL2FZ+VMbp5nldWYlXaEOcXs4uzHJ3Ot2fc0DgtvJ53n6hl7XVsFsk6/Zd/Q+jJX9ZJxMuBfPxxC/05RPtIJoN31m8wptEM8bY72HcT0QnDbSjy/GZwk6aRmK3XvzvvPo+NRX2iphubNmvb+9ZElJ3dByzviSwRvi4WDDzuseClqVcZf+48dFlTG8LTo7Sech1CzS2emOXG6y3KZrq2sg6kgL1C3nkd0tYj4+Hy5jqDofZbpgLeFbYXBVjXVTWN9CsCGsXpGzRRyyccSs8ioLG1Zx8awy5gfoURIXBMUsi4D95j4tth1Oal4/uE4DybHbXJXe52uwy708z6Ih+gIf98/fbqy+JqypCsjJsqdRl1rEZD64RzJ0yZ3NT3fsYlONWxN1j6SELvTuBC8lG8mFj7fBH976tyMEOaaO4qZAPthwm0w17cDTuYFidZOkXadoWBvvtqv0/hnzX5huP8uEWvcZXGcHfPTIMX0yI9stl40lKSS0u3xarubfjiXt2PF/T91S079A89LCOu
 sidebar_class_name: "get api-method"
-info_path: core/api_reference/sercha-core-api
+info_path: api//sercha-core-api
 custom_edit_url: null
 ---
 
@@ -36,7 +36,7 @@ import Heading from "@theme/Heading";
 
 
 
-Returns the health status of the API and its components
+Returns 200 if the service is up, with status of each dependency in the body
 
 <ParamsDetails
   parameters={undefined}
@@ -54,7 +54,7 @@ Returns the health status of the API and its components
 <StatusCodes
   id={undefined}
   label={undefined}
-  responses={{"200":{"description":"All components healthy","content":{"application/json":{"schema":{"properties":{"components":{"additionalProperties":{"properties":{"message":{"description":"optional message for unhealthy components","type":"string"},"status":{"description":"\"healthy\" or \"unhealthy\"","type":"string"}},"type":"object"},"description":"individual component health","type":"object"},"status":{"description":"overall status: \"healthy\" or \"degraded\"","type":"string"}},"type":"object"}}}},"503":{"description":"One or more components unhealthy","content":{"application/json":{"schema":{"properties":{"components":{"additionalProperties":{"properties":{"message":{"description":"optional message for unhealthy components","type":"string"},"status":{"description":"\"healthy\" or \"unhealthy\"","type":"string"}},"type":"object"},"description":"individual component health","type":"object"},"status":{"description":"overall status: \"healthy\" or \"degraded\"","type":"string"}},"type":"object"}}}}}}
+  responses={{"200":{"description":"Service is up with dependency status","content":{"application/json":{"schema":{"properties":{"components":{"additionalProperties":{"properties":{"message":{"description":"optional message for unhealthy components","type":"string"},"status":{"description":"\"healthy\" or \"unhealthy\"","type":"string"}},"type":"object"},"description":"individual component health","type":"object"},"status":{"description":"overall status: \"healthy\" or \"degraded\"","type":"string"}},"type":"object"}}}}}}
 >
   
 </StatusCodes>
