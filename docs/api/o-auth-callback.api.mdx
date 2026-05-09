@@ -1,13 +1,13 @@
 ---
 id: o-auth-callback
 title: "OAuth callback"
-description: "Handle the OAuth callback from an external provider. This endpoint is called by the provider after the user authorizes the application. It exchanges the authorization code for tokens and creates a connector installation."
+description: "Handle the OAuth callback from an external provider. This endpoint is called by the provider after the user authorizes the application. It exchanges the authorization code for tokens and creates a connector installation, then redirects to the UI."
 sidebar_label: "OAuth callback"
 hide_title: true
 hide_table_of_contents: true
-api: eJzdV21v2zYQ/iuEPm1AbCXtBhT+5qRpm74liD0M2BoYNEVbbCRRJakkruH/3ucoypYcJUuzTxtQNNbx3nl3z3EdJdIKo0qndBGNone8SDLJXCrZ+bhyKRM8y+ZcXLOF0TnjBZN3TpqCZ6w0+kYl0gzZNFWWySIptSocw28Skgmbr7yihpHxBUQ9qbL0Cf3aqO/Sehovy0wJTo4M2ZmDIZHyYtmcBmZ/zoROJFtoKNPXsrDwK2HCSO7AzXFaFFI4HKvCOvhSK40OopIbnkt4YaPR3+u92Mc9Jijoxn/IK+L7VkmzwkcBVfgkRnxZkcqcR6N15FYl0a0zqlhGm83BvqGJg6Ns64sP5GRy+YYsOThOXP22LEni08hvlTIyiUbOVPKnjJ8aA3M+OrXYS+uCK9zbA7YlCf5coLWtFu05JmdtnY+Zv6K82FIXVlo6f3F4SH+6Lp1/gA4UiJOFo9NW1cVfLbGsWya6spdBeyhkWwkhrV1UWeiVTmRUbUaX0jhVu9OuRW85y84Xvgy7fFwIXRVuppKeIA8iMjJD3aTan8uiyqEk0kR/AaO8VLNrSUmcc6sEZUyaGyXkLCj2beAiZKur+yC6G5C2gdB5jux4ZyiuT97YxXgK3gu0jqbuH/vY2ZT6j9wKsq2EUYtF0Lr91y97tZW94Ybu3cvt7PrUUmA70vji7IOPcEc6DrHuKJM66vE26G4oV/C5nhjJjLveTD9wARm3boYB9qBcXbw9B/6OZvKuVCjyPoZm0szqk93tLpVLqzmCwI+M04+5cvNKXEuKzGYY0PibKCu0oWbKrZM8t9RJOhQjan6RVbIQND+WWi8zOUu0IJ6vynD8yVQhuWmdGnVDzAnKc67v8EsXsiHal/jvO4a+tNe+e9ERKJxHyqp9vRch0ClY3yr3zse2R/zI94nHrZjb9EmIv017vc1Fm/ppMg15aVM/NzlqE0/a+eq45rPzuk5d++B9ncY26WOT0h4FIZEdp7eZblPPi17mycs9wl/b22hTz7Y3gwHd3I2efwXORDQyuyPurDWkCMkJekObdMAUwy/PuVkNqWxxqZYv5f2B+ak+aBCUsDmtcl4MoDHhcywaBGiVZUEDQbS843mZkZOT7XzNVg2mww2nWV0yjFumAfOY3tF+1fXEuiHab32YcFbc8Ewl3hnJgFi5shZaWID2Z8IFxhTzCMYaWLqHCTWm0o9t1Co4QxAvrWNznayeHN7vfeH5Obtdp3aI+18Ji4h86eeGBwOaMQ0ARksZAC3FR+wnbNzsrAH7mm2vMhl4UufKURxnKJss1daNXh2+OoqBmvHNUUQrzI7NPsx3RapFZZRbTShPddzHaHZpvI/30vb+zymrz+uldcjeaJNzN2Jfghxb+4PNl6hZh1K0id87wz403lswQq7gFOEhJUoVC0226W658HcbZIGHKAB2PplAsBtjjS5DDIlYVNbpRPEBUMbG1stgITAyRkvg4qjdu3FdYDRxsRostCBQxDsA86Y0CmuSRVgiZSiYIQvmT6BqNw6otQcOLwq/wFuUW+GUaOS4MBprwkpXptX+CXecWdAwG4YetYSkGtxFOi45roS9GB52IkWgt7e3Q+5Ph9os4yBq449nJ6efJ6cDiAxTl2cUpQPStvLmHUckUEkFVcd+BBME2ygPuN5yoft2ivZytt613v/9wRUqlO44LjOu/K7o72QdmjasrjSPmnShuajj6Gy9xhYr/zDZZkPk+n3gn27KEoBgBCx4ZuUjGX7Cs67XS1qit687DK+KWPyEeLrtXy7DQ+1X9rRH3yOeNG+/Z7rypHffI+ab59+/Mv+0p+A/ebH3Itx5dEUfRpFLKBJa8cMEpYqpFdDbo3QtqXvQt2nDy9vTKebqD5bPBD4=
+api: eJzlVU1v2zgQ/SsET1sgkZL2UuiWBunWu8W2iBP0kAYFTY0sIjKpkpSzXsP/vW8oKbXdNHW7x54kcr7eG87HWpYUtDdtNM7KQr5RtmxIxJrEu7Mu1kKrppkpfScq7xZCWUH/RvJWNaL1bmlK8pm4qk0QZMvWGRsF/tmISjFbJUejolAVTNNVF/gI/86b/yikO9W2jdGKgWRiEhFI18rOR+mgnORCu5JE5eDM3ZENwFUK7UlFaCtIrSUdITY2RGBJRkfsxwpPpfGQwq1Lnq8nmTySrfJqQcAXZHGz3svK2SPBOR0jM9gb1vvckV/hYOEKR1bEKeiaFkoWaxlXLd+H6I2dy83maD/QNIKCeMCSKJ5PL19zpAjQrPV4rMCWOHr63IFfKYvoO/qp4BfeI1xiZ6q9hFfK4EW/E5vY8OeI9rG27n4l5Kdtn0+Fv+W8hNbZQIHlL06e82cX0uVQGFwX1xPhGE2u3aJtKL3JnMS9QUf0bMFJRjXnapGpUySC4NFqh9TLOcVUU7guZD64GjqJkZJfjpXW+QY6dYxtkeeNg1btQixenrw8zVVr8uWp5PR9VQvf17tl17rzJq6mnIye7StSnnzC+A3pvz5ciV7et1ImXju/ULEQHwc7sU6CzUc5PkVNqq/54S12ugPXQ/YB6m9apUQZWzmOjcaMSkf+HWyn5NHl4t10CsNdjnMku5tleIE8JK1jF8L4q52n3ITQgSIC7JJ6781S6dVx5TQGTYnRhF5qvQkkAjjpWpy9n2RiiH0OV2MnB1F1TXMcMeTSTAkoKBuNHu2U9gAhVq7z45SB/1JFJQLuNAWeJRhjGEq0RfOsVXgP8Tw72aEJlvf395lK0sz5eT6Yhvzt5Pzin+nFMUyyOi4aZhlNbLaSloCDCVxyNfXcTxECqi1qA9C3IOyOc7mXs/5tkKjfeQcMhcuvn7eNQrFvhtdaD718I1MvQ/chkeg5bkSWrdczFejaN5sNX/cjK20TE9SMh1lRqSbQE7k/YNM8ivIOnfawcJaq6VglDY7DY/9xOeyOZ+KwPfQEknEd/SKUg1bRE+HHjfS/wh+2nX6EYm9JfUV0ywdvGBKK5HaztT7+vLjC3PwC6otatA==
 sidebar_class_name: "get api-method"
-info_path: core/api_reference/sercha-core-api
+info_path: api//sercha-core-api
 custom_edit_url: null
 ---
 
@@ -36,7 +36,7 @@ import Heading from "@theme/Heading";
 
 
 
-Handle the OAuth callback from an external provider. This endpoint is called by the provider after the user authorizes the application. It exchanges the authorization code for tokens and creates a connector installation.
+Handle the OAuth callback from an external provider. This endpoint is called by the provider after the user authorizes the application. It exchanges the authorization code for tokens and creates a connector installation, then redirects to the UI.
 
 <Heading
   id={"request"}
@@ -62,7 +62,7 @@ Handle the OAuth callback from an external provider. This endpoint is called by 
 <StatusCodes
   id={undefined}
   label={undefined}
-  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"description":"Response after successful OAuth authorization","properties":{"installation":{"allOf":[{"properties":{"account_id":{"type":"string"},"auth_method":{"enum":["oauth2","api_key","basic","service_account","pat"],"type":"string","x-enum-comments":{"AuthMethodPAT":"Personal Access Token"},"x-enum-descriptions":["","","","","Personal Access Token"],"x-enum-varnames":["AuthMethodOAuth2","AuthMethodAPIKey","AuthMethodBasic","AuthMethodServiceAccount","AuthMethodPAT"]},"created_at":{"type":"string"},"id":{"type":"string"},"last_used_at":{"type":"string"},"name":{"type":"string"},"oauth_expiry":{"type":"string"},"provider_type":{"enum":["github","gitlab","bitbucket","slack","discord","msteams","notion","confluence","google_docs","jira","linear","google_drive","dropbox","onedrive","s3","zendesk","intercom"],"type":"string","x-enum-varnames":["ProviderTypeGitHub","ProviderTypeGitLab","ProviderTypeBitbucket","ProviderTypeSlack","ProviderTypeDiscord","ProviderTypeMSTeams","ProviderTypeNotion","ProviderTypeConfluence","ProviderTypeGoogleDocs","ProviderTypeJira","ProviderTypeLinear","ProviderTypeGoogleDrive","ProviderTypeDropbox","ProviderTypeOneDrive","ProviderTypeS3","ProviderTypeZendesk","ProviderTypeIntercom"]}},"type":"object"}],"description":"Installation is the created installation summary."},"message":{"description":"Message provides a human-readable status message.","example":"Successfully connected to GitHub as octocat","type":"string"}},"type":"object"}}}},"400":{"description":"Invalid state or missing code","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Token exchange failed","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+  responses={{"302":{"description":"Redirect to UI oauth/complete page with error"}}}
 >
   
 </StatusCodes>
