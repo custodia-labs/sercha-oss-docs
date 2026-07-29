@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Sercha Documentation',
-  tagline: 'Self-hosted search across all your team\'s tools',
+  tagline: 'Query your documents like a database',
   favicon: 'img/favicon.svg',
 
   future: {
@@ -70,7 +70,23 @@ const config: Config = {
         showLastUpdateTime: true,
       },
     ],
-    // OpenAPI docs generator
+    // SerchaQL — the query language reference and playground
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'serchaql',
+        path: 'docs/serchaql',
+        routeBasePath: 'serchaql',
+        sidebarPath: require.resolve('./sidebars-serchaql.js'),
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+      },
+    ],
+    // OpenAPI docs generator.
+    // Regenerate the source spec from sercha-enterprise with:
+    //   swag init -g cmd/sercha-enterprise/main.go -o docs --parseDependency --parseInternal
+    //   cp docs/swagger.yaml ../sercha-oss-docs/openapi/enterprise.yaml
+    // then `npx docusaurus gen-api-docs all` here.
     [
       'docusaurus-plugin-openapi-docs',
       {
@@ -78,7 +94,7 @@ const config: Config = {
         docsPluginId: 'api',
         config: {
           sercha: {
-            specPath: './openapi/swagger.yaml',
+            specPath: './openapi/enterprise.yaml',
             outputDir: 'docs/api',
             sidebarOptions: {
               groupPathsBy: 'tag',
@@ -123,7 +139,12 @@ const config: Config = {
           position: 'left',
         },
         {
-          to: '/api/sercha-core-api',
+          to: '/serchaql/intro',
+          label: 'SerchaQL',
+          position: 'left',
+        },
+        {
+          to: '/api/sercha-enterprise-api',
           label: 'API Reference',
           position: 'left',
         },
@@ -154,7 +175,8 @@ const config: Config = {
           items: [
             {label: 'Quickstart', to: '/docs/quickstart'},
             {label: 'Configuration', to: '/docs/configuration'},
-            {label: 'API Reference', to: '/api/sercha-core-api'},
+            {label: 'SerchaQL', to: '/serchaql/intro'},
+            {label: 'API Reference', to: '/api/sercha-enterprise-api'},
           ],
         },
         {

@@ -1,0 +1,71 @@
+---
+id: remove-member-from-group
+title: "Remove member from group"
+description: "Removes a user from the group."
+sidebar_label: "Remove member from group"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVdtuGzcQ/ZXBPrWArHWKFAj0JltqqtZVXF+QArGBULtjL2MuuSW5SlRhgX5Ev7Bf0jPcVeRLkhZ564vEJWeGM2cOz2yzkkPhdRO1s9kkO+ParTmQojawpxvvaooV0613bTPORlmjvKo5sg/Z5M32kfdLsaLFDHZavhsVK6wtPPClS6w9/95qz2U2ib7lURaKimuVTbZZ3DRiFaLX9jbrutHj6JeS0eeCS7rp7L9fcC3GoXE2cJDz7w6fy9/DS5eOjp2NbGPWjbLnnzaJ9INrrZRXDLYwUk1jdKHEKH8XxHJ7L5mHIaanC2LvnaddRgK1dw37qPvs0nFafFB1YxKgdq2MLklK5hBp5coN/J4Audtxq3dcoI5O9r4/PHyaxwLZe6sMnbNfA+15uvT/U5ZsqluhZs/FkKHJoGvlwAckZ8DcRGJQZ5LlidUh3+qyy2uuV2B1vu2Z1MEsJBB6orfewKOKsZnkuXGFMpULcfLi8MWzXDU6Xz/LhLF7s/B5u2sJXbRex825INcjccTKs5+2ktpjIH96fUH9OUV3x3YMwvlaxQldDX60TQfdVbZ7HxWrkv3+hUhk5/UfqXV7PJHUz7xJeGp74+Ru6bYqUrcHX9ChqBScHtYX0va45LU8jocpX4hqQEu85ZIao+INMqYVWwb4pMEnY/QtSEWlK9paFmBGwSGgveMre2VnXBiUBi3q+UUSjTau9R9dAr3XiNan9+vJiPhD9EiddNxrl+fGBR1RO4TtkbsyHjBtyOg1I6kRKVsSaOc3g2toTcTpnaRRqqhWKvCY5muxEFfSAQTF40eVq94pVp75wKgNsgXTa42SnKXagX/0959/UeF80wZoqrJxtPsa+Ffppk8CngcfkZkenwyeNWrBVans6XKWTG+UNgeFkYPe9z2ohfcKriDrSoXqAPBoK8cRrwyRea1LCazaElAZ1yP+9vTV+QUNPM0TDG+lQKlK2mKY4ITKG4cGEjpKnJDYNYBCVJFTynfalhOazdCU2bH8/IKf8x9fvcZyfn58tjiaj2j+2+nJdLFMSZ9dLulosZwtli9l0EBkWARjT8JTCAd6GJXffIGJ+c5RtEBHs6cvzUXdECIwQZkQQ153z9Zn40NxALixVvbepf1AHLrTcyqpRvaI79u9Rv77EB2eXgRbczwNPNduKGg7aNObrNcmGE/S3BzoId/DqIOKiLSI7XYrtLz0putkOzUO+1iulddqJSDIsNZB1pDCG2UCf6GCb86GKfot3Zvpn0x7JyNWmgLhbuULyzuISpr5aZB/zc37ef8VFw8gddewHJRQIOgPp0XBTbzn9mSodffnxmx+Mr+YQyL/AbEvKDo=
+sidebar_class_name: "delete api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Remove member from group"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/groups/{id}/members/{userID}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Removes a user from the group.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Group ID","in":"path","name":"id","required":true,"schema":{"type":"string"}},{"description":"User ID","in":"path","name":"userID","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"204":{"description":"No Content"},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

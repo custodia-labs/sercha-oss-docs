@@ -1,0 +1,81 @@
+---
+id: execute-a-sercha-ql-statement
+title: "Execute a SerchaQL statement"
+description: "The single entry point for every SerchaQL statement kind — DDL, DCL, DML, SHOW, DESCRIBE, EXPLAIN and RUN BINDING."
+sidebar_label: "Execute a SerchaQL statement"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Execute a SerchaQL statement"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/query"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+The single entry point for every SerchaQL statement kind — DDL, DCL, DML, SHOW, DESCRIBE, EXPLAIN and RUN BINDING.
+
+Send text as `{"serchaql": "..."}`, or a pre-compiled JSON IR tree as `{"ir": {...}}` (mutually exclusive).
+Multiple semicolon-separated statements execute in order and are **not** wrapped in a transaction.
+
+SELECT is available to any authenticated caller and is bounded by the three-layer permission model
+(corpus grant → corpus membership → per-document ACL), AND-composed and fail-closed.
+DDL, DCL, SHOW and RUN BINDING require an admin caller and return 403 otherwise.
+
+Set `explain=true` to compile and return the plan without executing it.
+A query joining an external plugin table may return 202 with a cost estimate; re-submit with `"confirm": true` to proceed.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Return the compiled plan instead of executing","in":"query","name":"explain","schema":{"type":"boolean"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"confirm":{"description":"Acknowledges a prior 202 plugin cost estimate and proceeds with live calls.","type":"boolean"},"ir":{"description":"A JSON IR operator tree — the compiled form. Mutually exclusive with serchaql.","type":"object"},"serchaql":{"description":"A SerchaQL text statement, or a semicolon-separated script.","example":"SELECT title FROM agreements.Contract LIMIT 10","type":"string"}},"type":"object"}}},"description":"SerchaQL text or JSON IR","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"context":{"allOf":[{"properties":{"corpus_id":{"type":"string"},"ontology_version":{"type":"string"},"pipeline_config_hash":{"type":"string"}},"type":"object"}],"description":"Resolved corpus/ontology context; present on successful SELECTs only."},"rows":{"description":"One object per result row; the columns depend on the statement.","items":{"additionalProperties":true,"type":"object"},"type":"array"},"stats":{"allOf":[{"properties":{"op_stats":{"description":"OpStats holds per-operator timing and row-count data, in execution order.\nEach entry corresponds to one operator node in the plan tree.","items":{"properties":{"elapsed_ns":{"description":"ElapsedNs is the wall-clock time spent in this operator in nanoseconds.","type":"integer"},"operator_kind":{"description":"OperatorKind is the operator type string, e.g. \"CorpusScan\", \"EntityScan\".","type":"string"},"rows_in":{"description":"RowsIn is the number of rows fed into this operator.","type":"integer"},"rows_out":{"description":"RowsOut is the number of rows emitted by this operator after filtering\nand projection.","type":"integer"}},"type":"object"},"type":"array"},"row_count":{"description":"RowCount is the number of rows in the result set.","type":"integer"}},"type":"object"}],"description":"Per-operator runtime stats (rows in/out, elapsed_ns) — always populated."}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

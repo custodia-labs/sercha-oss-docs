@@ -1,0 +1,71 @@
+---
+id: get-run-staging-delta
+title: "Get run staging delta"
+description: "Returns aggregate counts of nodes and edges currently in the staging tables for the run identified by id. Staging rows exist only while the run is still in progress (before seal) or for failed runs whose staging has not yet been swept. For sealed or already-swept runs all counts are zero — this is not an error. Returns 404 if the run itself does not exist."
+sidebar_label: "Get run staging delta"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVttuGzcQ/RVinxJAluzWBQK9yZabqkkdx7KRArHhULsjLWMuuSW5chRBQD+iX9gv6RlyZUm2E7QoUCBAXyQu58KZ4fCcWWYF+dypOihrsn52TqFxxgs5mzmayUAit40JXtipMBa6QppCUDHDKm+cIxP0QigjQknCBzlTZiaCnGjIp9bFbdcYoQpoqqmiQkygX3TFuFV29s4L+qR8ENbA112pNG3sPLwqrfmI2lkE5b14NiH4xnkk9XOBU/ikqYRdwUYePqzfhFNKj9iDWFAQEyIj/B3VoSt+hBW7gBVWUjuSxWIvCpMbiXPb9CWO+0zOij9//wPBISyVnEojyDnrumJdusP9Q6GmmwyCJz0VhaVkEFPtZp2slk5WFMj5rP9++fAeYDkaQkvxVy1DibWBPr5UgbWj3xrlqMj6wTXUyXxeUiWz/jILi5q1fHBIPlutrlnZ19Z48iz/bn+f/3bPe/MKPnNrAq6JpbKutcolS3sfPasst47ATdTkgkoOuRtuYp22jldwNSOXrTpb8pvJ4ibJcUJRKHYv9dmOt8f27Y6dfKQ88AY34tcO3Mj5wJmTdfkvT8RF3qDsT1T3kfKK9w73Dx7X+NLIJpTWqc9U/JNq73oZnI1Sx4n1rXIv7V4Ii+Pik6xqnZKbS63wPNA2hKc2scUi6/ztbA4fx8Edyv08RZ2/rXR+eOoBjBC9Q2sAEdycXIrpG0vr+8dx3KMs1darYN0iodYcaMko/Q1liE1P4BwVFhEwjwig7AZ4Uvi8ZphDroyl3Jo+wzfQtbR4tdmMQgRcVs16jO29pSpWvZYhMvbMt56QuHEaamUIdb/X0zaXGnQS+i/2Xxz0ZK168wNAwraa/7Le9SboMRcyFWY79Id1/fndhUhyEewtmchTlQx9cdXaiWUUrK6yNT+UYC5yG4YYtDgTb3JTXgT1ihaxvMpMLZ/Nly/zePmt7ZhcXkoY7ebn43a3oDnj4W7IF6C6mUX9DKi01jKAjytQrSFUXDCuaq1m6DGwYN5UvECj5KByFL97Za7MkHLNFCtFajfB3sTCNu7eBKyu4C2F9/Z1B0QaHEIHwYqps1Ui3HWbowMfmrcEL7SaE4LqxEkGXYgnkUx9owOktxxGITHESE9dcTJnDTZlyp8w2qUhho1C6Yj2tFwgWjR+pZCSNaICAek4KuTW1Y0X4CATOuuviqoJmq1UdQoClnv3lRkcv24tK+SCo2Lag9NhVOUpZy/XLEi2d2gtPF/0CqLGpFPuoTzKsDjg0cEzzePwJWQD+hPapop/OHszvhBtn/ZiGT5wgnGOw7VgBoMRMq8tLjBOWBQrsb4AHq8CxZBvlSn6YjjEpQyP+ecX/Ix/evMOy5Px8fno6KQjTn49ez0Yncagzy9PxdHodDg6fcmTEDCHGD82TcgEjTsM0i2+0om9tSHjhQp6077ihOEcLjAGAqjgg1936taD7j4boLihkmbr0JcU5777uRF3GPgh7DT7coOX/w/L/92w3CJYwKPvAWGAequ2L5Ytrr/nIc1DtR/n4zW0A4AZlVm+XPKLvnR6teLt2PNMHWgO6VRkwziIK89r8MZUak9fuf9n5+0Q/lzcz+tPBrrGX8PdDAJs+AvLW6BxnOdX19BqUZxjSIJBnqO8WyaP+Hm1zXIvTy6gK1tW2WA+O+usF+z9yXAeckYKgX+Z7J40WS4To6Cea/0k+qLFPVG1mXMGYPa/AFUZFPk=
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get run staging delta"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/runs/{id}/staging"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns aggregate counts of nodes and edges currently in the staging tables for the run identified by id. Staging rows exist only while the run is still in progress (before seal) or for failed runs whose staging has not yet been swept. For sealed or already-swept runs all counts are zero — this is not an error. Returns 404 if the run itself does not exist.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Run ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"edge_count":{"type":"integer"},"edge_count_by_type":{"additionalProperties":{"type":"integer"},"type":"object"},"node_count":{"type":"integer"},"node_count_by_graph":{"additionalProperties":{"type":"integer"},"type":"object"},"run_id":{"type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Run not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Staging repository not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

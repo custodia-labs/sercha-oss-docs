@@ -17,11 +17,12 @@ function HomepageHeader() {
           className={styles.heroLogo}
         />
         <Heading as="h1" className={styles.heroTitle}>
-          Search everything your team uses.
+          Query your documents like a database.
         </Heading>
         <p className={styles.heroSubtitle}>
-          Self-hosted unified search across GitHub, Google Drive, Notion, and more.
-          Connect your data sources, index content, and search from one API.
+          Declare a schema over your documents with SerchaQL, extract it from
+          where they already live, and query the result — governed, in your own
+          cloud.
         </p>
       </div>
     </header>
@@ -43,8 +44,14 @@ const quickLinks: QuickLinkItem[] = [
     icon: '>>',
   },
   {
+    title: 'SerchaQL',
+    to: '/serchaql/intro',
+    description: 'The query language: declare a schema, extract it, query the result.',
+    icon: '$_',
+  },
+  {
     title: 'API Reference',
-    to: '/api/sercha-core-api',
+    to: '/api/sercha-enterprise-api',
     description: 'Full REST API documentation with interactive examples.',
     icon: '{}',
   },
@@ -93,12 +100,12 @@ const valueProps: ValuePropItem[] = [
     description: 'Your data stays on your infrastructure. Deploy with Docker Compose and keep full control over your search index.',
   },
   {
-    title: 'Unified Search',
-    description: 'Connect GitHub, Google Drive, Notion, and more. Search across all your team\'s data sources from a single API.',
+    title: 'Your Schema',
+    description: 'Declare the entities and relationships that matter to you, then query them across every document. Not someone else\'s fixed shape.',
   },
   {
-    title: 'Built for Developers',
-    description: 'REST API with OpenAPI spec, OAuth2 connectors, and a plugin architecture for adding new data sources.',
+    title: 'Governed by Default',
+    description: 'Every query is bounded by corpus grants and per-document ACLs carried in from the source, composed fail-closed and fully audited.',
   },
 ];
 
@@ -144,8 +151,8 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title="Sercha - Self-hosted unified search"
-      description="Self-hosted search across all your team's tools. Connect GitHub, Google Drive, Notion, and more.">
+      title="Sercha — Query your documents like a database"
+      description="Declare a schema over your documents with SerchaQL, extract it from where they already live, and query the result — governed, in your own cloud.">
       <HomepageHeader />
       <main>
         <QuickLinks />

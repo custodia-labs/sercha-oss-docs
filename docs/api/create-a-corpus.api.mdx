@@ -1,0 +1,71 @@
+---
+id: create-a-corpus
+title: "Create a corpus"
+description: "Creates a new corpus bound to a source and one or more container IDs."
+sidebar_label: "Create a corpus"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVV19v2zYQ/yoHPm2AYifDBhTekxN7nbcsTeMUHeAEKS1dLDYUqZGUU9cIsA+xT7hPsjtKsh3HDrp0L/ODLZF35P353e/OS5GhT50qg7JG9MSJQxnQgwSD95BaV1YeprYyGQRLq95WLkWQ9G4NgnVQWIckaIJUBh2MBr4jEuHwjwp9OLbZQvSWgvfRBH6UZalVKvm+7kfPly6FT3MsJD+VzpbogkIf1XI6ND6pgIXfI/DMvpEF8m9YlPQrfHDKzMRDwmJzlaG7cXi7U6BeeLKx2hF2+hHTsBYV0jm54Pc6Rjcqe6H+Kph0xGPn91i5Vt3vr6SYcMxvNM5Rb8goyswM3S7TeGkLHjUgMrxVJh7XpFo5JG+Dq/CBF3xpja8z8N3hEf/sQlkmkhcD4+UhWqn6HXat9hK4z9FAactKs6lJC3EPIUcgF62eYwbjmOuVHjh776/MLdUFhdktgHyjb2VgJUIFAt/QAh/jKV1UQ4TDbzswJoM1wuvhJawieGWUSXWVIajwI2jlw3oPbKECrQPfVsqFtjIDrz4j19+eepBVyK1THjexObVWozQxOFqqYt/mTkAnosAgMxlilmSWRVhIfb557y7UPwdVitru8vmCwvXoiBVu/MKkmN3IsFvomRL9qtpPa2Tvu3fPhV9Ttomoymz/nbuqmta+Pzx8Cv9jAtBFTdz/pjQfH9I/HwE6R5hskSqSLRTG7fjwSRalrt2ZS60yaPoGtRxqHMkXOvPDLmdGZL0jIMIYHZUiDOOl/x+3eFHO6OBJw7p0yXWsttwSikRpY5ZKGXJ666atTKyAeaS3yVJUjkAj8hDKXrerbSp1Tnq9V4evjrqyVN35ESFoU8zvl7vmo9PKqbAYc5Rqr4+R6tX1KzZjO2i/vL+Eep+mhzs0HfjJukKGHlw1erCMGw9XgkmLdXKUVN6iLQrRrynrs2zaTVtxpfoVFzF2nLqL9bwxbKO/nh8mq0lh0s4EbfC3GWW9vpWk60essbm81Ywm7d518vSu7Xo+ZFKgfrFqamlYzy1iHLmM9B7np6a4ToZz8aRDX1JbmVnKv6HuVFLvou5QwBQN8VIOzBpaqxkVAGQ2rQp+oACk6D1Z2LkyV2aA1AVopqNhL9YC8GmwIN9XKh7uFZ1Wm/f2NAH8FByZHruRs0XTIwmiKlDuqFdtqUtNPJktqKPNqbWZJA6UlEHqlU17rXSg3Ts2g5vLVHrswDD2VFYF1Yyl5OW0Vgq5QzzQckHWUlUWilyyhubTDDX8/edf7TQ7c9KEpH0rsJhSseSqrI0gzYNVZPonp41mQb7QVdHt/tkgit5KpQ9SzRu17j2VBnFLPSnn0ucHEXW8HQiTdDIy0uhgWVGfBG3riH84fzO+hKbOujEMH9jBOCLUU0E9R5SWEgjr6aJNAPhAHSCafKdM1oPBgJIyOOGv3+hr/POb9/Q4HJ9cjI6HCQx/Pz/tj86i0RfvzuB4dDYYnb3mwYEIEZnc1iDkTk45DNItnkFit1Vk3lJBr+ELQ2bikqcOIBalM5idarQedQ5jmyOuKaTZuLSeECmMdZrEFsw3/lH8Z39ZmnoPhOUuFY6KM090d9mw7ESkG0zMBMlryyWD853TDw+8HNNH6/Q4l07JKYdick1nNczGHHRH1FWPm+TDwSXfzOK6qqltqy0xQ9ca/TTFMjwru9kjGFckPG3+hXEp0KqT9zy203ePWdfGmEYuj2tLoaWZVXLGsvWZ/PkHb3HzPQ==
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a corpus"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/corpuses"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new corpus bound to a source and one or more container IDs.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"chains":{"items":{"properties":{"chain":{"items":{"properties":{"name":{"type":"string"},"provider_ref":{"type":"string"},"type":{"type":"string"}},"type":"object"},"type":"array"},"source_id":{"type":"string"}},"type":"object"},"type":"array"},"container_ids":{"items":{"type":"string"},"type":"array"},"name":{"type":"string"},"partition_level":{"type":"integer"}},"type":"object"}}},"description":"Corpus definition","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"201":{"description":"Created","content":{"application/json":{"schema":{"properties":{"container_ids":{"items":{"type":"string"},"type":"array"},"containers":{"description":"Containers, when populated, contains the resolved SourceContainer rows\nfor every entry in ContainerIDs (in the same order). Single GET responses\ninclude it; list responses omit it for payload size.","items":{"properties":{"authorised":{"type":"boolean"},"claimed":{"type":"boolean"},"id":{"type":"string"},"metadata":{"additionalProperties":{},"type":"object"},"name":{"type":"string"},"parent_id":{"type":"string"},"provider_ref":{"type":"string"},"sercha_synced_at":{"type":"string"},"source_id":{"type":"string"},"type":{"type":"string"}},"type":"object"},"type":"array"},"created_at":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"},"partition_level":{"type":"integer"},"updated_at":{"type":"string"}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

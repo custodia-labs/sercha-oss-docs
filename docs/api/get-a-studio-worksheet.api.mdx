@@ -1,0 +1,72 @@
+---
+id: get-a-studio-worksheet
+title: "Get a studio worksheet"
+description: "Returns a worksheet by ID. Returns 404 if the sheet does not"
+sidebar_label: "Get a studio worksheet"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVttuGzcQ/ZXBPrWALNmFCwR6UyI1VZM6ruUgBeIgoXZHWsZccktyZauCgH5Ev7Bf0jPclS3fUrQPBfIicTkXzvXMbLKCQ+51HbWz2TA749h4G0jRlfOXoWSONF/TdNynHen48Jj0gmLJ1NILx4GsixeWr3WI5DzN2Ti7DBQdNBV6sWDPNlIT2PezXlYrryqO7EM2fL+5Z8IsKZ2Owaflu1axxNlCAl+6wNnzb432XGTD6BvuZSEvuVLZcJPFdS1cIXptl9l2+0GYQ+1s4CD07w4P5e/ui29eQWfubISNQlV1bXSuhDr4HIRls/dE7V3NPupW4Z7Yvbc7ldfxUaGFXn4sVSifEPR1Ez7C1y9Q24A8Qserzrjl+in5G/o/a1ghRboNwP3I9nY3bv6Z85gM86wiFx9VfBjjxuprqkJ2I6YRmyV7kVs4U+D0mCVPuPCk5U1d/AcTHjqzlbvjw6OHWt5a1cTSef07F/+mbO5qGZ1Oib1Hq+zKU9riTpEkcjpcq6o2rcErZXRBUv+MTpu7Yn3rztOp6bw5fmjHiYv0g2vs1+XK94918RTWe6sMzdijbmmSHv163JJLtRREzGaxKbTLAF5AydKhB7IlxwScwMJhNgiJYZDwNww2utiCGJLfLaQ23oCvjLEeDgbG5cqULsThs8NnRwNV68HqCN2yzxae5vsgqvPG67ieSbBa55+z8uxHTSwfxu6nd+fU0jEBLtn2UWO+UnFIF50cbRJhe5HtYL5kJSBwA/SjrstStm5DCKNe8TqFUNuF20GwylOCO1lUQF4qCN31L6TrfsErgYq7Jp9jnC0d4me5oNqouIDFmGMWkFaSIIUxeilDrHB5U8kBxZBzCMho/8Je2DHnBq5h4LUlRaKN1q7xNyKBrjS0teb98rpHmA4eppOOtPCuSkPVc+2CjvAdY/WeuDKA2GJNRq8YRvVI2YJQaX7diYbGRFAvxQwgoZqrwH2arIRDREkH1CT6HV7OW6FYeuYDo9awFsVd6SCQT5Ur2NBff/xJ7byhpVc29nZfFVdzFFup69YISB7cRGb04nUnWcEXPJXcHp2ME+tCaXOQGyG0slcoLbRouy3IUDxAeLQVckRjQTOvdCGKFcoe/rk24p9O38zOqavTQQrDJ3EwrSZIi2GCEDyvHRJIyChxisQuARQipkUy+VLbYkjjMZIyfiE/P+Nn9uObdzhOZi/Ops8nPZr8evp6ND1JRp+9PaHn05Px9OSlrDTAFRaMuC3CU2AFchiVX3+hEgc7QWl/Hc1t+dJEAA0qAhPACDpupnF21D8UAQQ3VsruPfoSqxMKMMHD7QqX3av2vbXlf9r4uu6VdWiA7kLHb7uYbDpQe5+1VguQJVjDYYjxD/QRSBKGzUbK+a03261cp4TjHseV8lrNJXiyTuogZ6DmQpnAX/D9m7NukfyW9rbOR23dwY+VZALjG/nC8RJglLbS7QdwdSAmVrSEUZ5zHfdEHoyg7T7Kv5ycA9r+BvtrBbk=
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a studio worksheet"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/studio/sheets/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a worksheet by ID. Returns 404 if the sheet does not
+exist or belongs to a different user.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Sheet ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"content":{"type":"string"},"context":{"properties":{"config_hash":{"type":"string"},"corpus_id":{"type":"string"},"corpus_name":{"type":"string"},"ontology_id":{"type":"string"},"ontology_name":{"type":"string"},"ontology_version":{"type":"string"}},"type":"object"},"created_at":{"description":"unix ms","type":"integer"},"folder":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"},"updated_at":{"description":"unix ms","type":"integer"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

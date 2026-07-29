@@ -1,0 +1,74 @@
+---
+id: cancel-a-run
+title: "Cancel a run"
+description: "Cancels an in-flight pipeline run: stops its invocation loop and"
+sidebar_label: "Cancel a run"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVttuGzcQ/ZXBPrWALnaRAoHeZMtt1biK4wtSIDIQanekZcwltyRXiSoI6Ef0C/slPbO7uli2A/QxQB8sk8uZ4ZnbGa6TjEPqdRm1s8kgOVc2ZRNIWdK2Ozd6kUcqdclGWyZf2QGF6MpAOuLPLl2qRJOMcyWUsqktlH8IFPNamuZKG87os445KUpr66ZRYe+d79HQeFbZqhuiWjD0rQOiPmcLBgoPKxwV7s5o7jxlWi2sC1GnoUcT18Wler67TAeyLk5tWnnPNpoV8RdOq6jtAlghBoHSu5RDIBjDTjWXU2RfaKtML+kkpfKqYHwJyeDD+ig+17hmPIKUll2pYo61hTx2OsPa8x+V9pwlg+gr7iQhzblQyWCdxFUpUiF64Ek2m3sRDqWzgYOc/3ByIv8e3/f2DWymzkb4I6eqLI1uYt7/FERkfXCFyjItR8pceVeyj7oxfXR1Z/vBzT5xGoFlg2+vTk6f3n9nVRVz5/WfnP0XJI+tDK/GTbpp67HE+RHE+rhefFFFaep42qUyOiMJKYdIM5etks6TOL7kzaunOCR7qBCUUmW/LXd+fK44xkDvkWwK7JfsG0zfkFv4GNCfXsdV3WpnjIb3QxQctvfSIOAE6UJJXEiwR1/mLpPOAwnUvSqySR/dH/prnW36DcUkYlli0vRw5Q2k8hjLQb9vwFkmh/7g9cnr074qdX95iqY4FAsvy93vQd9IIJvAHEI/juuv72+pOafoHtj26CfnCxUHNG31aF0fbKbJllly0BL7PbcM2y6sM7kPL0C94VUdXm3nTu6W5Ku0Tn6re8M+zRWUHvsX6s+9jJfCCI8h34JRFw7xE+ItQdgg34JmbBkBB5dGsLheoMYoc2lVyKIlVmS7N7VTO+LUCH0rasqNxBqtXOV3KqEZCw28d5cdsHX0gI7ZQnPviobXGanWEb5jHhypb9nb6CUDVEcGEKEK/apVDZWJOH0QGJmKaqYC9+hiKRKiKiNgJlwAL2eNUsw9c9eoFdCWMhXgEoZVgalk6J+//qbU+bIKtPDKxs52V3AxQ7HlumxAQLO7i8zw/LLVLODLdhoOJ6NaVCZkNzVy0Oh+RmmhfVErQJ2rkHcRHpmAHYpoOljmpc7EsKpA9xi9TcQ/Xr29uaW2Tvt1GD6Kg+KVpMUwQQmelw4JrMcp15HYJgCTXUWuIT9omw1oNEJSRufy8xt+bn55+x7Li5vz6/HZRYcufr+6HI4nNejruwmdjSej8eRnmaHgHBb+2BehDCTkMCq/+kol9reKwhc6mn350oWQHUwEJhAVbEh3N9V62jsRBeGEQtmDS5vXDMIIfkiOany9p8n/Xz07QonowT4aHiS0adO0bln2QyIsC9FB/dBpiRZ0KBwpx+u19NedN5uNfK4rUIgcqVJeq5lkUx5UOsgaLD5XJvBX0vLddfuY+p52765ncW7Z0EptYRxVssPyAdxYv8s295BqOVUwNAfDNOUyHqg8mZabw5kj/QVh1ZL8noLFWme7EPPP4jmm8AaD/MrseVZlvW4IHgHdyjdHL2rs5kbruriAQfsvl+QnIg==
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Cancel a run"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/runs/{id}/cancel"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Cancels an in-flight pipeline run: stops its invocation loop and
+marks the run failed with a cancellation error. Already-staged
+nodes/edges are retained for diagnostics. No-op if the run is not
+currently executing in this process or is already terminal.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Run ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Run not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

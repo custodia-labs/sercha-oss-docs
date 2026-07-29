@@ -1,0 +1,71 @@
+---
+id: get-a-binding
+title: "Get a binding"
+description: "Returns a binding by its composite key."
+sidebar_label: "Get a binding"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVt1u2zYUfpUDXW2AYydDBxS+c2Iv85o5WZKiA5qgpaUTiw1FaiTlVjMM7CH2hHuSfUeSa8dNiqV3u7Epnh+en+875CrJOKRel1E7mwyTS46Vt4EUzbXNtF3QvCYdA6WuKF3Qkeme637SS0rlVcGRfUiGb1d7bk6cL6tA0zEUtWyUKuZYW5jgK23EjdTzH5X2nCXD6CvuJSHNuVDJcJXEuhTdED3CSNbr3v4h5zY64xb1k8e4TuGZB92KciidDRxE/sPhofztHf4KPlOcwDaKVJWl0akS6eBDEJXVzhGldyX7qFuHbfrvdPbI6XDqWUXO3qn4qHiT1FPmVZk9bQ55t+PmHziN2JG9F4cvvsxw5iL95CqbPSfRhy5GF1Ni752nTUEFOA9q0YibxSdVlEZC03apjM5IOsYh0txlddL7j6n8+FizpojeW2Xoiv2SPU2aQ/8/acmmWgjRkuOWliEBSkG/3AEFyYJjw0iAf5gMOuaGwWrDs/VgteXCGqqhqUPL3MobWOUxlsPBwLhUmdyFOHx5+PJooEo9WB4lwr2tWnha71Zcp5XXsb6S4rXFOGbl2Y8qCW+/lr+8uaZWTtHds+0Dc75QcUg3nR2tGsH6JtmwPGeVsd/yXDw7r/9surctKYJ6xXVTUm3vXMs8G1XaNLyzBSLSXMHoYX6h2e5nvBROPQz5OmdaONTPckalUfEOEdOcLXibkwakjNEL4Ioyl1aFLACOlENAV/o39saOOTVIDVO2hRiJN6pd5T+bBPqo4a0N77ezHvGn6BE6hjHdeVdQRBSem5mM3DnsmyuDOZLVZPSSEVSPlM0IyPN1ZxoqEyG9lzAwMtRcBe7TZCkaYko6AKPgP7Kct0Yx98wHRtWIFmAvNFJylgqXsaF//vqbWsDRwisbe5uvgos5wJbrsg0ClgefKzM6Oess5X7BUU3ao9m4Ub1T2hykRgSt7UdAC5QFVhB1rkJ+gPJoK+IIosEzL3UmjlWVoVSAfFPx9xfnV9fU4XTQlOG9JChZSVsME4yQeenQQEJHiZtKbBpAIWKsNiHfg19DGo/RlPGJ/PyKn6ufz99gObk6uZweT3o0+f3ibDSdNUFfvp7R8XQ2ns5O5ebEnGGZGVsQXmB2oIdR+forSBxsDGUc6Gi28KWJDDi4CEwYTvAh7G7RetQ/FAMUNxbK7hx6ynF7zSd7IF9tZ+Mz3gQd8SKwOgAxQNZ1l86qm05vk810gvpw5x0w3LmsMUVktIj2aiWwfO3Nei3bTeOwj+VSea3mUgR5fegga8zCO2UCfyWZ7y67d8D3tPtIeTTyzRyx0hUM70q+sES2u4+Y5mXyLQE8fMB8Qwg7NVvfQrsbjFKRVmGUplzGHdMvrrn17j1yOrnGuPwX/BF8dw==
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a binding"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/bindings/{corpusID}/{ontologyID}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a binding by its composite key.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Corpus ID","in":"path","name":"corpusID","required":true,"schema":{"type":"string"}},{"description":"Ontology ID","in":"path","name":"ontologyID","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"corpus_id":{"type":"string"},"created_at":{"type":"string"},"ontology_id":{"type":"string"},"updated_at":{"type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

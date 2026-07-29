@@ -1,0 +1,71 @@
+---
+id: get-a-grant
+title: "Get a grant"
+description: "Returns a grant by its primary key."
+sidebar_label: "Get a grant"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVttuGzcQ/ZXBPrWALMlFCgR6ky3VVePKruUgBWIjoXbHWsZccktylWwXAvoR/cJ8Sc7sSrF8iZE+9kXici6cy5lDNknGIfW6jNrZZJRccKy8DaRo5ZWNtKxJx0Cl14XyNd1y3U96Sam8KjiyD8nobfPAxUlrOJtAT8t3qWKOtYUFvnSGtee/Ku05S0bRV9xLQppzoZJRk8S6FK0QvbarZLO5FuVQOhs4iPyn4VD+7p949go+U2cj2yhSVZZGp0qkgw9BVJq9I0rvSvZRdw5V2jl5dHQvaSvA2TsVnxUv6yfFSPSpbbf8wGl897z0Vtun5aF61nwn/oY9NLY73TnYkb0XwxePazp3kX5xlc3+S2nvuxifz4i9d552LRTo3Kt+K24Xn1RRmhYgdq2MzkgwwgEIdFmd9L4zlZ+fgscM0XurDC3Yr9nTtD30/5OWbKqVjFo3WyHBVGD8cocmJyuO7URiyEbJoAVlGDQ622A3tAl3Q1p5A4U8xnI0GBiXKpO7EEcvhy8PB6rUg/UhELSvFr6tdy2u08rrWC+kSl3WR6w8+3ElkTws2m9vLqmTU3S3bPsAly9UHNHV1o6aVrC5SnbEkbPK2N9Rh3h2Xv/dtumudgjqFddt7bS9cXK2dBaDLcutLVqf5gpG9/ML7XY/47WMz/2QL3OmlUP9LGdUGhVvEDEt2TJqTRrYMUavACDKXFoVsgAKUg4Brexf2Ss74dQgNZBphyUSb1S7yn81CfRRw1sX3h+nPeJP0SN0sC7deFdQRBSeSxd0RO4cHpor41GmmoxeM4LqkbIZAWIg6840VCZCeithZCqqpQrcp+laNMSUdAAYMejIctkZxdwzHxhVI1qgutBIyVkqXMaGPv/zL6XOl1Xoroje7qvgYgmw5brsgoDlwdfKjI9Pt5YFcsFRbdrj+aRVvVHaHKRGBJ3tR0ALswmsIOpchfwA5dFWxBETBc+81pk4VlWGUhnXVfz9+dnikrY4HbRleC8JSlbSFsMEI2ReOjSQ0FHithK7BlCIKnIbspDoiCYTNGVyLD+/42fx69kbLKeL44vZ0bRH0z/PT8ezeRv0xes5Hc3mk9n8RC5JEAoLOdyB8BwkgR5G3KTPIHGwM5S519HcwZemwmRwEZjAQvAh092h9bA/FAMUNxbK7h16wnF3mycPIN7cUeB3XvzbkYtA6QAjgTHdbBNpthT0trsXA5RHuKXAFEIfst80Ar3X3mw2st02B/tYrpXXaimJymNCB1mD2m6UCfxMyD9cbJ8RP9Lem+PJEHdUYaXwIOJKvrBEWt2bZHMNrS3hSBSdYJymXMY9k0f3xGafik+ml6ChLzVWOO8=
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a grant"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/grants/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a grant by its primary key.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Grant ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"action":{"type":"string"},"granted_at":{"type":"string"},"granted_by":{"type":"string"},"id":{"type":"string"},"object_id":{"type":"string"},"object_kind":{"type":"string"},"subject_id":{"type":"string"},"subject_kind":{"type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

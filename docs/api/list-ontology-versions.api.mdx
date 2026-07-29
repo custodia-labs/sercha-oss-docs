@@ -1,0 +1,71 @@
+---
+id: list-ontology-versions
+title: "List ontology versions"
+description: "Returns all frozen OntologyVersions for an ontology, newest-first."
+sidebar_label: "List ontology versions"
+hide_title: true
+hide_table_of_contents: true
+api: eJy9VttuGzcQ/ZXBPiWApLVbFAj0JltqqsaVHctuCsSGM9odaRlzyQ3JlbsRBPQj8oX5ks7sri6WnRQFir5IFOfCMzOHh1pFKfnEqSIoa6J+dEmhdMYDag1zZz+TgXMTrLaL6ndynp08zK0DNGDb/Q4YeiAfunPlfOhFnahAhzkF9o/671cHJ2zSwQsyQYUKEqs1JWJ9CeMhhytxKzBkvDaciH+plNeOPpXKURr1gyupE/kkoxyj/ioKVSFePjhlFtF6fSvOvmCw5MX+w9GRfB0AecM5E66CcYgVi0KrBMUaf/Tisto7QgXK61yFswW5oJrMTY/uMDwDo7OxzqpnrVzUc9ubvt59w75s5nBnynxGbs9FcSkL3lmzU7tlZx+5tdFuA53Dij3E56fnujLmJM6ghik5PglGzln3bxqFaarEhPriUaee1HEAsYX041NIgkQlBNcGl6g0zjT9T4BkExfC4g1tJZbZxezOLI8nWlCoCc9k7Udxw+jujtE+Xql0Hbcj8+zq67Y2F6N0mqOyEIp+HGuboM6sD/1XR6+OYyxUvDxmWPtu/tt+t5I6KR2fP5XSmxpPCB25QSnwDtv667sraOwQ7D2ZHvxsXY6hDzdtHKxqw/om2tzKjDAlt7uXktk69bnufbRjWaHeUFUTUZm5lbNlXJjU42pjeaxJhhz0uD5fb/dSWspMHkO+yggWlvtnKIVCY2ApymFGhngAIPzXWi14CpDapMxlwdc1Ie95xL0bc2OGlGguDRAagoBkg8qWbhvi4UFxtgbe27MO0J/BMXRQQSQxh8AoHBXWq8C1kz8MR+24TRVotSQG1WGxTOFTSa5qQ32pA1vvBUaKAWfoqQejpXhIKCgPM1ualKucNUEhc0RdjRWjZQ7nyguhILcpafj61xdWUVeUHhYOTehsfuUkEuEzVTQgOLK77czg9KyNzLkWPqouezAZ1q5zvmndRIuhiX1gavGFY64w6gx91uX2KCPmgLlkpqVKJTGWfOGAL0vd8Q8X59MraHka1234IAVKVTIWTcBBXHlheYD140J1JzYDAB+QxVcy3yuT9mE45KEMT+XjN/6Y/nL+jpej6enl+GTUgdEfF2eD8aQGfXk9gZPxZDievJaHiVWC+E3YI6FIAs8woKu+w8R4EyiCoILe0RdGopecwhMMLsbRVp7Z47h3JAHc3JCj2Tv0TPmwfT5hTxwesX21k7j/5lluL2dgPsd8efhCr9uSV62CvY+eKhgH9uvnd4uTpUb0R9xXK+HutdPrtWzX0+V9Xi7RqVqp638AysuaBXOO2tN3Cn1x2T7yL+Gf/yg8W9BGgowMdIm6lF+8vGdBqv9IrG/ZqxUyAdcYBklCRdgLefKorPd1//XoiuXtb2F2OoE=
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List ontology versions"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/entity-collections/{id}/versions"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns all frozen OntologyVersions for an ontology, newest-first.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Ontology (entity collection) ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"items":{"properties":{"frozen_at":{"type":"string"},"frozen_by":{"type":"string"},"id":{"type":"string"},"ontology_id":{"type":"string"},"version_number":{"type":"integer"}},"type":"object"},"type":"array"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"503":{"description":"Service Unavailable","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

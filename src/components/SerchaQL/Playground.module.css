@@ -1,0 +1,197 @@
+/**
+ * Playground — Studio-flavoured query block.
+ * SerchaQL token colours live in src/css/custom.css so the dark-theme
+ * overrides win reliably (CSS-module :global blocks do not).
+ */
+
+.wrap {
+  margin: 1.5rem 0;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ifm-background-surface-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.run {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--serchaql-keyword);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.run:hover {
+  opacity: 0.9;
+}
+
+.run:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.run svg {
+  width: 12px;
+  height: 12px;
+}
+
+.ghost {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.ghost:hover {
+  border-color: var(--serchaql-keyword);
+  color: var(--serchaql-keyword);
+}
+
+.badge {
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-700);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.editor {
+  position: relative;
+}
+
+.pre,
+.textarea {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  background: transparent;
+  overflow-x: auto;
+}
+
+.pre {
+  white-space: pre;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: vertical;
+  color: var(--ifm-font-color-base);
+  background: var(--ifm-color-emphasis-100);
+}
+
+.code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.line {
+  min-height: 1.65em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.editedNote {
+  margin: 0;
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  color: var(--ifm-color-warning-dark);
+  background: var(--ifm-color-warning-contrast-background);
+}
+
+.results {
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.stats {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.35rem 1rem;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-600);
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.note {
+  margin-left: auto;
+  font-style: italic;
+}
+
+.grid {
+  max-height: 20rem;
+  overflow: auto;
+}
+
+.grid table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  display: table;
+}
+
+.grid th,
+.grid td {
+  padding: 0.35rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  white-space: nowrap;
+}
+
+.grid th {
+  position: sticky;
+  top: 0;
+  background: var(--ifm-background-surface-color);
+  font-weight: 600;
+}
+
+.sysCol {
+  font-family: var(--ifm-font-family-monospace);
+  color: var(--serchaql-system);
+  font-size: 0.72rem;
+}
+
+.caption {
+  margin: 0;
+  padding: 0.55rem 1rem;
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-700);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+@media (max-width: 600px) {
+  .pre,
+  .textarea {
+    font-size: 0.74rem;
+  }
+}

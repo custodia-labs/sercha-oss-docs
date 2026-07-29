@@ -1,0 +1,71 @@
+---
+id: register-plugin-from-manifest-url
+title: "Register plugin from manifest URL"
+description: "Fetches a plugin manifest from the given URL, validates it, and registers the described provider and all its operations in one step. Returns 422 when the manifest is invalid, 409 when the provider name already exists, 501 when the manifest fetcher is not wired, and 502 when the manifest URL cannot be reached."
+sidebar_label: "Register plugin from manifest URL"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Register plugin from manifest URL"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/plugins/from-manifest"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Fetches a plugin manifest from the given URL, validates it, and registers the described provider and all its operations in one step. Returns 422 when the manifest is invalid, 409 when the provider name already exists, 501 when the manifest fetcher is not wired, and 502 when the manifest URL cannot be reached.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"description":"Request to register a plugin provider from a remote manifest URL.","properties":{"connection_id":{"description":"ConnectionID is the optional auth connection reference to attach to the\nnewly registered provider. Pass empty for providers that require no auth.","type":"string"},"kind":{"description":"Kind selects the discovery path. Accepted values: \"\" (same as \"http\"),\n\"http\", \"mcp\". Any other value is rejected with ErrInvalidManifest.","type":"string"},"url":{"description":"URL is the absolute HTTP or HTTPS URL of the manifest or MCP server endpoint.\nFor kind=\"\" or \"http\": the service fetches GET {URL} to retrieve the plugin\nmanifest JSON.\nFor kind=\"mcp\": URL is the MCP server base URL; the MCPDiscoverer connects\nand performs tools/list discovery.","type":"string"}},"type":"object"}}},"description":"Manifest URL and optional connection ID","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"201":{"description":"Created","content":{"application/json":{"schema":{"properties":{"base_endpoint":{"type":"string"},"connection":{"properties":{"auth_method":{"type":"string"},"id":{"type":"string"},"last_test_status":{"type":"string"},"last_tested_at":{"type":"string"},"name":{"type":"string"}},"type":"object"},"connection_id":{"type":"string"},"created_at":{"type":"string"},"enabled":{"type":"boolean"},"id":{"type":"string"},"kind":{"type":"string"},"last_test_status":{"type":"string"},"last_tested_at":{"type":"string"},"name":{"type":"string"},"operations":{"items":{"properties":{"batch_max":{"type":"integer"},"cache_ttl_seconds":{"type":"integer"},"id":{"type":"string"},"name":{"type":"string"},"outputs":{"items":{"description":"One named, typed parameter or output column in a plugin operation.","properties":{"name":{"description":"Name is the column name (lowercase snake, max 63 chars).","type":"string"},"sample":{"description":"Sample is an optional representative value for the param, used to build\nthe sample invocation for provider tests. Must conform to Type when set."},"type":{"allOf":[{"enum":["TEXT","FLOAT","INTEGER","BOOLEAN"],"type":"string","x-enum-varnames":["ParamTypeText","ParamTypeFloat","ParamTypeInteger","ParamTypeBoolean"]}],"description":"Type is the scalar type (TEXT|FLOAT|INTEGER|BOOLEAN)."}},"type":"object"},"type":"array"},"params":{"items":{"description":"One named, typed parameter or output column in a plugin operation.","properties":{"name":{"description":"Name is the column name (lowercase snake, max 63 chars).","type":"string"},"sample":{"description":"Sample is an optional representative value for the param, used to build\nthe sample invocation for provider tests. Must conform to Type when set."},"type":{"allOf":[{"enum":["TEXT","FLOAT","INTEGER","BOOLEAN"],"type":"string","x-enum-varnames":["ParamTypeText","ParamTypeFloat","ParamTypeInteger","ParamTypeBoolean"]}],"description":"Type is the scalar type (TEXT|FLOAT|INTEGER|BOOLEAN)."}},"type":"object"},"type":"array"},"rate_limit_rpm":{"type":"integer"},"soft_call_limit":{"type":"integer"}},"type":"object"},"type":"array"},"revision":{"type":"integer"},"scopes":{"items":{"type":"string"},"type":"array"},"token_url":{"type":"string"},"updated_at":{"type":"string"}},"type":"object"}}}},"400":{"description":"Invalid JSON body","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden - admin only","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"409":{"description":"Provider name already exists","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"422":{"description":"Manifest validation failed","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"501":{"description":"Manifest fetcher not configured","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"502":{"description":"Failed to fetch manifest from URL","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

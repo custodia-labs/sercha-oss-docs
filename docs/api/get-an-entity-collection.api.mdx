@@ -1,0 +1,71 @@
+---
+id: get-an-entity-collection
+title: "Get an entity collection"
+description: "Returns a single entity collection by its ID."
+sidebar_label: "Get an entity collection"
+hide_title: true
+hide_table_of_contents: true
+api: eJy9Vt1u2zYUfpUDXW2AYydbBxS+c2Iv85o5WZygA5pgpaVjiw1FqiTlzjMM7CH2hHuSfUdSYid2C/SmNzbF88Pv/H3kOsk4pF6XUTub9JNrjpW3gRQFbReGiW3UcUWpM4ZTUaLZinQMNB52k05SKq8KjuxD0n+3fuHsbGs0HkJZy2apYo61hRm+dIa154+V9pwl/egr7iQhzblQSX+dxFUpWiF6oEk2m3tRDqWzgYPIfzg+lr/nx16+gc/U2QjsIlVlaXSqRNr7EERlvXNE6V3JPurGYepZRc7+VPHA8Z3nBx2QI5xD2w/aHhY0WTggqMrs8zggb3fc7AMSjB3Ze3X8aj8ZExfpZ1fZ7GtyorJMi0iZq2fZ2YN5CMZPh2oyxske/mjKfsmeRt47/w0h/bgPSZDolOnWqqXSRs0MfyNAsqkWMjHJpY3OuIXYorcxSblDpyQLjvVwYVT6Sa+ZwaPtDIbeWmcbaIQ6m83sVd5AOY+x7Pd6xqXK5C7E/uvj1yc9Vere8gRodtXC5/XuxXVaeRw7lYib0E5ZefaDSlC9zOavb2+okVN0D2y76DpfqNinu9aO1rVgc5c8UkHOKmO/JQPx7Lz+u0558pQ5gHrDq7rttZ27ekxRJZXWVWptUc00VzB6Hl+ot7sZL/fGN7nJmRYO+bOcUWlUnAMxzdiCAnLS6ANj9ALJp8ylVSELkEXKQaixe2fv7JBTg9CELeu+IPFGK1f5J5NAnzS8NfB+v+gQ/xU9oINDae5dQREoPJcu6IjYObw0VwaUlK3I6CUDVIeUzehjxX7VmobKREgfBAZIQ81U4C6NlqIhpqQDzYQBEOWsMYq5Zz4yagW0aN1CIySQdOEyNvTfP/+C7n1ZBVp4ZWPn8avgYoZmy3XZgIDl0VNmBmcXrWWBWHBUHfZgMqxV5xiwo9SIoLH9hNbCnKFXgDpXIT9CerQVcVSFeOalzsSxqjBnhBmpM/7+6nJ6Q22f9uo0vJcAJartjYXIS4cCEipKXGfisQAUIoi1hiys3KfhEEUZnsnPb/iZ/nL5FsvR9Ox6fDrq0OiPq4vBeFKDvr6d0Ol4MhxPzuXuAzkwLqKdJhQmQA2j8qsvdGLv0VB4QEezbV8aCU3CRWAaXI3hQ6a76daT7rEYILmxUHbn0HNGkuz+RZ3sXVdP3PbV13w7iRHN28OkYHo3bXzrlqXeJfssBcM+bkSQiTCM6KzX0p233mw2sl3XD/tYLpXXNQXXzwgdZA0mnCsT+AuBfHfdvh2+p5evjYOYHynFSoGWylTyheUDCKZ+jWzuodUSk0BpBIM05TLumOzdDZtd+j4f3YCu/gf41j+k
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get an entity collection"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/entity-collections/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a single entity collection by its ID.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Collection ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"created_at":{"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"kind":{"type":"string"},"name":{"type":"string"},"updated_at":{"type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"503":{"description":"Service Unavailable","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

@@ -1,0 +1,71 @@
+---
+id: create-or-update-a-graph
+title: "Create or update a graph"
+description: "Upserts the graph row identified by the path ID. Name and Mode are taken from the body; if Mode is omitted it defaults to 'open'. The graph row must exist before a pipeline run can write nodes or edges targeting it: the seal phase enforces the nodes_graph_id_fkey foreign key."
+sidebar_label: "Create or update a graph"
+hide_title: true
+hide_table_of_contents: true
+api: eJztV9tuGzcQ/RViX9oCuthFCwTqk2y5qZrEdn1BCsSGQ+2OtIy53C3Jla0KAvoR/cJ+Sc+Qu7rYcoD0LUBfJF5mhsMzwzOzyyQjl1pVeVWaZJBcV46sd8LnJGZWVrmw5YNQGRmvpooyMVmEvUr6XIxHPXEqCxLSZOJdmWFgSXh5T0ZMbVkEyUmZLX4SahoFlBNlobyHJeVFRlNZaz6uFDdJWZG5SXriaufsonZe0KPC74SmJQ6QolIVaWVI2NqIVBrxYJUnYXAC7FtB2QwDL+2MvDIzHDUIvjiSWlS5dCTIwFZK8aZB8S6ceaeyu+k9LQQfpWZGYNxLOkklLW7qybpk8GH5BLXXwdvxCHKK54wOxgYamKkMY0t/1MpSlgy8ramTuDSnQiaDZeIXFUs5b+FqslrdRmFy/gjQsURaGo8A8FBWlVap5HP7nxwfvtwyVVlgaL0ix7MCt9pzQOvX85M77Uo5+USpxwqW9t20kgtdyufXWvGCq0rjogffHxzw366JszfQ+49XSi1J5M6d9M/tHse9oecke8iRg5skfpBOTJVFDjUWOKTPcEGgnlkdj9hcSB4vJ5pEbRSCs3kSdq+pFnup9dk0ZAyZusAgZDnnE9lCOYdDAN7tUwud5LHLCt25tBwtTrqIPb+is2hiPT/fscUJtHuH8PIYcVtqJ3I8qjUy37g2mHjZHs8hvOCIkchqdkZglrneduLsmg8U0ICU14U0XdYIYGk5Ib0XoLrKXozkddx7MZJaIpBAODDSHuv7EhlrP+zLxrGZS62yQFNMHfGUEL4vyNJdm8PzsSBrYa19DRzwnUQO22HwKItKB5poPGkef/DoC+52uAdHI2ufl1b9SdlXdZsf90cK7GtA4KhQc7LRp6/oWlh0lOJJ+UUghCPCW7NDRAjT8Gq9nG0eumNWQMXJy4wrSu1DEWLhpB+S1PWXKlslbJXxiHWpthoCuffVoN/XZSp1Xjo/eHXw6rAvK9WfH+LxbYu5l+VuNw5fMogRlG23n2L66/srEfdR0dEF9MTPpS0kqu9NoyeWYWN1k7S1MgdXkN1Uy2GTsiGKG2jh1BtaBGg5shebCnnSBqeteBsSbUxuMTyqfltRZRpyppG5JJvmEjq70Liw3MtonjyrhaFPKQE9aFdUWnq0DAWaFEPcHClkpdZqhtQUWZnWBQ+QX+g5HLzp3ZgbM6JUy9DRxCwVbE0sytquVUCACtaie7+97aAV8hauc/u07rEsVaVTHrCBwZ+oS81svBBazcHSphOaNYBnF42qQweG3Xt2A7wrJ2iPeuJkzhKsyiQ8KWuTbbo/n1uirpYLeLspZIE1tfjnr79RbGxVOyZT4zvtrKBigjzNVRWdgGZ3jczw+G2jWeAuOCpce3g6CqJTqXQ31bwRdbnh81wYSniNhi7vAh50hNj2SAdYpnko0ULWGaDSZUT84/nZ5ZVoUrwfYPi4LvAIi+bO0OPmVYkAchMoKCDRBoDbAE/B5XtlsoEYjRCU0TH/vMPP5S9n7zE8uTy+GB+ddMTJ7+dvh+PT4PTF9ak4Gp+OxqevuWqBqohpZ5OE56AfxBCN6+IzmdhvFZlmlNeb9BUnzJEwgQYX/AYbTAwxWw97B6wAcD1K9NahsW/i2hdrMgAN/JI8yfetPvT/z4SXPhMatvJ4pX1QAhhu1QRy2bD3hySyN4QHKrR+zLy8vlzy07u2erXi5ZCcXBoQRWkV91Px00M5HqMqTKV29JkofXvRdOffia0vlL0utixrOPFQ4mqeYYhrxS+Y1S2kGq5mL+LGcTyre8XqG8VndZhrTtQYpilV/rOy23Xv/PoKspPmQ6jhdysf+NMDv8HHMlw9FKewtky0NLNazlg2muSyIZuStSko7FGnHfCl9qLwtCDFe/Av32qvynIZy9VqtZaPWy9qrKtgAzjDAK//BZ8Nbfw=
+sidebar_class_name: "put api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create or update a graph"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/graphs/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Upserts the graph row identified by the path ID. Name and Mode are taken from the body; if Mode is omitted it defaults to "open". The graph row must exist before a pipeline run can write nodes or edges targeting it: the seal phase enforces the nodes_graph_id_fkey foreign key.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Graph ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"mode":{"type":"string"},"name":{"type":"string"}},"type":"object"}}},"description":"Graph payload","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"created_at":{"description":"CreatedAt is when the graph was first created.","type":"string"},"id":{"description":"ID is the stable unique identifier.","type":"string"},"mode":{"allOf":[{"enum":["open","permissioned"],"type":"string","x-enum-varnames":["GraphModeOpen","GraphModePermissioned"]}],"description":"Mode controls how the graph's payload bytes are treated during reads."},"name":{"description":"Name is the human-readable label.","type":"string"},"updated_at":{"description":"UpdatedAt is when the graph was last modified.","type":"string"}},"type":"object"}}}},"400":{"description":"Invalid body or graph mode","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

@@ -1,5 +1,5 @@
 {
-  "name": "sercha-docs-temp",
+  "name": "sercha-oss-docs",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -24,8 +24,7 @@
     "docusaurus-theme-openapi-docs": "^4.5.1",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "yarn": "^1.22.22"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.9.2",

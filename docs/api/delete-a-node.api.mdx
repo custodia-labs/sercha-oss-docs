@@ -1,0 +1,71 @@
+---
+id: delete-a-node
+title: "Delete a node"
+description: "Deletes a node by ID. The Postgres cascade removes node_properties, node_lineage_refs, node_aliases, and any edges whose source or target is the node. Node search-index and embedding entries are also purged via the AfterDeleteNode observer (when ObservedGraphRepository is wired). Admin only."
+sidebar_label: "Delete a node"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVttuGzcQ/ZXBPiWALNltCgR6Uyw1Ves6ri9IgdhIqN2RlvEuuSW5crbCAv2IfmG/pGe4K8uRnaCvAfpgmUvODM/cznCTZOxTp6ugrUnGyZQLDuxJkbEZ06Kh+XRIlznTmfVh5XCUKp8qnDku7RrfIvi+crZiFzT7QbdRaMNqxe8dL7dbqtDKi4AyGf4a4mwF/bvceiZva5cyWUdBuRUH0p4CrhXNIZ0KGM/KpfmBNhl/ija4XHCWabMiNsFpge2YVOEtVTWMZLTWKlqZLAO7zrdoyi48uzU7enaXs6E33Wf22qkqP+fKeh2sawTDnXacPR/SJCu1IWuKZpgMkko5VcKY88n43WYvhvGG+RRiWj4rFXKsDRTwpTOsHf9Ri91kHFzNg8SnOZcqGW+S0FQi5eGOWSVteyPCvrIGgZPz7w5fyL/9Cym1JiAISTtIXhwePRa5MqoOuXX6TxYAW3HIqaoqdKpEbvTRi/DmAZ7PrUzO5sTOIUlbUBKL+9SLQjyOi0+qrIroslkj9RmJ1+wDLWzWQG/f1fsdu/jIKVxp2+jN949x/GjdQmcZm2/MlSdzl0mRB1ra2nxbqfnh8PAxjjnQO6MK6husu/TbcQubntPa6dDE1n4F0mE3QfPg80b6MaiVdH0SycIn2AET5BbNDOzCMJEfRD4ZCXv50UZnbSJ2JSIdY9SuwHkeQjUejQqbqgIsGMYvD18ejVSlR+sjtPJDMf9luZsd5AsJYxeWh8D3o/rz20vqzinYWzZDQkeVKozputejTTxor5MtjeUM0nc7Ipv0fBLzuAsuQP3CTQyuNksrd0vqVRpT3+teMIhcQelz/3zcHma8Fh77HLKMoBXmjTOg9apQYQnEtGBMmZCTRnEVhV6hwiizaV3KAmWSsvfI9fDaXJspp0WcD9QVG4k1ajB37lWE7mGtg/fbyYD4U3CAThr96WwZZ4nbzgcZOHvqqnAIU0OFXjNAdaMONYhZ0qn6ugg4vRUYmQpqgYk4pNlaJERVRs5CmABeLjqlkDvmg0I1QIuyLzVcsoZKlFZB//z1N7jfVbWnlVMmDLZfpQxH53NddSCgeXAfmcnxSa9ZwhdcFd2enE6j6FLp4iAt5KDTvUNpoXlRK0CdK58fIDyY7zgOaDlY5rXOxLCqM4SqsF3EP5y9ubikvk5HMQwftnNd0lJwHNwNVRYJBAOCLmIktgkgH1TgCPkWY39M0ymSMj2Wn1/xc/HTm7dYzi6Oz+evZgOa/X52MpmfRtDnV6f0an46nZ++lokNxmFhj10RnoFFkEM8N5qvVOJoqyhsoUOxK1+aCdXBBF4voCnYkO7uqvVoeCgKCG4olXlwafcG6Z9XyV6Rb3Ys+f9D7L89xHrWCWjUEVgBTNX2udz0JPwuiSQM2THeXuBKIVDZ3myk+a5c0bayHctTOB55VE6rhaRa3nbayxr0voRD/JWUPTvvn3XPafcEfBLgliuNVB5GVS1fWN6COeMTsb2BVM+4AqI7mKQpV+GByqNJ2j6cRtPZyexyBnHVD4EdRYu9wXYhFzyJaJ/iOxTyK7PpSZXNphsAbXsv3x19UeN+rvTOixMYw/8CQSlicQ==
+sidebar_class_name: "delete api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Delete a node"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/nodes/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Deletes a node by ID. The Postgres cascade removes node_properties, node_lineage_refs, node_aliases, and any edges whose source or target is the node. Node search-index and embedding entries are also purged via the AfterDeleteNode observer (when ObservedGraphRepository is wired). Admin only.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Node ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"204":{"description":"No content"},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Node not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

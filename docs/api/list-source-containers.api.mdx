@@ -1,0 +1,71 @@
+---
+id: list-source-containers
+title: "List source containers"
+description: "Returns every discovered container row for the source."
+sidebar_label: "List source containers"
+hide_title: true
+hide_table_of_contents: true
+api: eJydVttuGzcQ/ZXBPrWAbNkFCgR6ky01VeParuUgBWLDoXZHWsZcckty5SiCgH5Ev7Bf0jNcyZZsOUX7InF3LpzLmTO7zAoOudd11M5mveyKY+NtIJ6zX1ChQ+5w4oJyZ6PSlj1590BT5ymWTME1PufDrJPVyquKI/uQ9T4un3kdJzUaDaCo5UWtYomzhQmeWi9J6vmPRuO+rBd9w50s5CVXKusts7iok2702s6y1epWlEPtbOAg8h+OjuRv9+KLd/ApobONIlV1bXSuRNr9HERluXVF7V3NPurW4WPG6UlHrsJLJdXE0nkdJOLHGCfOGVY2W+Fuo3T1mlAXexLrZCijKlRMIami0BKtMpfb90JrbeYmnzmPYtYWc48/tAbp371yG/KZ64L9nefpXoXAPi/VXVjYnIs7FfcrpRa+dkf74mUP92SxfqG8V4t9Git59+O+Xo/QZY9C0Zg9MEtD753/L+3fdde/HBGLC9rALOs8a34Sp8MXVdVGwtR2rowuSHDMIdLEFYus8++Jt3lFNZPxWc9LyG4TGEqHqmYzjmnMMDi9rNvWO3SXm9lZdbfwmpo238xi4w1MyhjrXrdrXK5M6ULsvTl6c9xVte7Oj1H4bbXwut6tuM4br+NiLIVrC3HCgJjvNxLb8zr+8uGaWjlFd8/2kH5yvlKxRzdrO1omweom29BDyQqIfCKIfjtlX1PnnsqJoN5xixJtp+5xaPPU7LXtOMEXRrv5tag+LHguqNsN+RrMNhPesyC+2qgIuqtowpZRfdKAkzF6BkxR4fKmkgOAgXYEdPfwxt7YAWPwPZOiFl4k3miBXj2aBHrQ8NaG99tZh/hL9AiddKSpd1XiV8+1Czoidw7PzZXxKNOCjJ4zguqQsgUBdeDt1jQ0JkJ6L2EIn0xU4EMaJmYXU9IB+GxsgSwnrVEsPfOBUQtEC6BXGik5S5Ur2NDff/6FNeDrJtDMKxs7m6eKqwnAVuq6DQKWB4+V6Z+erS0r5IKrUtr980FSnSptDnIjgtb2AdDCuAIriLpUoTxAeYBqiCOGDJ5Z6AqOVQNqJOPain+6vBhf0xqn3VSGT5Jg2lJoi2GCETKvHRqYFli74zYNoBAVOF4832tb9GgwQFMGp/LzK37GP198wHE4Pr0anQw7NPz98qw/Ok9BX70/p5PR+WB0/lZ2ITiGhS+eQCjkjR5G5RffQGJ3YyhUoKN5gi8NhdxqWTQEYoIPme4WrceHR4nHMauVsluXnmkQUMsPtEMOO2hfPhHk/9/+64GMwHAXA6PTektpLteU9XG9IuT+3tbC3woM3CKEI7rLpYD1vTerlbxO7cR7HOfKazWR0shXhg5yBj1OlQn8jcy+u1p/WHxP2x8je+PesIuVXoHOG3nC8R5cs/WxsrqF7pqpJJhW3M9zruOW4Yuds9pm9bfDa/DXP9/LUEo=
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List source containers"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/sources/{sourceID}/containers"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns every discovered container row for the source.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Source ID","in":"path","name":"sourceID","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"containers":{"items":{"properties":{"authorised":{"type":"boolean"},"claimed":{"type":"boolean"},"id":{"type":"string"},"metadata":{"additionalProperties":{},"type":"object"},"name":{"type":"string"},"parent_id":{"type":"string"},"provider_ref":{"type":"string"},"sercha_synced_at":{"type":"string"},"source_id":{"type":"string"},"type":{"type":"string"}},"type":"object"},"type":"array"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

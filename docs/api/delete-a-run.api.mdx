@@ -1,0 +1,71 @@
+---
+id: delete-a-run
+title: "Delete a run"
+description: "Deletes the run row identified by id. Before deleting the run row the handler first deletes edges and nodes produced by this run via the graph repository (which fires AfterDeleteNode per node for index cleanup when ObservedGraphRepository is wired). The Postgres ON DELETE CASCADE then removes any remaining staging rows. Returns 404 when the run does not exist. Admin only."
+sidebar_label: "Delete a run"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVttuGzcQ/ZXBPiWALNmtCwR6ky01VeParu0gBWIDoXZHWsZcckty5aiCgH5Ev7Bf0jNcyZIvCdCnwkAftCKXM8Mzlz0zy6zgkHtdR+1s1s+GbDhyoFgy+caSd3ekC7ZRTzUXNFlg16UjnjrPVIiwtrMH0rIulS0Me5pqH2IrBptczPDEEVmHW6n2rmjy1mosdUgm5lolEzOv6pI81y7o6PyCXt2VOi/FJFQH08i+xXoKW1TjMjFKwEXaFvyFcsPKNjXdlWzpbBLYz7l4K1YvtkZx6R0MFq+7dIVLz12IM7F/dkrD0cnoakTHg8vjwXAkmOAfV26efFjIWmkr3oeoZvIP70OXLjg23gY63D9s794Ep3DQtC4Sf9EhdmlQVNqSs2bRzTpZrbyq4I4PWf/j8lFWLqA+HkJKy65WscTaQh47XWDt+fdG/Mj60TfcyUJeAl7WX2ZxUYtUiB4Qs9XqRoRD7WzgIOff7e/L38P7zt7BZu5sROLlVNW10bmS097nICLLnStUUWg5UubcO2Qi6tb0o6s7mxdu8pnzCCwrvDvcP3h6/3urmlg6r//g4t8geWhlcD4m9h4VsfFY4vwAYjpOiy+qqk2Kp50rowuSkDKqd+KKRdZ5EsevefP9Uxw/Oj/RBT6iF+bK4VMcUohSwlPX2JeVmR+eq/Mx0HvULSV28C2mF+bWMwUnWdphTkmYmitt1MTwC/IOLwPnjddxkTjxiJVnPwAzYHsjTAbiFboUh0OGPQi0dCDBrG05iVZFOuuBgENvqYtVJkYl2S3PNt7guIyx7vd6xuXKlOgB/Tf7bw56qta9+QGIa1csfF3uZov3UmLYxmQX9eOQ/vzhitpziu6WbZfAFZWKfbpe69EyHayusw37l6wK9lv+H6yZMiVxG1mAeseLFFltp07ulryrPOV9rXvJPi8VlB76F9LrbsFzYe2HkKVNztAEvUXjro2K6LgVTdgyIo3WG9kYPUN5od/lTSUL1EjOISDR3Wt7bYecG7hGitpKI7FGC9f4exXpyrDWwvv1pIOWGT2gkwb1eFe1PXVT4Si+x+rKeIRpQUbPGaA6aepAAfrFWjU0JuL0VmAUKqqJCtyl0VwkRFUmg4mQ3GY8Yfw8855RC6BFzVcaLjlLFcYOQ3//+RflztdNkMnFxs5mV3E1QbGVum5BQHPvPjKD45O1ZgVfcFVye3A6TKJTfLJ7uZGDVvcOpRVlonBAXapQ7iE82spxxPcGyzxPwxqpBi2ZjGsj/un87PKK1nXaS2H4JA6KV5IWwwQleF47JDDNUJwisUmAjDiRE+RbTFd9Gg6RlOGxPH7B4/Knsw9Yji6PL8ZHow6Nfjs/GYxPE+iL96d0ND4djk/fypwDumGhjm0RytCAHEblF9+oxN5GUahCR7MtXxoJi8NEYAJHwYZ83W21HnT3RQHBjZWyO5e2syPCCGLIHtX4csuQ/8/D/9U8vKaxiC+/B5oB9a3WxbFck/rHTEgdon2MwOBeIWR5u1zKx/zem9VKXqdyl4aBulBepx6YJmwdZI1uMVUm8Ddq4NXFerp+TfeD+LPwNtRrpZDR9hrZYXkLIk6D+uoGUmsCFwztwSDPuY47Kk+68mq3t7WJgLha95Qt44u9zmYhFzyL6HHHaFHIU1rdsyrLZdtPVqt7+fboqxr3bWrtvDiBlv4PAUMHjg==
+sidebar_class_name: "delete api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Delete a run"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/runs/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Deletes the run row identified by id. Before deleting the run row the handler first deletes edges and nodes produced by this run via the graph repository (which fires AfterDeleteNode per node for index cleanup when ObservedGraphRepository is wired). The Postgres ON DELETE CASCADE then removes any remaining staging rows. Returns 404 when the run does not exist. Admin only.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Run ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Run not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Run repository not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

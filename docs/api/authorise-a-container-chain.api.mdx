@@ -1,0 +1,71 @@
+---
+id: authorise-a-container-chain
+title: "Authorise a container chain"
+description: "Upserts every node in the chain (root → leaf) and flips authorised=true on the leaf. Ancestors are stored with authorised=false so the parent-id chain exists for the sync ancestor walk."
+sidebar_label: "Authorise a container chain"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVttuGzcQ/RVinxJAF7togUBAH2RLbdW4tmPZSAHbcKhdSsuYS25JrhxVENCnfkDRL8yX9Ayp9cqS7KZ9ix9kLjlDzuXMmVkmmXCplaWXRie95Kp0wnrHxFzYBdMmE0xq5nPB0pxj9coa49nnP/9iSvDpa8Z1xqZKlo7xyufGSiey772tBDNRjcQ6rK9T4byxELOC0Upk7EH6fFNtypXDoQl6JQS1b8ts/bD4JB3smhobjt1Cp3g83soeuLrvJK0ESrwQXliX9K6XW66NTWVTwUYDCEraKLnPsdZQwZcLx+HUit8qCQuTHnnSSlyai4InvWXiF2WQ9VbqWbJa3UZhWHFksgVJpEZ7GE5LXpZKppye7350ZMNy46rSmhKhlsIFNXKSFtKLwu2eRyN3DGiR2Fxmwt5ZMd0rEDd2Ta9PEjP5KFLfiCbcWr7YJ0FbT2N6DG9huLD74bETyxVtuNJoF9365uCA/j299Owt9P5nHBs4bfg8MQbmaHIxVVwWzx3KbG8EgSiecR9e41kmyRCuzjff3RfN51MWoH33zGv/mlAUKIJ9RxUgsjvu9wsFND/3xhdjIqT8231JOuIZu4jQ/y/ZenpJ/3zEhLWo4BoVSWsroeE4LD7xolRknNRzrkAM68pjEyq91hc6890+Z0aw3iKnbCwsiI8Nw6Nfj1u0yWdEemuWc8ltwG1uMiI6E5IU+K6XdCM2XHdZU96qm9Z17LqPFZQEqM1rMq2sgnLufdnrdpVJucpxbe/NwZvDLi9ld34IZG2KueflbunqtLLSL8YUwxiTI4HCsP2KrNwO6c/vL1k8Z97cC91hPxhbcN9jN2s9tgwHq5uk5vdccNRRw/D96NnvIYlNZGHUWxH5jhJ70fD5sM7NIz9fLx/bRczHdr02+1t5uyV+0VNT9wie+obXk3GoaWg9DV8s9U4m5skO9V6iC84M0qPRSkvFPVpjwSZCC6QZTdsLpeQM6GWZSauCFjAVeXewp3Ojb/RAgA3RjjmLQGZ0G1sAFI8qLjbpaN67kxbasLcwnUnPptYUoRdbAYBJ9GFge1udK4ssLJiSc5okWmFgQIAxXERVVymP03syg0h2wp3osGEYP0iVSYdKqHQGLydRyedWiLbiC1iLkiokXMK0UWBYUezzH3+z1Niycmxmufat+qsQxQRYzmUZjYBm+zEy/eOTtWYBX+rZpH86iAMOl6qdKjqIug9ALogBUITVOXd5O+CDjj0gg5sFYQIX8wr9gikTI/7h/Gx8ydZl0A1h+EAOhokGaVGCQQmelwYJDMNOHMTqBGB04hgQ6OZ7qbMeGwyQlMEx/fyCn/FPZ++xHI6PL0ZHwxYb/np+0h+dBqMvrk7Z0eh0MDr9kWYlsJkgZmpASB0NOfTcLl5AYrdWJNKRXjXwZUOi0ZK4g4ECcQeRR0TrYecgNDdQQcH1xqP9mm4QyfTpNJFsQX5juPrK59Q1N3hUUxelK8P0EQK+XLP09bqDO0j3NkbThqjx0VA1CJVYlvSWSyqhK6tWK9oOIMM+lnNuJZ9Qwmg2lo7WaA/BnRdC/epiPcK9Zpsj9F4fakrVhCC0s4q+sLwHwW6M2IEN1/RMxsTj4/hk+5IuadR3Oi+1majRT1NR+hdlN/sgVR+EJ+tRnQgDu5Y/0JyK32CqCSEIDSnsLRPF9aziM5KNd9LfP6oMoEI=
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Authorise a container chain"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/sources/{sourceID}/containers/authorise"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Upserts every node in the chain (root → leaf) and flips authorised=true on the leaf. Ancestors are stored with authorised=false so the parent-id chain exists for the sync ancestor walk.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Source ID","in":"path","name":"sourceID","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"chain":{"items":{"properties":{"name":{"type":"string"},"provider_ref":{"type":"string"},"type":{"type":"string"}},"type":"object"},"type":"array"}},"type":"object"}}},"description":"Container chain (root → leaf)","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"authorised":{"type":"boolean"},"claimed":{"type":"boolean"},"id":{"type":"string"},"metadata":{"additionalProperties":{},"type":"object"},"name":{"type":"string"},"parent_id":{"type":"string"},"provider_ref":{"type":"string"},"sercha_synced_at":{"type":"string"},"source_id":{"type":"string"},"type":{"type":"string"}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

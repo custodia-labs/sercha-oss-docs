@@ -1,0 +1,71 @@
+---
+id: list-grants
+title: "List grants"
+description: "Returns grants matching the supplied optional filter parameters."
+sidebar_label: "List grants"
+hide_title: true
+hide_table_of_contents: true
+api: eJytVt1OIzcUfpWjuWqlQKBSpVXugGRpuhQosNpKC9p1Zk4yXjzjqe3JbjaK1IfoE/ZJ+h3PkBAIPy3cJGMfn//vfPY8ydinTldB2zLpJWccald6mjhVBk+FCmmuywmFnMnXVWU0Z2TjaWVorE1gR5VyqmB8+e2kk6xWSe/j/I79t43GaAZroy+cBrrWZUY/1B671sGvrasfYUXL6T9rdjMsShjEslX5JCrY9WnOhUp68yTMqigPDrEmi0XnabfD/hNO9P92YVeJPeDDvjwP+0Qa9qVZqDRubba+FD5s+qqTOPaVLT17kf+0syN/6+5O3sFGasvAZRCpEoSlSqTdL16OzG+50IGLaKtytmIXdGO5DeZ+DJ0kwpizTyo8Kh7NNopRvE3bq9I+Io293SS/ha/HxA/o40S70/hJVhvKOTXDCTnz86ZiD5Grk7E9ZzdFkwfOWfdf6r9ubu90SCwm6KbPMvxrnYni+PFNFZWRKHU5VUZn0AGkfKCRzQRXT6bZ5BXURFglOYz0lABjYJrcolLJhEMkn5Bj0W34SwAac22oqHYGsjyEqtftGpsqk1sfem923ux2VaW7091EJmJ1zD987kpMp7XTYXYuBWoS3mfl2O3VEsTdev364YIaOQV7zeU2vbUOBNujy1aP5lGwuExuxi5nlbFbzZ1Ytk5/V+343bS+0u94Fsumy7EV39JUDIZ8trroeporKK3n5+P2dsZTwdJ6yBdg/YlF/UqwfmVUGCNiGnHJKDNpwMYYPQF2KLNpXcgHAJCy9+ji9mV5WfY5NUiNFDUwIrFGM1u7pYqnrxrWmvB+P+oQfwsOoZMONHa2iHeP48p6HZA7+7vqyjiUaUZGTxlBdUjhRomE1ar62gRIryWMTAU1Up63aTCVE6JK2gOHdZkhy1GjFHLHvGXUTK43doVGSrakwmZs6J+//qbUuqpu78nOzargYgSw5bpqgoDm1rIyewdHrWaBXOAqpr133I9Hx0qbrdSIoNH9CmhhLIEVRJ0rn2+hPLoUccAwwTJPdSaGVZ2hVMY2Ff98enJ+QS1Ou7EMnyXBeIOjLYYJSsi8smggoaPEsRI3DSAfFIhWLAsJ9ajfR1P6B/LzG37Ofzn5gM/B+cHZcH/QocEfp0d7w+MY9Nn7Y9ofHveHx4fyFACXsPDCCoSn4Af0MKh4mzyExO6Nooy8DmYFXxoIicGEZwIBwYZMd4PW3e0dUUBxQ6HKW06PNIhmyQhrEJ+v2O813j7tPAZAuIt5wQwv2iznLTV9TCZL7hJWkZ35XBD53pnFQrabuza+nbRXI8Ogt7Eynh+J/dnvqo0RXoM87j2vwNO1HI2c+JJI4hvlGX71q3hdf3094ta+brb2ecna18x1+Qx7xOHyzMrblSycFneA2RWOtveMYK7R2ktTrsItrXsvg8Xty/dwcIHb51+BQEF4
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List grants"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/grants"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns grants matching the supplied optional filter parameters.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Filter by subject kind (user or group)","in":"query","name":"subject_kind","schema":{"type":"string"}},{"description":"Filter by subject ID","in":"query","name":"subject_id","schema":{"type":"string"}},{"description":"Filter by object kind","in":"query","name":"object_kind","schema":{"type":"string"}},{"description":"Filter by object ID","in":"query","name":"object_id","schema":{"type":"string"}},{"description":"Filter by action","in":"query","name":"action","schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"items":{"properties":{"action":{"type":"string"},"granted_at":{"type":"string"},"granted_by":{"type":"string"},"id":{"type":"string"},"object_id":{"type":"string"},"object_kind":{"type":"string"},"subject_id":{"type":"string"},"subject_kind":{"type":"string"}},"type":"object"},"type":"array"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      
