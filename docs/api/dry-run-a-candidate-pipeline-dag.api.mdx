@@ -1,0 +1,71 @@
+---
+id: dry-run-a-candidate-pipeline-dag
+title: "Dry-run a candidate pipeline DAG"
+description: "Validates the supplied DAG against the op registry and returns all validation issues in one pass without persisting anything or triggering execution. The pipeline {id} must exist (404 if not) — the DAG comes from the request body so callers can iterate freely. Always returns 200 with the response body; 4xx is reserved for malformed requests."
+sidebar_label: "Dry-run a candidate pipeline DAG"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Dry-run a candidate pipeline DAG"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/pipelines/{id}/dry-run"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Validates the supplied DAG against the op registry and returns all validation issues in one pass without persisting anything or triggering execution. The pipeline \{id\} must exist (404 if not) — the DAG comes from the request body so callers can iterate freely. Always returns 200 with the response body; 4xx is reserved for malformed requests.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Pipeline ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"dag":{"properties":{"invocations":{"additionalProperties":{"properties":{"config":{"description":"Config is the static input passed to op.Run alongside any wired\nupstream outputs. When the input is a JSON object and wires target this\ninvocation, the runtime merges wire-fed payload data under each wired\nDynamicInputs name before calling op.Run. For wires whose FromOutputName\nis empty the legacy behaviour applies: the upstream op's persisted node\nIDs are injected. Ops that take non-object input cannot consume upstream\nwires (documented limit in v1).","items":{"type":"integer"},"type":"array"},"id":{"description":"ID identifies this invocation uniquely within the DAG. Wires reference\ninvocations by this ID.","type":"string"},"op_id":{"description":"OpID matches a registered op's ID() return value.","type":"string"},"op_version":{"description":"OpVersion matches a registered op's Version() return value. Combined\nwith OpID, this selects the exact implementation from the registry.","type":"string"}},"type":"object"},"description":"Invocations is keyed by invocation ID. Each invocation is a configured\ncall site of a registered op within this pipeline version.","type":"object"},"wires":{"description":"Wires describe data flow between invocations. Each wire carries a named\npayload from an upstream op's declared OutputPayloads to a downstream\nop's declared DynamicInputs. When FromOutputName is empty the wire uses\nthe legacy behaviour of forwarding the upstream op's persisted node IDs.","items":{"properties":{"from_invocation_id":{"description":"FromInvocationID is the upstream invocation that emits the data.","type":"string"},"from_output_name":{"description":"FromOutputName names which of the upstream op's declared OutputPayloads\nis forwarded over this wire. Empty string keeps the legacy\nnode-IDs-from-staging behaviour (the upstream op's persisted node IDs\nare forwarded under ToInputName).","type":"string"},"to_input_name":{"description":"ToInputName names which of the downstream op's declared DynamicInputs\nreceives the wired data. Must match a DynamicInputs[].Name in the\ndownstream op's schema.","type":"string"},"to_invocation_id":{"description":"ToInvocationID is the downstream invocation that consumes the data.","type":"string"}},"type":"object"},"type":"array"}},"type":"object"}},"type":"object"}}},"description":"Candidate DAG","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"issues":{"items":{"properties":{"code":{"description":"machine-readable","type":"string"},"invocation_id":{"description":"set when issue relates to a specific invocation","type":"string"},"message":{"description":"human-readable","type":"string"},"severity":{"description":"\"error\" or \"warning\"","type":"string"},"wire_index":{"description":"set when issue relates to a specific wire (0-based)","type":"integer"}},"type":"object"},"type":"array"},"resolved_ops":{"additionalProperties":{"properties":{"found":{"type":"boolean"},"op_id":{"type":"string"},"version":{"type":"string"}},"type":"object"},"description":"keyed by invocation_id","type":"object"},"valid":{"type":"boolean"}},"type":"object"}}}},"400":{"description":"Missing or unparseable body","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Pipeline not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Pipeline repository not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

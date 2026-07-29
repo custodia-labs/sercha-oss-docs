@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Sercha Documentation',
-  tagline: 'Self-hosted search across all your team\'s tools',
+  tagline: 'Query your documents like a database',
   favicon: 'img/favicon.svg',
 
   future: {
@@ -33,18 +33,21 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid', 'docusaurus-theme-openapi-docs'],
 
   plugins: [
-    // Documentation (guides, quickstart, config)
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'guides',
-        path: 'docs/guides',
-        routeBasePath: 'docs',
-        sidebarPath: require.resolve('./sidebars-guides.js'),
-        showLastUpdateAuthor: true,
-        showLastUpdateTime: true,
-      },
-    ],
+    // Documentation (guides, quickstart, config) - DISABLED.
+    // These describe the retired sercha-core OSS search product: the framing is
+    // wrong for the platform and parts reference internal detail. The markdown
+    // stays in docs/guides/ for reference; re-enable this block once rewritten.
+    // [
+    //   '@docusaurus/plugin-content-docs',
+    //   {
+    //     id: 'guides',
+    //     path: 'docs/guides',
+    //     routeBasePath: 'docs',
+    //     sidebarPath: require.resolve('./sidebars-guides.js'),
+    //     showLastUpdateAuthor: true,
+    //     showLastUpdateTime: true,
+    //   },
+    // ],
     // API Reference (auto-generated from OpenAPI spec)
     [
       '@docusaurus/plugin-content-docs',
@@ -58,19 +61,37 @@ const config: Config = {
         docItemComponent: '@theme/ApiItem',
       },
     ],
-    // Connectors (per-source setup guides)
+    // Connectors (per-source setup guides) - DISABLED alongside the guides.
+    // The OAuth walkthroughs are still broadly accurate but they frame Sercha
+    // as a search product and advertise connectors that are not shipped.
+    // [
+    //   '@docusaurus/plugin-content-docs',
+    //   {
+    //     id: 'connectors',
+    //     path: 'docs/connectors',
+    //     routeBasePath: 'connectors',
+    //     sidebarPath: require.resolve('./sidebars-connectors.js'),
+    //     showLastUpdateAuthor: true,
+    //     showLastUpdateTime: true,
+    //   },
+    // ],
+    // SerchaQL - the query language reference and playground
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'connectors',
-        path: 'docs/connectors',
-        routeBasePath: 'connectors',
-        sidebarPath: require.resolve('./sidebars-connectors.js'),
+        id: 'serchaql',
+        path: 'docs/serchaql',
+        routeBasePath: 'serchaql',
+        sidebarPath: require.resolve('./sidebars-serchaql.js'),
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
       },
     ],
-    // OpenAPI docs generator
+    // OpenAPI docs generator.
+    // Regenerate the source spec from sercha-enterprise with:
+    //   swag init -g cmd/sercha-enterprise/main.go -o docs --parseDependency --parseInternal
+    //   cp docs/swagger.yaml ../sercha-oss-docs/openapi/enterprise.yaml
+    // then `npx docusaurus gen-api-docs all` here.
     [
       'docusaurus-plugin-openapi-docs',
       {
@@ -78,7 +99,7 @@ const config: Config = {
         docsPluginId: 'api',
         config: {
           sercha: {
-            specPath: './openapi/swagger.yaml',
+            specPath: './openapi/enterprise.yaml',
             outputDir: 'docs/api',
             sidebarOptions: {
               groupPathsBy: 'tag',
@@ -118,18 +139,18 @@ const config: Config = {
       },
       items: [
         {
-          to: '/docs',
-          label: 'Documentation',
+          to: '/serchaql/intro',
+          label: 'SerchaQL',
           position: 'left',
         },
         {
-          to: '/api/sercha-core-api',
+          to: '/library',
+          label: 'Library',
+          position: 'left',
+        },
+        {
+          to: '/api/sercha-enterprise-api',
           label: 'API Reference',
-          position: 'left',
-        },
-        {
-          to: '/connectors',
-          label: 'Connectors',
           position: 'left',
         },
         {
@@ -139,7 +160,7 @@ const config: Config = {
           'aria-label': 'Discord community',
         },
         {
-          href: 'https://github.com/sercha-oss/sercha-core',
+          href: 'https://sercha.dev',
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
@@ -152,21 +173,20 @@ const config: Config = {
         {
           title: 'Docs',
           items: [
-            {label: 'Quickstart', to: '/docs/quickstart'},
-            {label: 'Configuration', to: '/docs/configuration'},
-            {label: 'API Reference', to: '/api/sercha-core-api'},
+            {label: 'SerchaQL', to: '/serchaql/intro'},
+            {label: 'Library', to: '/library'},
+            {label: 'API Reference', to: '/api/sercha-enterprise-api'},
           ],
         },
         {
           title: 'Community',
           items: [
             {label: 'Discord', href: 'https://discord.gg/Hpj7e6k6Et'},
-            {label: 'GitHub', href: 'https://github.com/sercha-oss/sercha-core'},
-            {label: 'Issues', href: 'https://github.com/sercha-oss/sercha-core/issues'},
+            {label: 'Sercha', href: 'https://sercha.dev'},
           ],
         },
       ],
-      copyright: `Copyright \u00A9 ${new Date().getFullYear()} Sercha. Licensed under Apache 2.0.`,
+      copyright: `Copyright \u00A9 ${new Date().getFullYear()} Sercha.`,
     },
     prism: {
       theme: prismThemes.github,

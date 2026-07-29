@@ -1,0 +1,71 @@
+---
+id: add-member-to-group
+title: "Add member to group"
+description: "Adds a user to the group. Idempotent — no error if the user is already a member."
+sidebar_label: "Add member to group"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVs1u4zYQfpWBTi3gWE6xBRa+2bG7dZv1pnYWW2ATdGlxbHFDkSpJOesKBvoQfcI+SWcoKXacNNhLD/VBpsj5n28+qk4k+sypMihrkmEyktKDgMqjg2Ah5AgbZ6uyDzOJRWkDmgB///kXGAvonHWg1lEqaijS1Q6F3JGNAosVun7SS0rhRIEBnU+GH+sTj2/YPMwmJKf4vRQhp7UhDXpTktYOf6+UQ5kMg6uwl/gsx0IkwzoJu5KlfHDKbJL9/rYRRh/GVu5YIrOGY+alKEutMsF+08+enddHpkpnS3RBoec3Tuc3cv6Mj163Y1efMQu0Q1uPc3obU+cCCvk0gT1v+NIa3/j6bvCK/x6bmFu4aEMn+VeDwVORsZCwaLIlH1+d6EnDr2ZtI7uYuGGPahGP4+KLKEod22K2QisJbbFhxdXufU2paO/755KZUfTOCA1LdFuq3TQ6/f+kxZtiwwBvEO0TwiKBPreSQW1jjyK2h0kaR8qntZL7tBkTT6c+Zt7MSOU0CeYhlMM01TYTOicTw9eD1+epKFW6PSdYHIv5f5e7ZdNZ5VTYLblcTfpjFA7dqOKITqv304draM4Jw3do+vCDdYUIQ7hp9aCOB/ubpJvbnMYe3WFy2bJ16o/Yr0MRKaifcReLyD1cHKZ12rXhaPoeas5O1rYbaJFFQLSeCDFZLsjF42r4uN2XuE2eDOg185qlahuUUGoR1pQfrNAgdQgUQU5rtWGukzarCl4QeDL0nqLp35gbM8FMUyGI5xoIAluDna3cg4qHe0XWmvB+uewBfgmOQgcVYO1sEXnTIWFDBaoU+lP1jku12iIF1QNhJFC93K5V9ZUOdHrHYUgRxEp47MN0yxKsyoS8spWRlOWqUQq5QzzTYkfR0jAUilKyBgorUUdiz6wrK0+sL0zodW8tSHNVNkGQ5tlDZUYXl60mXRCeXMW0R/NJFF0Lpc8yzQeN7j0BkUY6siPkwudnVB5l+DgQAsgybpVkw6KSVCptm4p/unq3vIYW1WkswydOkLPitmgEUqLMS0sNBOooYKxE1wDwQQSMId8pI4cwmVBTJhf8eEuP5Y/vPtByurxYzMbTHkx/vboczeYx6MX7OYxn88ls/oZvNOIhZE45gPCKuIV6GITbvYDEtFNkulBBH+ALUyZAMuERiLzIBnNBg9bz/oAVmEQKYY6c0m3dtoarGVklOYH60Q3431zu7VwHAndKk0RcsG/zr1u++5g0fEfCw3ifd5RHxMRsxRJ1zdh97/R+z9uxu7RPy61wSqy4UvzpoDyviRnWQnt8IddvFu2d+y0cfWE8G2zHTIY7RxdAxW+0vCOeil8g+1uSavmNo2gO2uv57JrVD4pPbinm6UZjlGVYhhdljy8NxjsJr9ovGR5R2nXinr8o6BmDtDH3yOhxr060MJtKbFi2scm/fwDW828+
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Add member to group"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/groups/{id}/members"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Adds a user to the group. Idempotent — no error if the user is already a member.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Group ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"user_id":{"type":"string"}},"type":"object"}}},"description":"Member to add","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"204":{"description":"No Content"},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

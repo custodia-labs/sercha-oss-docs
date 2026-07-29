@@ -1,0 +1,569 @@
+---
+title: Operations
+description: SOPs, incident reports, risk registers and vendor documents
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="operations">
+
+## 1. What this models
+
+The operations corpus is the paperwork a COO actually owns: standard operating
+procedures and their revision histories, post-incident reviews, the risk
+register, business impact analyses and continuity plans, vendor master
+agreements with their service-level schedules, and the monthly operating report
+that goes to the board. These arrive as separate files from separate teams, in
+separate folders, with no shared identifiers beyond the words people typed.
+
+The ontology's job is to make them one graph. Once it is, questions that were
+previously a fortnight of manual cross-referencing become a single statement:
+which processes are owned by a role that no longer appears in any current
+document; which risks cite a control that lives in a superseded SOP; which
+critical processes depend on exactly one vendor with no documented fallback;
+which incident causes recur because the corrective action was never written back
+into the procedure it blamed. Each of those is a join across two document kinds
+that no one system holds. That is the whole point.
+
+## 2. The modelling decisions
+
+**Four roots, not one.** An SOP, an incident report, a vendor agreement and a
+risk register are genuinely different document kinds, with different authors,
+cadences and lifecycles. A single `Document` root with a `doc_type` enum and
+forty mostly-null columns is the classic mistake: it forces the extractor to
+decide the type before it knows what fields to look for, and it makes every
+query start with a filter. So `Procedure`, `Incident`, `VendorAgreement` and
+`RiskRegister` are each `ROOT` and each `SINGULAR PER DOC`. The register is the
+one worth explaining: a risk register is a single file containing many risks, so
+the file is the root and `RiskEntry` sits `UNDER` it. The unit of extraction is
+the file; the unit of meaning is the row inside it.
+
+**`ServiceLevel` is an entity, not columns on `VendorAgreement`.** Only some
+agreements carry SLAs, and the ones that do carry several: an uptime target, a
+P1 response target, a restore target, each with its own measurement window and
+credit schedule. Modelling this as `uptime_target`, `response_target`,
+`restore_target` on the agreement means a column that is null for two thirds of
+rows and cannot hold the fourth commitment when a schedule adds one. A column
+that is only sometimes populated is a modelling error, not a tolerable
+compromise. Same reasoning drives `CorrectiveAction` out of `Incident` and
+`RiskEntry` out of `RiskRegister`.
+
+**Keys are resolution identities, not primary keys.** `Procedure` keys on
+`(doc_ref, version)`, because the whole point of the corpus is that
+SOP-OPS-014 v3 and v7 are different nodes that supersede each other; keying on
+`doc_ref` alone would collapse the version history the queries depend on.
+`Vendor` keys on `legal_name`, which is the only stable handle across a master
+agreement, an SLA schedule and a continuity plan that all name the same
+supplier differently. `BusinessProcess` keys on `process_name`, deliberately not
+on the owning team, because processes outlive reorganisations.
+
+**FUZZY only where humans retype things.** Edges into `Vendor` and `OwnerRole`
+resolve `FUZZY WITHIN` their target entity. Vendor names drift across documents:
+the master agreement says one thing, the BIA appendix abbreviates it, the
+incident report uses the product name. Role titles drift harder: "Head of
+Service Operations", "Service Ops Lead" and "Operations Manager, Platform" are
+frequently one seat across three years of documents. `WITHIN` matters here: it
+bounds the LLM's candidate pool to the extracted `Vendor` or `OwnerRole` nodes
+rather than the whole graph, which is what keeps a fuzzy match from resolving a
+vendor to a process. Everything structural stays `EXACT`: `SUPERSEDES` links
+procedure to procedure by `doc_ref`, and if the reference does not match
+character for character, we want that to show up as an unresolved edge, not get
+quietly repaired.
+
+**Ten tables, and each one earns its place.** Four are roots, one per document
+kind. Three more (`CorrectiveAction`, `ServiceLevel`, `RiskEntry`) are children,
+each because its parent yields zero to many of them and a repeating column is
+not a thing. The last three (`OwnerRole`, `Vendor`, `BusinessProcess`) are
+resolution targets shared across document kinds: they are the join points that
+turn four unrelated folders into one graph, and without them every cross-kind
+query degenerates into string comparison. Nothing else earned a table.
+Individual procedure steps stayed as a `control_refs` string on `Procedure`,
+because we only ever ask whether a control identifier appears in a live
+document, never anything about the step itself. Approvers, distribution lists,
+document classifications and the incident communications timeline stayed as
+columns or stayed out, because none of them is ever the thing you join on.
+
+**Not modelled: the procedure text itself as structure.** We extract steps as
+ordered entities with a control flag, but we do not attempt to model branching,
+decision points or conditional paths. Every attempt to model procedures as
+executable flowcharts fails on the same rock: the documents are not written that
+way, so the extractor invents structure. The narrative body stays as text and is
+reachable through `MATCHES`. Also not modelled: individual named people. The
+corpus names roles far more reliably than incumbents, and roles are what
+continuity planning actually cares about.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY ops;
+
+-- Roles, not people. Continuity planning asks "who covers this seat",
+-- and documents name seats far more consistently than incumbents.
+CREATE ENTITY ops.OwnerRole (
+  role_title    TEXT KEY EXTRACT 'the job title accountable for the item, not the person''s name',
+  function_area TEXT CHECK (function_area IN
+    ('operations','technology','finance','people','legal','supply_chain','customer_service')),
+  is_current    BOOLEAN EXTRACT 'true unless the document marks the role as retired, vacant or superseded'
+);
+
+-- A business capability. Keyed on name alone: processes outlive the
+-- teams that own them, so the owning team must not be part of identity.
+CREATE ENTITY ops.BusinessProcess (
+  process_name    TEXT KEY,
+  criticality     TEXT CHECK (criticality IN ('critical','important','routine')),
+  rto_hours       FLOAT   EXTRACT 'recovery time objective in hours',
+  rpo_hours       FLOAT   EXTRACT 'recovery point objective in hours: tolerable data loss',
+  mtpd_hours      FLOAT   EXTRACT 'maximum tolerable period of disruption in hours',
+  owner_role_name TEXT    EXTRACT 'job title of the accountable process owner as written'
+);
+
+-- ROOT 1: the SOP. Composite key because v3 and v7 of the same
+-- procedure are distinct nodes; that is what makes SUPERSEDES meaningful.
+CREATE ENTITY ops.Procedure (
+  doc_ref        TEXT NOT NULL EXTRACT 'document reference or SOP number, e.g. SOP-OPS-014',
+  version        TEXT NOT NULL,
+  title          TEXT NOT NULL,
+  effective_from DATE,
+  review_due     DATE,
+  status         TEXT CHECK (status IN ('draft','current','superseded','withdrawn')),
+  owner_role_name TEXT EXTRACT 'job title in the owner or accountable field of the header block',
+  process_name    TEXT EXTRACT 'the business process this procedure executes',
+  supersedes_ref  TEXT EXTRACT 'document reference of the version this one replaces, from the revision history',
+  control_refs    TEXT EXTRACT 'comma-separated control identifiers cited anywhere in this procedure''s steps',
+  KEY (doc_ref, version)
+) ROOT SINGULAR PER DOC;
+
+-- ROOT 2: the post-incident review.
+CREATE ENTITY ops.Incident (
+  incident_ref    TEXT KEY EXTRACT 'incident number or reference, e.g. INC-2027-0431',
+  title           TEXT,
+  severity        TEXT CHECK (severity IN ('sev1','sev2','sev3','sev4')),
+  detected_on     DATE,
+  resolved_on     DATE,
+  downtime_mins   INTEGER EXTRACT 'total customer-affecting duration in minutes',
+  cause_category  TEXT CHECK (cause_category IN
+    ('process_gap','human_error','system_failure','third_party','capacity','change_related','external_event')),
+  root_cause      TEXT,
+  process_name    TEXT EXTRACT 'the business process disrupted',
+  vendor_name     TEXT EXTRACT 'third party implicated, if the cause was external',
+  procedure_ref   TEXT EXTRACT 'SOP reference cited as in force, breached or missing during the incident'
+) ROOT SINGULAR PER DOC;
+
+-- Separate entity, not columns: an incident yields zero to many actions,
+-- each with its own owner, due date and state.
+CREATE ENTITY ops.CorrectiveAction (
+  action_ref      TEXT NOT NULL,
+  description     TEXT,
+  owner_role_name TEXT,
+  due_on          DATE,
+  status          TEXT CHECK (status IN ('open','in_progress','complete','cancelled','overdue')),
+  updates_sop     BOOLEAN EXTRACT 'true if the action explicitly commits to amending a procedure document',
+  target_doc_ref  TEXT EXTRACT 'the SOP reference this action promises to amend',
+  KEY (action_ref, description)
+) UNDER ops.Incident BOUNDED PER DOC;
+
+-- ROOT 3: the risk register. A register file holds many risks, so the root
+-- is the register and the risks are BOUNDED PER DOC children below it.
+-- risk_ref alone is not unique across successive issues of the register, so
+-- identity is the reference plus the as-at date of the issue it came from.
+CREATE ENTITY ops.RiskRegister (
+  register_name TEXT NOT NULL,
+  as_at         DATE NOT NULL EXTRACT 'the as-at or effective date of this issue of the register',
+  scope         TEXT EXTRACT 'the division, function or entity this register covers',
+  KEY (register_name, as_at)
+) ROOT SINGULAR PER DOC;
+
+CREATE ENTITY ops.RiskEntry (
+  risk_ref             TEXT NOT NULL,
+  description          TEXT,
+  category             TEXT CHECK (category IN
+    ('operational','technology','supplier','regulatory','financial','people','reputational')),
+  inherent_likelihood  INTEGER EXTRACT 'pre-control likelihood score on the register scale, usually 1 to 5',
+  inherent_impact      INTEGER,
+  residual_likelihood  INTEGER EXTRACT 'post-control likelihood score, sometimes labelled net or current',
+  residual_impact      INTEGER,
+  treatment            TEXT CHECK (treatment IN ('accept','treat','transfer','avoid')),
+  owner_role_name      TEXT,
+  control_description  TEXT,
+  control_doc_ref      TEXT EXTRACT 'document reference where the mitigating control is documented',
+  process_name         TEXT EXTRACT 'the business process this risk attaches to',
+  last_reviewed        DATE,
+  KEY (risk_ref, last_reviewed)
+) UNDER ops.RiskRegister BOUNDED PER DOC;
+
+-- ROOT 4: the vendor agreement. Vendor is its own entity because the
+-- same supplier appears across agreements, BIAs and incident reports.
+CREATE ENTITY ops.VendorAgreement (
+  agreement_ref    TEXT NOT NULL,
+  vendor_name      TEXT NOT NULL EXTRACT 'the contracting supplier''s legal name as written on the agreement',
+  service_summary  TEXT,
+  starts_on        DATE,
+  expires_on       DATE,
+  notice_days      INTEGER EXTRACT 'notice period in days required to terminate',
+  exit_assistance  BOOLEAN EXTRACT 'true if the agreement obliges the supplier to assist with transition on exit',
+  criticality_tier TEXT CHECK (criticality_tier IN ('tier1','tier2','tier3')),
+  process_name     TEXT EXTRACT 'the business process this supplier supports',
+  KEY (agreement_ref, vendor_name)
+) ROOT SINGULAR PER DOC;
+
+-- One agreement, many commitments. Modelling these as columns on the
+-- agreement produces a table that is mostly null and cannot hold the
+-- fourth commitment when a schedule adds one.
+CREATE ENTITY ops.ServiceLevel (
+  metric_name    TEXT NOT NULL EXTRACT 'the committed measure, e.g. monthly uptime, P1 response, restore time',
+  metric_type    TEXT CHECK (metric_type IN ('availability','response_time','resolution_time','throughput','accuracy')),
+  target_value   FLOAT,
+  target_unit    TEXT CHECK (target_unit IN ('percent','minutes','hours','days','count')),
+  measure_window TEXT CHECK (measure_window IN ('daily','weekly','monthly','quarterly','annual')),
+  credit_pct     FLOAT EXTRACT 'service credit as a percentage of fees payable when the target is missed',
+  KEY (metric_name, metric_type)
+) UNDER ops.VendorAgreement BOUNDED PER DOC;
+
+-- The resolved supplier. Keyed on legal name, which is the only handle
+-- that persists across contract, SLA schedule and continuity plan.
+CREATE ENTITY ops.Vendor (
+  legal_name       TEXT KEY,
+  service_category TEXT CHECK (service_category IN
+    ('logistics','software','facilities','payments','staffing','data','manufacturing','professional_services')),
+  has_alternate    BOOLEAN EXTRACT 'true only where a document names a substitute, secondary or failover supplier',
+  alternate_name   TEXT
+);
+
+-- ============ EDGES ============
+
+-- Structural, EXACT: version chains must match character for character.
+-- A near miss should surface as an unresolved edge, not be quietly repaired.
+CREATE EDGE ops.procedure_supersedes
+  ON ops.Procedure SUPERSEDES ops.Procedure
+  LINK BY supersedes_ref RESOLVE EXACT;
+
+-- Role titles drift hardest of all: three phrasings, one seat, three years.
+-- WITHIN bounds the LLM's candidates to extracted roles only.
+CREATE EDGE ops.procedure_owned_by
+  ON ops.Procedure OWNED_BY ops.OwnerRole
+  LINK BY owner_role_name RESOLVE FUZZY WITHIN ops.OwnerRole;
+
+CREATE EDGE ops.procedure_executes
+  ON ops.Procedure EXECUTES ops.BusinessProcess
+  LINK BY process_name RESOLVE FUZZY WITHIN ops.BusinessProcess;
+
+CREATE EDGE ops.process_owned_by
+  ON ops.BusinessProcess OWNED_BY ops.OwnerRole
+  LINK BY owner_role_name RESOLVE FUZZY WITHIN ops.OwnerRole;
+
+CREATE EDGE ops.incident_disrupted
+  ON ops.Incident DISRUPTED ops.BusinessProcess
+  LINK BY process_name RESOLVE FUZZY WITHIN ops.BusinessProcess;
+
+CREATE EDGE ops.incident_implicates
+  ON ops.Incident IMPLICATES ops.Vendor
+  LINK BY vendor_name RESOLVE FUZZY WITHIN ops.Vendor;
+
+-- EXACT: the incident cites an SOP number. If it does not resolve, the
+-- report cited a document that does not exist, and we want to see that.
+CREATE EDGE ops.incident_cites_procedure
+  ON ops.Incident CITES ops.Procedure
+  LINK BY procedure_ref RESOLVE EXACT;
+
+CREATE EDGE ops.incident_has_action
+  ON ops.Incident YIELDED ops.CorrectiveAction;
+
+-- The closure test: does the action's promised amendment reach a real SOP?
+CREATE EDGE ops.action_amends
+  ON ops.CorrectiveAction AMENDS ops.Procedure
+  LINK BY target_doc_ref RESOLVE EXACT;
+
+CREATE EDGE ops.risk_threatens
+  ON ops.RiskEntry THREATENS ops.BusinessProcess
+  LINK BY process_name RESOLVE FUZZY WITHIN ops.BusinessProcess;
+
+CREATE EDGE ops.risk_owned_by
+  ON ops.RiskEntry OWNED_BY ops.OwnerRole
+  LINK BY owner_role_name RESOLVE FUZZY WITHIN ops.OwnerRole;
+
+-- EXACT again: this edge exists so we can find controls whose only
+-- documentation sits in a superseded or withdrawn procedure.
+CREATE EDGE ops.risk_controlled_by
+  ON ops.RiskEntry CONTROLLED_BY ops.Procedure
+  LINK BY control_doc_ref RESOLVE EXACT;
+
+CREATE EDGE ops.agreement_with
+  ON ops.VendorAgreement CONTRACTS ops.Vendor
+  LINK BY vendor_name RESOLVE FUZZY WITHIN ops.Vendor;
+
+CREATE EDGE ops.agreement_supports
+  ON ops.VendorAgreement SUPPORTS ops.BusinessProcess
+  LINK BY process_name RESOLVE FUZZY WITHIN ops.BusinessProcess;
+
+CREATE EDGE ops.agreement_commits
+  ON ops.VendorAgreement COMMITS ops.ServiceLevel;
+
+-- Fourth-party visibility: the named substitute is itself a vendor node.
+CREATE EDGE ops.vendor_fallback
+  ON ops.Vendor FALLS_BACK_TO ops.Vendor
+  LINK BY alternate_name RESOLVE FUZZY WITHIN ops.Vendor;
+```
+
+## 4. Extraction
+
+```sql
+CREATE CORPUS coo_library
+  ON sharepoint.opsdrive.'Operations.Procedures',
+     sharepoint.opsdrive.'Operations.Incidents',
+     sharepoint.opsdrive.'Operations.Risk',
+     sharepoint.opsdrive.'Operations.Vendors'
+  USING ONTOLOGY ops
+  PARTITION BY FOLDER LEVEL 2;
+
+BIND CORPUS coo_library TO ONTOLOGY ops;
+
+RUN BINDING coo_library.ops;
+```
+
+Hints attach to root entities only, so describe the children from the root.
+The revision-history block is where the version chain lives, and extractors
+routinely mistake the approval date for the effective date:
+
+```sql
+ALTER BINDING coo_library.ops
+  SET HINT ON extract_internals WHERE root = Procedure AS
+  'The header block carries doc_ref, version, owner and effective date. Take
+   effective_from from the effective or in-force date, never the approval or
+   signature date, which is usually earlier. The revision history table at the
+   front or back names the version being replaced: put that reference in
+   supersedes_ref, and if the table lists several, take only the immediately
+   prior one. For control_refs, collect every control identifier cited in the
+   numbered steps, whether printed in brackets, a margin note or a control
+   column, and return them comma-separated in document order. A step counts as a
+   control where it describes a check, approval, sign-off, reconciliation,
+   second review or verification, even if the word control never appears.';
+```
+
+Backfilling a column added after the first run:
+
+```sql
+ALTER ENTITY ops.Procedure ADD COLUMN review_cycle_months INTEGER;
+
+RUN BINDING coo_library.ops
+  EXTRACT (Procedure.review_cycle_months);
+```
+
+## 5. Queries that earn their keep
+
+**Which live procedures are owned by a role that no longer exists?** The
+reorganisation happened; the SOP headers did not follow.
+
+```sql
+SELECT p.doc_ref, p.version, p.title, r.role_title, p.review_due
+FROM coo_library.Procedure p
+JOIN coo_library.OwnerRole r VIA p.owned_by
+WHERE p.status = 'current'
+  AND r.is_current = false
+ORDER BY p.review_due;
+```
+
+**Where are we losing the most time, and to whom?** Incident minutes by cause
+category and implicated supplier, for the operating report.
+
+```sql
+SELECT i.cause_category,
+       v.legal_name,
+       COUNT(*)             AS incidents,
+       SUM(i.downtime_mins) AS total_downtime_mins,
+       AVG(i.downtime_mins) AS avg_downtime_mins
+FROM coo_library.Incident i
+JOIN coo_library.Vendor v VIA i.implicates
+WHERE i.detected_on >= DATE '2027-01-01'
+GROUP BY i.cause_category, v.legal_name
+ORDER BY total_downtime_mins DESC;
+```
+
+**Which risks did the extractor struggle with, and which folder do they come
+from?** A data-quality sweep using the system columns, run before anyone quotes
+the register to a regulator.
+
+```sql
+SELECT rk._folder,
+       rk._doc,
+       rk.risk_ref,
+       rk.category,
+       rk._confidence
+FROM coo_library.RiskEntry rk
+WHERE rk._confidence < 0.7
+   OR rk.residual_impact IS NULL
+ORDER BY rk._folder, rk._confidence;
+```
+
+**Which risks are mitigated only by a control documented in a dead procedure?**
+The register says the risk is treated. The document holding the control was
+superseded eighteen months ago and nobody re-pointed the entry.
+
+```sql
+SELECT rk.risk_ref,
+       rk.description,
+       rk.treatment,
+       rk.residual_likelihood * rk.residual_impact AS residual_score,
+       p.doc_ref   AS control_document,
+       p.version,
+       p.status,
+       o.role_title AS risk_owner
+FROM coo_library.RiskEntry rk
+JOIN coo_library.Procedure p VIA rk.controlled_by
+LEFT JOIN coo_library.OwnerRole o VIA rk.owned_by
+WHERE rk.treatment = 'treat'
+  AND p.status IN ('superseded','withdrawn')
+  -- and no live procedure covers the same control reference
+  AND NOT EXISTS (
+    SELECT 1
+    FROM coo_library.Procedure live
+    WHERE live.status = 'current'
+      AND live.control_refs = rk.control_doc_ref
+  )
+ORDER BY residual_score DESC;
+```
+
+**Single points of failure: critical processes resting on one supplier with no
+documented fallback and no restore commitment.** This is the question the board
+asks after someone else's outage, and it is unanswerable from any one document.
+
+```sql
+WITH process_vendors AS (
+  SELECT bp.process_name,
+         bp.criticality,
+         bp.rto_hours,
+         COUNT(DISTINCT v.legal_name) AS supplier_count,
+         MAX(CASE WHEN v.has_alternate THEN 1 ELSE 0 END) AS any_fallback
+  FROM coo_library.BusinessProcess bp
+  JOIN coo_library.VendorAgreement a VIA bp.supports
+  JOIN coo_library.Vendor v VIA a.contracts
+  GROUP BY bp.process_name, bp.criticality, bp.rto_hours
+),
+restore_cover AS (
+  -- processes where at least one supplier commits to a restore time
+  -- inside the process RTO
+  SELECT DISTINCT bp.process_name
+  FROM coo_library.BusinessProcess bp
+  JOIN coo_library.VendorAgreement a VIA bp.supports
+  JOIN coo_library.ServiceLevel sl VIA a.commits
+  WHERE sl.metric_type = 'resolution_time'
+    AND sl.target_unit = 'hours'
+    AND sl.target_value <= bp.rto_hours
+)
+SELECT pv.process_name,
+       pv.rto_hours,
+       pv.supplier_count,
+       pv.any_fallback
+FROM process_vendors pv
+WHERE pv.criticality = 'critical'
+  AND pv.supplier_count = 1
+  AND pv.any_fallback = 0
+  AND pv.process_name NOT IN (SELECT process_name FROM restore_cover)
+ORDER BY pv.rto_hours;
+```
+
+**Which incident causes recur because the fix was never written into the SOP?**
+Two or more incidents on the same process and cause, where every corrective
+action either never claimed to amend a procedure or claimed to and did not
+resolve to one.
+
+```sql
+SELECT bp.process_name,
+       i.cause_category,
+       COUNT(DISTINCT i.incident_ref) AS recurrences,
+       SUM(i.downtime_mins)           AS minutes_lost,
+       ARRAY_AGG(i.incident_ref)      AS incidents
+FROM coo_library.Incident i
+JOIN coo_library.BusinessProcess bp VIA i.disrupted
+WHERE NOT EXISTS (
+        SELECT 1
+        FROM coo_library.CorrectiveAction ca
+        JOIN coo_library.Procedure amended VIA ca.amends
+        WHERE ca._doc = i._doc
+          AND ca.updates_sop = true
+          AND ca.status = 'complete'
+          AND amended.status = 'current'
+      )
+GROUP BY bp.process_name, i.cause_category
+HAVING recurrences > 1          -- alias the aggregate: HAVING COUNT(*) does not parse
+ORDER BY minutes_lost DESC;
+```
+
+**Free-text sweep for continuity language nobody indexed.** `MATCHES` filters
+entity rows by their source document, so the procedure columns survive.
+
+```sql
+SELECT p.doc_ref, p.version, p.title, p.status, p.review_due
+FROM coo_library.Procedure p
+WHERE p MATCHES ('manual workaround during supplier outage' USING default TOP 20)
+  AND p.status = 'current';
+```
+
+## 6. Views
+
+Name the three questions people ask weekly, so they stop being rewritten badly.
+
+```sql
+-- Every current procedure with its resolved owner and whether that seat
+-- still exists. The starting point for the quarterly SOP review.
+CREATE OR REPLACE VIEW ops_procedure_ownership AS
+SELECT p.doc_ref,
+       p.version,
+       p.title,
+       p.status,
+       p.effective_from,
+       p.review_due,
+       r.role_title,
+       r.function_area,
+       r.is_current AS owner_role_exists,
+       bp.process_name,
+       bp.criticality
+FROM coo_library.Procedure p
+LEFT JOIN coo_library.OwnerRole r VIA p.owned_by
+LEFT JOIN coo_library.BusinessProcess bp VIA p.executes
+WHERE p.status = 'current';
+
+-- Supplier concentration per critical process: one row per process and
+-- supplier, carrying the tightest restore commitment on the contract.
+CREATE OR REPLACE VIEW ops_supplier_dependency AS
+SELECT bp.process_name,
+       bp.criticality,
+       bp.rto_hours,
+       v.legal_name       AS supplier,
+       v.service_category,
+       v.has_alternate,
+       a.criticality_tier,
+       a.expires_on,
+       a.exit_assistance,
+       MIN(sl.target_value) AS tightest_restore_hours
+FROM coo_library.BusinessProcess bp
+JOIN coo_library.VendorAgreement a VIA bp.supports
+JOIN coo_library.Vendor v          VIA a.contracts
+LEFT JOIN coo_library.ServiceLevel sl VIA a.commits
+WHERE sl.metric_type = 'resolution_time'
+   OR sl.metric_type IS NULL
+GROUP BY bp.process_name, bp.criticality, bp.rto_hours,
+         v.legal_name, v.service_category, v.has_alternate,
+         a.criticality_tier, a.expires_on, a.exit_assistance;
+
+-- Risks whose documented control does not sit in a live procedure.
+-- The standing agenda item for the operational risk committee.
+CREATE OR REPLACE VIEW ops_uncontrolled_risk AS
+SELECT rk.risk_ref,
+       rk.description,
+       rk.category,
+       rk.treatment,
+       rk.residual_likelihood * rk.residual_impact AS residual_score,
+       rk.control_doc_ref,
+       p.status AS control_doc_status,
+       rk.last_reviewed,
+       o.role_title AS risk_owner
+FROM coo_library.RiskEntry rk
+LEFT JOIN coo_library.Procedure p VIA rk.controlled_by
+LEFT JOIN coo_library.OwnerRole o VIA rk.owned_by
+WHERE rk.treatment IN ('treat','transfer')
+  AND (p._id IS NULL OR p.status IN ('superseded','withdrawn','draft'));
+```
+
+</TemplatePage>

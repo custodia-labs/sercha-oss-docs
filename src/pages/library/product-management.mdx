@@ -1,0 +1,489 @@
+---
+title: Product management
+description: PRDs, design docs, decision records and release notes
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="product-management">
+
+## 1. What this models
+
+The written record a product organisation actually runs on: product requirements documents, technical specifications, requests for comment, architecture and product decision records, quarterly roadmap documents, synthesised customer feedback reports, and the release notes published when something finally ships. In practice this is a few thousand pages spread across a wiki, a docs repository and an exported folder of research write-ups, with three different naming conventions and no reliable link between a requirement written in March and the release note that claims to have delivered it.
+
+The questions this makes answerable without a person reading everything:
+
+- Which requirements marked "must have" have never appeared in a release note?
+- Which decisions were superseded, and which documents still cite the superseded version?
+- Which customer requests, weighted by account tier, are not represented anywhere in the roadmap?
+- Which specs implement a PRD that has since been materially revised?
+- Which RFCs sat open past their stated decision date, and who owned them?
+- Which shipped features cannot be traced back to a stated success metric?
+
+Every one of those is currently a spreadsheet somebody rebuilds each quarter, and each is stale within a fortnight.
+
+## 2. The modelling decisions
+
+**ROOT is `ProductDocument`, and a release note is one of them.** Extraction starts from a document, so the root has to be the document kind. Every artefact in the corpus is exactly one of: a PRD, a spec, an RFC, a decision record, a roadmap, a feedback report or a release note. The tempting alternative is to make `Feature` the root, because features are what people talk about, but features do not arrive one per file: a single roadmap document names forty of them, and a release note names twelve. A root must be document-scoped or the DAG has nothing to hang from. So `doc_type` is a CHECK enum on `ProductDocument`, and everything a document says about a feature is a child entity beneath it.
+
+**`Requirement` is an entity, not a set of columns on the PRD.** A column populated only some of the time is a modelling error wearing a convenience costume. A PRD carries between three and eighty requirements; `requirement_1`, `requirement_2` is not a schema, and `must_have_requirements TEXT` is a paragraph pretending to be data. More importantly, a requirement is structured in its own right: it has a priority, an acceptance criterion, a stated user outcome, a flag for whether it is in or out of scope for the first release, and a feature it belongs to. Flattening that loses the only thing that makes the traceability question askable. The same argument applies to `SuccessMetric`: a document states zero to six of them, each with a baseline, a target and a measurement window, and a single `target_metric FLOAT` column would be populated on PRDs, null on RFCs and meaningless on release notes.
+
+**KEYs are the resolution identity.** `Feature` is keyed on `feature_name` alone, deliberately: collapsing every spelling of a feature across every document into one node is the entity's entire job, and anything more specific in the key would defeat it. `ProductDocument` is keyed on `(doc_title, doc_type, revision)`, because no single field identifies an artefact: titles get reused between a PRD and its spec, and "v2" of a PRD is a genuinely different document from v1 with different requirements inside it. `Requirement` is keyed on `(requirement_ref, statement)` within its parent, since a document's own numbering restarts at REQ-1 in every file and the `UNDER` hierarchy supplies the document scoping. `Stakeholder` is keyed on `person_name` for the same reason as `Feature`.
+
+**FUZZY where names drift, EXACT where identifiers are transcribed.** Feature-name drift is the canonical case here and it is worse than counterparty drift in a contract estate, because nobody signs a feature name. The PRD calls it "Scheduled Digest Delivery", the spec calls it "digest scheduler", the roadmap row reads "Digests (scheduling)", and the release note announces "Recurring Digests". Normalised string equality resolves none of those pairs, and stemming or token overlap makes it worse rather than better: "Digest Export" and "Digest Import" share three quarters of their tokens and are opposite features. So `about_feature` uses `RESOLVE FUZZY WITHIN sercha_product.Feature`, and the `WITHIN` clause is load-bearing: it confines the judge to extracted `Feature` nodes, so a feature name is never matched against a stakeholder's name or a metric label. By contrast `supersedes` links on `supersedes_ref` with `RESOLVE EXACT`, because a decision record that supersedes another quotes its identifier verbatim from the header block; that is a transcribed string, not a name written from memory, and fuzzy matching there would silently attach the wrong decision to the chain.
+
+**What is deliberately not modelled.** Engineering execution: tickets, sprints, story points, burndown, assignee history. It matters enormously and it belongs in a separate ontology, because it lives in a tracker rather than in prose, arrives through an API rather than through extraction, and modelling it properly needs its own five entities. Bolting a `ticket_id TEXT` onto `Requirement` to gesture at it would be worse than omitting it, since it would be populated on recently written PRDs, null on everything older than a year, and quietly wrong wherever a requirement fanned out into six tickets. Also excluded: full body text of documents. `Requirement` stores a statement and an acceptance criterion, not the surrounding prose; the prose is reachable through the pipeline with `MATCHES`, and copying it into the graph makes the graph large without making it more answerable.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY sercha_product;
+
+-- ROOT. Every artefact in the corpus is exactly one document kind.
+-- A release note is a document in its own right, not an attribute of a feature.
+CREATE ENTITY sercha_product.ProductDocument (
+  doc_title       TEXT NOT NULL
+    EXTRACT 'the title as printed at the top of the document, excluding any status prefix such as DRAFT or ARCHIVED',
+  doc_type        TEXT NOT NULL CHECK (doc_type IN
+    ('prd','tech_spec','rfc','decision_record','roadmap','feedback_report','release_note','postmortem')),
+  revision        TEXT
+    EXTRACT 'the version label as written, e.g. v2 or Rev C; use the string draft where the document is unversioned and still in draft',
+  status          TEXT CHECK (status IN
+    ('draft','in_review','approved','shipped','superseded','abandoned')),
+  authored_on     DATE
+    EXTRACT 'the date the document was written or last materially revised; not the date it was exported',
+  decision_due_on DATE
+    EXTRACT 'on an RFC or decision record only: the date by which a decision was meant to be made',
+  owner_name      TEXT
+    EXTRACT 'the single named document owner or driver, as written in the header block; not the whole reviewer list',
+  target_release  TEXT
+    EXTRACT 'the release or milestone label the document targets, e.g. 2026.Q1 or Release 14; null where the document names none',
+  primary_feature_name TEXT
+    EXTRACT 'the feature this document is chiefly about, in the document''s own wording; this is the field the about_feature edge resolves on',
+  -- Only populated on decision records and RFCs that replace an earlier one.
+  supersedes_ref  TEXT
+    EXTRACT 'the identifier of the decision or RFC this document replaces, copied verbatim from the header, e.g. ADR-0042',
+  decision_ref    TEXT
+    EXTRACT 'this document''s own decision identifier where it has one, e.g. ADR-0051 or RFC-118',
+  -- Title alone collides across a PRD and its spec; revision distinguishes v1 from v2.
+  KEY (doc_title, doc_type, revision)
+) ROOT;
+
+-- Resolution target for feature-name drift. Keyed on the name alone, because
+-- collapsing every spelling into one node is the whole reason this exists.
+CREATE ENTITY sercha_product.Feature (
+  feature_name    TEXT KEY
+    EXTRACT 'the feature as named, in title case, stripped of surrounding words like support for or improvements to',
+  surface_area    TEXT CHECK (surface_area IN
+    ('web_app','mobile_app','public_api','admin_console','data_pipeline','notifications','billing','platform')),
+  lifecycle_stage TEXT CHECK (lifecycle_stage IN
+    ('proposed','committed','in_build','beta','generally_available','deprecated','withdrawn')),
+  is_customer_facing BOOLEAN
+);
+
+-- UNDER ProductDocument: requirements are structural children of the file they
+-- are written in. Composite key because REQ-1 exists in almost every PRD.
+CREATE ENTITY sercha_product.Requirement (
+  requirement_ref     TEXT
+    EXTRACT 'the reference as printed, e.g. REQ-4 or R2.1; null where the document numbers nothing',
+  statement           TEXT NOT NULL
+    EXTRACT 'the requirement as one sentence in the document''s own words; do not rewrite it into a user story',
+  priority            TEXT NOT NULL CHECK (priority IN
+    ('must_have','should_have','could_have','wont_have_this_release')),
+  requirement_kind    TEXT CHECK (requirement_kind IN
+    ('functional','non_functional','constraint','compliance','accessibility','performance')),
+  acceptance_criteria TEXT
+    EXTRACT 'the stated test for done, where the document gives one; leave null rather than inventing a plausible criterion',
+  in_scope_first_release BOOLEAN
+    EXTRACT 'true where the document explicitly places the requirement in the first release; false where it is deferred or listed under out of scope',
+  feature_name        TEXT
+    EXTRACT 'the feature this requirement belongs to, as named in this document; the wording will differ between documents and that is expected',
+  KEY (requirement_ref, statement)
+) UNDER sercha_product.ProductDocument;
+
+-- Its own entity, not columns: a document states zero to six metrics, and each
+-- has a baseline, a target and a window that only mean anything together.
+CREATE ENTITY sercha_product.SuccessMetric (
+  metric_name      TEXT NOT NULL
+    EXTRACT 'the metric as named, e.g. weekly active teams or median time to first digest',
+  metric_kind      TEXT CHECK (metric_kind IN
+    ('adoption','engagement','retention','revenue','efficiency','quality','guardrail')),
+  baseline_value   FLOAT
+    EXTRACT 'the stated current value; null where the document sets a target without naming a baseline',
+  target_value     FLOAT,
+  unit             TEXT CHECK (unit IN
+    ('percent','count','currency','seconds','days','ratio','score')),
+  measurement_window_days INTEGER
+    EXTRACT 'the period over which the target is to be judged, in days; convert a stated quarter to 90',
+  KEY (metric_name, metric_kind)
+) UNDER sercha_product.ProductDocument;
+
+-- BOUNDED PER DOC: a decision record states one decision, an RFC at most a few.
+CREATE ENTITY sercha_product.Decision (
+  decision_summary TEXT NOT NULL
+    EXTRACT 'the decision itself in one sentence, in the active voice: what was chosen, not what was discussed',
+  decision_status  TEXT NOT NULL CHECK (decision_status IN
+    ('proposed','accepted','rejected','deferred','superseded')),
+  decided_on       DATE,
+  rationale        TEXT
+    EXTRACT 'the stated reason the option was chosen, not a summary of the whole document',
+  reversibility    TEXT CHECK (reversibility IN ('one_way_door','two_way_door','unclear'))
+    EXTRACT 'whether the document treats the decision as cheap to reverse; judge on substance where it is not stated in those words',
+  KEY (decision_summary, decision_status)
+) BOUNDED PER DOC UNDER sercha_product.ProductDocument;
+
+-- Customer input as extracted from feedback reports and PRD appendices.
+-- Zero to many per document, each with its own source and its own strength.
+CREATE ENTITY sercha_product.CustomerRequest (
+  request_summary  TEXT NOT NULL
+    EXTRACT 'what the customer asked for, in one sentence, keeping their framing rather than the product team''s',
+  account_tier     TEXT CHECK (account_tier IN
+    ('enterprise','mid_market','small_business','free','internal','unknown')),
+  request_source   TEXT CHECK (request_source IN
+    ('support_ticket','sales_call','user_interview','survey','community_forum','advisory_board','churn_review')),
+  severity         TEXT CHECK (severity IN ('blocker','major','minor','nice_to_have')),
+  is_churn_risk    BOOLEAN
+    EXTRACT 'true only where the document states the account raised this in the context of renewal risk or cancellation',
+  requested_feature_name TEXT
+    EXTRACT 'the feature the request maps to, using the customer''s or the report author''s wording; leave null where the request names no feature',
+  KEY (request_summary, request_source)
+) UNDER sercha_product.ProductDocument;
+
+-- Named people, for ownership and review questions. Keyed on name alone so
+-- every mention across the corpus resolves to one node.
+CREATE ENTITY sercha_product.Stakeholder (
+  person_name  TEXT KEY
+    EXTRACT 'the person''s name as written; keep the form used in the document rather than expanding initials',
+  discipline   TEXT CHECK (discipline IN
+    ('product','engineering','design','research','data','support','sales','legal','security')),
+  involvement  TEXT CHECK (involvement IN ('owner','reviewer','approver','contributor','informed'))
+);
+
+-- ---------- Edges ----------
+
+-- External, FUZZY: the canonical case. A single feature is named four different
+-- ways across the PRD, the spec, the roadmap row and the release note.
+-- WITHIN bounds the judge to Feature nodes, so a feature name is never matched
+-- against a person or a metric label.
+CREATE EDGE sercha_product.about_feature
+  ON sercha_product.ProductDocument ABOUT sercha_product.Feature
+  LINK BY primary_feature_name RESOLVE FUZZY
+  WITHIN sercha_product.Feature;
+
+-- Same drift, one level down: a requirement names its feature in the PRD's
+-- wording, which is not the wording the release note will use.
+CREATE EDGE sercha_product.requires_feature
+  ON sercha_product.Requirement SPECIFIES sercha_product.Feature
+  LINK BY feature_name RESOLVE FUZZY
+  WITHIN sercha_product.Feature;
+
+-- Customer wording drifts furthest of all, so FUZZY again.
+CREATE EDGE sercha_product.requests_feature
+  ON sercha_product.CustomerRequest REQUESTS sercha_product.Feature
+  LINK BY requested_feature_name RESOLVE FUZZY
+  WITHIN sercha_product.Feature;
+
+-- Self-referencing, EXACT: a decision record transcribes the superseded
+-- identifier character for character from its header block.
+CREATE EDGE sercha_product.supersedes
+  ON sercha_product.ProductDocument SUPERSEDES sercha_product.ProductDocument
+  LINK BY supersedes_ref RESOLVE EXACT;
+
+-- Ownership. Names are written inconsistently enough to warrant FUZZY.
+CREATE EDGE sercha_product.owned_by
+  ON sercha_product.ProductDocument OWNED_BY sercha_product.Stakeholder
+  LINK BY owner_name RESOLVE FUZZY
+  WITHIN sercha_product.Stakeholder;
+
+-- Internal edges: structural, resolved by position within one document.
+CREATE EDGE sercha_product.states_requirement
+  ON sercha_product.ProductDocument STATES sercha_product.Requirement;
+
+CREATE EDGE sercha_product.targets_metric
+  ON sercha_product.ProductDocument TARGETS sercha_product.SuccessMetric;
+
+CREATE EDGE sercha_product.records_decision
+  ON sercha_product.ProductDocument RECORDS sercha_product.Decision;
+
+CREATE EDGE sercha_product.captures_request
+  ON sercha_product.ProductDocument CAPTURES sercha_product.CustomerRequest;
+```
+
+## 4. Extraction
+
+The corpus partitions by folder because the product record is filed one folder per product area. That makes `_folder` a first-class dimension: "everything in the notifications area" becomes a `GROUP BY` rather than string surgery on a path.
+
+```sql
+CREATE CORPUS product_record
+  ON confluence.product_space."Specs.Current",
+     confluence.product_space."Decisions",
+     gitfiles.docs_repo."product.releases"
+  USING ONTOLOGY sercha_product
+  PARTITION BY FOLDER LEVEL 1;
+
+BIND CORPUS product_record TO ONTOLOGY sercha_product;
+
+RUN BINDING product_record.sercha_product;
+```
+
+The hint attaches to the root, because `extract_internals` invocations exist only for root entities; children declared `UNDER ProductDocument` are extracted inside the root's invocation, so describing them here is the only way to steer them.
+
+```sql
+ALTER BINDING product_record.sercha_product
+  SET HINT ON extract_internals WHERE root = ProductDocument AS
+  'Classify doc_type from the document''s own header and structure, never from
+   the folder it sits in: release notes and PRDs are routinely filed together in
+   a feature folder. A document with a Decision and Consequences section is a
+   decision_record even where it is titled RFC. A document that is a dated list
+   of shipped changes is a release_note, whatever it is called.
+   For primary_feature_name and for Requirement.feature_name, record the feature
+   exactly as this document words it. Do not normalise across documents and do
+   not guess at a canonical name: reconciling the wording is the job of the
+   about_feature edge, and a helpful rewrite here destroys the evidence it needs.
+   Treat every numbered or bulleted shall, must or should statement in a PRD or
+   spec as a Requirement, including those under an Out of scope heading; set
+   in_scope_first_release = false for those rather than dropping them.
+   Only populate supersedes_ref where the document names the identifier it
+   replaces, and copy it verbatim including any prefix and leading zeroes.
+   Where a document states no success metrics at all, emit no SuccessMetric
+   rather than a row of nulls.';
+```
+
+Backfilling a column added after the first run reuses the same machinery, without re-extracting everything:
+
+```sql
+ALTER ENTITY sercha_product.Requirement ADD COLUMN estimated_effort TEXT;
+
+RUN BINDING product_record.sercha_product
+  EXTRACT (Requirement.estimated_effort);
+```
+
+## 5. Queries that earn their keep
+
+**Which features have shipped, and which documents contributed to each, following the feature edge rather than matching on name.**
+
+```sql
+SELECT f.feature_name,
+       f.surface_area,
+       f.lifecycle_stage,
+       d.doc_type,
+       d.doc_title,
+       d.revision,
+       d.authored_on
+FROM product_record.ProductDocument d
+JOIN product_record.Feature f VIA d.about_feature
+WHERE f.lifecycle_stage IN ('beta','generally_available')
+ORDER BY f.feature_name, d.authored_on ASC;
+```
+
+The traversal is the point: none of these documents spell the feature the same way, so an equality join on the raw text would return a fraction of the rows and quietly imply the rest do not exist.
+
+**Where demand is concentrated: customer pull per feature, weighted towards the accounts that pay.**
+
+```sql
+SELECT f.feature_name,
+       COUNT(*)                        AS requests,
+       COUNT(DISTINCT cr._doc)         AS across_reports,
+       SUM(CASE WHEN cr.account_tier = 'enterprise' THEN 3
+                WHEN cr.account_tier = 'mid_market' THEN 2
+                ELSE 1 END)            AS weighted_pull,
+       SUM(CASE WHEN cr.is_churn_risk = true THEN 1 ELSE 0 END) AS churn_flagged,
+       ARRAY_AGG(cr.request_source)    AS sources
+FROM product_record.CustomerRequest cr
+JOIN product_record.Feature f VIA cr.requests_feature
+WHERE cr.severity IN ('blocker','major')
+GROUP BY f.feature_name
+ORDER BY weighted_pull DESC;
+```
+
+**Extraction triage using system columns: which requirement rows a human should check before anyone builds a plan on them.**
+
+```sql
+SELECT r._doc,
+       r._confidence,
+       r._folder,
+       r._run_id,
+       d.doc_title,
+       r.requirement_ref,
+       r.priority,
+       r.statement
+FROM product_record.Requirement r
+JOIN product_record.ProductDocument d USING (_doc)
+WHERE r._confidence < 0.7
+  AND r.priority = 'must_have'
+ORDER BY r._confidence ASC
+LIMIT 50;
+```
+
+`_folder` is projected because the reviewer works one product area at a time, and the folder partition makes that grouping free. `_run_id` is there so a bad batch can be traced back to the run that produced it.
+
+**Stale citations: documents still pointing at a decision that has been replaced.**
+
+```sql
+SELECT newer.decision_ref     AS superseding_decision,
+       newer.doc_title        AS superseding_doc,
+       newer.authored_on      AS superseded_on,
+       older.decision_ref     AS retired_decision,
+       older.doc_title        AS retired_doc,
+       dec.decision_summary,
+       dec.reversibility
+FROM product_record.ProductDocument newer
+JOIN product_record.ProductDocument older VIA newer.supersedes
+JOIN product_record.Decision dec ON dec._doc = older._doc
+WHERE older.status <> 'superseded'
+ORDER BY newer.authored_on DESC;
+```
+
+A document that has been superseded but whose `status` was never updated is the failure mode this catches: the edge knows the truth even when the header block does not.
+
+**Topic sweep on entity rows rather than a document list: which approved specs discuss data residency, and what they require.**
+
+```sql
+SELECT d.doc_title,
+       d.target_release,
+       r.requirement_ref,
+       r.requirement_kind,
+       r.priority,
+       r.acceptance_criteria
+FROM product_record.ProductDocument d
+JOIN product_record.Requirement r VIA d.states_requirement
+WHERE d MATCHES ('data residency regional storage sovereignty' USING default TOP 200)
+  AND d.doc_type IN ('tech_spec','prd')
+  AND d.status = 'approved'
+  AND r.requirement_kind IN ('compliance','non_functional')
+ORDER BY d.target_release, r.priority;
+```
+
+`MATCHES` narrows to documents that plausibly discuss the topic; the requirement filter does the precise work. `SEARCH()` as a table would return ranked documents, which is the wrong shape here: the answer is a list of requirements.
+
+**The hard one: must-have requirements that never reached a release note.**
+
+A requirement lives in a PRD. A release note lives somewhere else entirely and describes the feature in different words. The only bridge is the resolved `Feature` node, which is exactly what the fuzzy edges were built for.
+
+```sql
+WITH shipped_features AS (
+  SELECT DISTINCT f._id AS feature_id
+  FROM product_record.ProductDocument rn
+  JOIN product_record.Feature f VIA rn.about_feature
+  WHERE rn.doc_type = 'release_note'
+),
+committed AS (
+  SELECT r._id       AS requirement_id,
+         r._doc      AS source_doc,
+         r._folder   AS product_area,
+         r.requirement_ref,
+         r.statement,
+         r.priority,
+         d.doc_title,
+         d.target_release,
+         d.authored_on,
+         f._id       AS feature_id,
+         f.feature_name
+  FROM product_record.Requirement r
+  JOIN product_record.ProductDocument d USING (_doc)
+  JOIN product_record.Feature f VIA r.requires_feature
+  WHERE r.priority = 'must_have'
+    AND r.in_scope_first_release = true
+    AND d.doc_type = 'prd'
+    AND d.status IN ('approved','shipped')
+)
+SELECT c.product_area,
+       c.doc_title,
+       c.target_release,
+       c.requirement_ref,
+       c.feature_name,
+       c.statement,
+       c.authored_on
+FROM committed c
+WHERE c.feature_id NOT IN (SELECT feature_id FROM shipped_features)
+ORDER BY c.authored_on ASC;
+```
+
+Read the ordering: the oldest rows at the top are commitments made longest ago with nothing shipped against them, which is the list worth taking to a planning session.
+
+**Overdue RFCs and who is holding them, aggregated by owner.**
+
+```sql
+SELECT s.person_name,
+       s.discipline,
+       COUNT(*)                     AS open_rfcs,
+       MIN(d.decision_due_on)       AS oldest_due,
+       ARRAY_AGG(d.doc_title)       AS documents
+FROM product_record.ProductDocument d
+JOIN product_record.Stakeholder s VIA d.owned_by
+JOIN product_record.Decision dec ON dec._doc = d._doc
+WHERE d.doc_type IN ('rfc','decision_record')
+  AND dec.decision_status IN ('proposed','deferred')
+  AND d.decision_due_on < DATE '2026-07-01'
+GROUP BY s.person_name, s.discipline
+ORDER BY open_rfcs DESC;
+```
+
+## 6. Views
+
+Named vocabulary, so the questions above stop being queries and start being nouns.
+
+```sql
+-- "The committed backlog" is a phrase the whole team uses; define it once.
+CREATE OR REPLACE VIEW committed_requirements AS
+SELECT r._id,
+       r._doc,
+       r._folder,
+       d.doc_title,
+       d.revision,
+       d.target_release,
+       d.authored_on,
+       r.requirement_ref,
+       r.statement,
+       r.priority,
+       r.requirement_kind,
+       r.acceptance_criteria,
+       f.feature_name,
+       f.surface_area,
+       f.lifecycle_stage
+FROM product_record.Requirement r
+JOIN product_record.ProductDocument d USING (_doc)
+JOIN product_record.Feature f VIA r.requires_feature
+WHERE r.priority IN ('must_have','should_have')
+  AND r.in_scope_first_release = true
+  AND d.doc_type IN ('prd','tech_spec')
+  AND d.status IN ('approved','shipped');
+
+-- One row per feature, joining what customers asked for to what was promised.
+CREATE OR REPLACE VIEW feature_demand_profile AS
+SELECT f.feature_name,
+       f.surface_area,
+       f.lifecycle_stage,
+       f.is_customer_facing,
+       COUNT(DISTINCT cr._id)  AS customer_requests,
+       COUNT(DISTINCT cr._doc) AS feedback_reports,
+       SUM(CASE WHEN cr.is_churn_risk = true THEN 1 ELSE 0 END) AS churn_linked_requests,
+       COUNT(DISTINCT d._id)   AS documents_referencing
+FROM product_record.Feature f
+LEFT JOIN product_record.CustomerRequest cr VIA f.requests_feature
+LEFT JOIN product_record.ProductDocument d VIA f.about_feature
+GROUP BY f.feature_name, f.surface_area, f.lifecycle_stage, f.is_customer_facing;
+
+-- The decision ledger, with the supersession chain flattened one hop.
+CREATE OR REPLACE VIEW decision_ledger AS
+SELECT d._doc,
+       d._folder,
+       d.decision_ref,
+       d.doc_title,
+       d.authored_on,
+       d.status              AS document_status,
+       dec.decision_summary,
+       dec.decision_status,
+       dec.decided_on,
+       dec.reversibility,
+       d.supersedes_ref      AS replaces_decision,
+       s.person_name         AS owner
+FROM product_record.ProductDocument d
+JOIN product_record.Decision dec VIA d.records_decision
+LEFT JOIN product_record.Stakeholder s VIA d.owned_by
+WHERE d.doc_type IN ('rfc','decision_record');
+```
+
+</TemplatePage>

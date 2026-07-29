@@ -1,0 +1,71 @@
+---
+id: claim-a-chain-inside-an-authorised-subtree
+title: "Claim a chain inside an authorised subtree"
+description: "Upserts the supplied breadcrumb chain and claims its leaf for the corpus. Used when the corpus picker drills inside an authorised container."
+sidebar_label: "Claim a chain inside an authorised subtree"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVsFuGzcQ/RViL20BWbKLFAh0kyW1VZs6jmUjBWwjoXZHWsZcckty5aiCgJ76AUW/MF/SN9xdS5ZcN8dGB4E7nBkOZx7fzDrJyKdOlUFZk/STq9KTC16EnISvylIrysTMkcxSVxUzkeZSGSFNJlItVeGFgrImORdz66JVal1Z+a648rC8z8nsSEWp0jtyInNKa9garzKCNyGrkFun2CS1JuAMct2kk5TSyYICOZ/0r9d7sQ5rn5MRFBULShlyrA1M8KUyrB39VilHWdIPrqJO4tOcCpn010lYlazlg1NmkWw2t7Uy+XBqsxVrcCRkAi8lZyKVfHDvg+fT1zuuSmdLZE2Rj2acIl6oQIU/3K/DOwigw2pL5MO9czR/UqEWHIbe7iR29oHSsFVNpHNyxd/eVi6ld8hJfz+N07g1GQnVlD1+YymDsPemFsZLfeW31fFcnv8MhEX7RWscNFBy1gbx6c+/IogOCrZhgS+t8XXuvj1+cXiBMyuGTamg/+L4+FDlVGbioq4uzvjswj52MjifCHIOOG9jSjp7tY3bcfFRFqWOMDRLqVUmGnCJGaPrs1IXL/PkfYP43lYm+6Ku8t1TdZkgemekFlNyS2BiHA/9cq7FQrlgcmrYCIeASEBZuc2YkWwEXCSmftJLG53eWmWbXmTQo5ou8EJjBmqeq5yGeh5C2e/1tE2lzuGo//L45UlPlqq3PAHSd9X8v+vdsuu0ciqsppy2Og2nJB25QcVx7Wfxp7eXot4Xwd6R6QJtrpChL24aO7GOG5ubpKXeHB2C3JZ8BzWh/x7rtk0mgvqZVjGZXMuLLeGO23I8EOh1S5VtCfYZcivfK9XtI77bIVBl5rZldpmGLRsnwB+OhavHOfVR3M1omRww2SVocWFRM4OuVWoZ0AELMSNDqDZ6WyCt1QIoFplNq4IXiD8l7xFN98bcmBEBAg4NUNSAFuxNrBD6g4kX9wre6vDevOoI+hgcQkffFXNni0jOjoAzFZBv8vvmUnPzXgmtloSgOrF3I+tu1Zj6Sgfs3nEYmQxyJj11xXjJGmzKbWHGbMODQG0Uckd0pOUK0eJpFQpXskYUNiMtPv3xd9vtF06a0Gm/CipmAHiuyjoIWB49ZGYwfNVYFrgLTw587cHZKKrOpdJHqeaN2vYecA48WlhEnUuf18+ItwNwBM/EQIFjWWVIlbZ1xt+fv55eiuZt9GIa3j/0PZRFk4ARbl5aFDDONBQz0RZA+CDR1tnznTJZX4xGKMpoyH+/4G/64+u3WI6nw4vJ6bgjxr+evxpMzmLQF1dn4nRyNpqc/cDNE6xGzFBbEJ6DqVDDIN3qGST2WkMmHxX0Fr5izHRa8hwlQIXwwYxSo/WkexxnDPBDIc3OoUNmIWSxbsdPjmS+mgVUPNl7ATsT0v9tbmwIIeC19PA0QSebJqHrhoyvk5aMod6Ps+IuH4NCmEpZb73mJ3Hl9GbD4ggayLFcSqfkjAvAs6nyvAbhzKX29Eyuvr5oZpxvxO4I+2TMLW8aRgTaVMVfWN6BReOIu7mFVsO+HEa90cxDR5dsvjU86KXcRWqLQZpSGZ7V3W1s/I6gPGtGZX76kDp5zyMc/mOQNl4+9psoWydamkUlF6xb++TfPyK2Xgo=
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Claim a chain inside an authorised subtree"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/corpuses/{id}/claim-chain"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Upserts the supplied breadcrumb chain and claims its leaf for the corpus. Used when the corpus picker drills inside an authorised container.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Corpus ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"chain":{"items":{"properties":{"name":{"type":"string"},"provider_ref":{"type":"string"},"type":{"type":"string"}},"type":"object"},"type":"array"},"source_id":{"description":"SourceID is the source that owns the chain's containers.","type":"string"}},"type":"object"}}},"description":"Container chain root → leaf","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"204":{"description":"No Content"},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

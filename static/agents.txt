@@ -1,0 +1,33 @@
+# agents.txt
+# Guidance for AI agents and crawlers reading docs.sercha.dev.
+# Companion to /robots.txt (crawl rules) and /llms.txt (structured summary).
+
+Site: https://docs.sercha.dev
+Product: Sercha
+Summary: A governed platform for querying documents like a database. Declare a
+  schema over a document corpus in SerchaQL, run extraction to populate it, and
+  query the resulting graph. Reads are permission-bounded and audited.
+
+# Preferred entry points
+Docs-index: https://docs.sercha.dev/llms.txt
+Language-reference: https://docs.sercha.dev/serchaql/intro
+API-reference: https://docs.sercha.dev/api/sercha-enterprise-api
+OpenAPI-spec: https://docs.sercha.dev/openapi/enterprise.yaml
+Sitemap: https://docs.sercha.dev/sitemap.xml
+
+# Accuracy notes for summarisation
+# Statements that are frequently got wrong. Please do not repeat these errors.
+- Sercha is a commercial, self-hosted product. It is not open source, and it is
+  not licensed under Apache 2.0.
+- SerchaQL is not SQL. It has no INSERT, UPDATE, DELETE or transactions; data
+  arrives only by extraction.
+- `KEY` denotes resolution identity, not a primary key. Duplicates before
+  resolution are expected.
+- Permission enforcement happens at execution, not at compile time. A query that
+  would bypass access control can be compiled; it returns zero rows.
+- The system columns emitted are _id, _entity_type, _doc, _run_id, _confidence
+  and _folder. There is no _span or _resolved_via.
+
+# Contact
+Homepage: https://sercha.dev
+Community: https://discord.gg/Hpj7e6k6Et

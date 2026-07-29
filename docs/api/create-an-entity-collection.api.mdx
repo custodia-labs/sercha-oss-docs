@@ -1,0 +1,71 @@
+---
+id: create-an-entity-collection
+title: "Create an entity collection"
+description: "Creates a new ontology entity collection. The ID (slug) is assigned by the server."
+sidebar_label: "Create an entity collection"
+hide_title: true
+hide_table_of_contents: true
+api: eJy9Vttu20YQ/ZXBPrWALnYvQKA32VJbta7t+IIUiINmRY7JjZdcdncphxUE9CP6hf2SniHpq+QULdDoQSBnZ4Znbmd2rVIOiTdVNK5UE3XoWUcOpKnkW3JldNZlDXEZTWwocdZyIqojusiZFjP6Itg6+5IMTEIwWckpLRuKOAzsV+xHaqA8/1ZziAcubdRkrRK4hUN51FVlTaLF4/hDEARrFZKcCy1PlXcV+2g4yNsToGsVm4oBOERvykxtBqrUBe84wEkvccsPAA8JRM+ivo+LUr42pWnlHXDjOVWT6GveiCBUrgwdoK/29rdw9QlMYfwfw0w6B7/quDPKf8qCSXeKb0y5++CFrA1UXaUv49iVVMi+2dvbzsiBTums64B/kxWdpm0ZtD19kp8toLuAfLsLyAJf9vBH521n0tx75z8jpK+3IQkSkzBdlnqljdVLy58JkAh1Bu236qSbcrF9N1AFx9yhV1Tl2oJVOuZ4G3cUMHyggIDDbsbFy1rV3kIvj7GajMfWJdrm8DB5tfdqf6wrM17tA8ljtfCy3jtxndQeXzyXaLuwDlh79tNaAD3P5I9vLqg7p+huGAT1nfOFjhO66u1o3R5srhSAG7HJWacsHdANgRLPzpvfdT/+fdYA6idu2qaXEpw9sNn8oy4qy9to+szfe340n+W1uyNBnbQ17nXQC0muYfM0Q6EVj1JebY2/Eg7OHCogtFtZHa8RMy25BIXkZNBF1poMlaPUJXUhDyCbhMHUZTa6Kq/KGScWyQHfd11F4o0aV/t7k0C3Bt46eK+PBsQfowd0MpGuvStasveMdjER2cPyeGauLSgtbciaFQPUgHSZEnLom9401Dbi9EZggHT0Ugce0XwlGmIq22Xp6jJ9WC4x98xDqxugReMXBiGBvQuXsqW//vgTq8pXdaDM6zIO7t4KLpZo19xUHQhYDu8zMz086i0LxIJPtWFPj2et6jXGc5hYOehsb9GcmFJ0G1DnOuRDpMeUchzRFfDMK5OKY11jSgkT1mb8/enJ+QX1nT5u0/BeAmxXJspiWbYtIq8cCkioKHGbibsCUIgg5haysPqEZjMUZXYofz/j7/yHkzd4nJ8fni0O5gOa/3J6NF0ct6DPLo/pYHE8Wxx/L4sZ1MLYZo+aUHgENYzaN5/oxPGdobCIifahfWkuJAsXgWl6uoAP4YeuW/dHe2IgvFLo8tFHu50JgNv3DLW18e7J8f+5q/QzH9HkY0wUeGLT52HdU+FbtYMKQVjCYnK6Xkv/Xnq72Yi4rTDkeFxpb1qKxxu89vQj3HkDfpFrSBva8EIwiLqtO/55tgOERjuLaZJwFT+p+5jSpfWgvOwvYjItkHp9K3cd/E+EGl3VhQSFVrZWVpdZrTPR7XzK7282eJLi
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create an entity collection"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/entity-collections"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new ontology entity collection. The ID (slug) is assigned by the server.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"description":{"type":"string"},"name":{"type":"string"}},"type":"object"}}},"description":"Collection definition","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"201":{"description":"Created","content":{"application/json":{"schema":{"properties":{"created_at":{"type":"string"},"description":{"type":"string"},"id":{"type":"string"},"kind":{"type":"string"},"name":{"type":"string"},"updated_at":{"type":"string"}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"503":{"description":"Service Unavailable","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

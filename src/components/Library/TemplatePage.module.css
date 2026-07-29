@@ -1,0 +1,282 @@
+/**
+ * TemplatePage: the marketplace detail layout.
+ *
+ * No sidebar. A header block carrying everything a reader needs to decide
+ * whether this is their template, then the write-up in a comfortable measure.
+ */
+
+.head {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 0 2.5rem;
+  border-bottom: 2px solid var(--edge);
+  background: var(--hero-bg);
+}
+
+.head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(110% 80% at 15% 0%, #000 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(110% 80% at 15% 0%, #000 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.head > div {
+  position: relative;
+}
+
+.crumb {
+  display: inline-block;
+  margin-bottom: 1.35rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--ifm-color-content-secondary);
+  text-decoration: none;
+}
+
+.crumb:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.headTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 52px;
+  height: 44px;
+  padding: 0 0.5rem;
+  border: 2px solid var(--edge);
+  border-radius: 10px;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--edge);
+}
+
+.title {
+  margin: 0 0 0.2rem;
+  font-family: var(--sercha-font-display);
+  font-size: clamp(1.8rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ifm-color-content-secondary);
+}
+
+.cat {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0.24rem 0.55rem;
+  border: 1.5px solid var(--edge);
+  border-radius: 6px;
+  background: var(--ifm-background-color);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.summary {
+  max-width: 46rem;
+  margin: 0 0 1.6rem;
+  font-size: 1rem;
+  line-height: 1.62;
+  color: var(--ifm-color-content-secondary);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.metaBlock {
+  min-width: 0;
+}
+
+.metaLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary);
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  color: var(--ifm-color-content-secondary);
+}
+
+.stats strong {
+  color: var(--ifm-heading-color);
+  font-size: 0.95rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.tag {
+  padding: 0.2rem 0.5rem;
+  border: 1.5px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  background: var(--ifm-background-color);
+  font-size: 0.76rem;
+  color: var(--ifm-color-content-secondary);
+}
+
+.answers {
+  max-width: 46rem;
+}
+
+.answerList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.answerList li {
+  position: relative;
+  margin-bottom: 0.32rem;
+  padding-left: 0.95rem;
+  color: var(--ifm-color-content-secondary);
+}
+
+.answerList li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--ifm-color-primary);
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: 700;
+}
+
+/* Body */
+
+.body {
+  padding: 2.75rem 0 4rem;
+}
+
+/* A comfortable reading measure for the write-up, but code blocks and tables
+   are allowed to use the full width. */
+.prose {
+  max-width: 52rem;
+}
+
+.prose :global(h2) {
+  margin-top: 2.4rem;
+  padding-top: 1.4rem;
+  border-top: 2px solid var(--ifm-color-emphasis-200);
+  font-size: 1.45rem;
+}
+
+.prose :global(h2:first-child) {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.prose :global(h3) {
+  margin-top: 1.8rem;
+  font-size: 1.1rem;
+}
+
+.prose :global(pre) {
+  max-width: none;
+}
+
+.prose :global(table) {
+  display: table;
+  width: 100%;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 3rem;
+  padding-top: 1.75rem;
+  border-top: 2px solid var(--ifm-color-emphasis-200);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.05rem;
+  border: 2px solid var(--edge);
+  border-radius: 8px;
+  background: var(--ifm-background-color);
+  box-shadow: 3px 3px 0 var(--edge);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ifm-heading-color);
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--edge);
+  text-decoration: none;
+  color: var(--ifm-heading-color);
+}
+
+@media screen and (max-width: 768px) {
+  .headTop {
+    flex-wrap: wrap;
+  }
+
+  .cat {
+    margin-left: 0;
+    order: -1;
+  }
+
+  .meta {
+    gap: 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  .btn:hover {
+    transform: none;
+  }
+}

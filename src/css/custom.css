@@ -1,10 +1,42 @@
 /**
  * Sercha Brand Styles
- * Palette C — Refined: Neutral, progressive palette with indigo-violet accent
+ * Palette C - Refined: Neutral, progressive palette with indigo-violet accent
  */
 
-/* Import Inter font for UI */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Chillax is the Sercha brand face, self-hosted and shared with the other
+   sites. JetBrains Mono is loaded for code, where Chillax has no mono cut. */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Light.otf') format('opentype');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
 
 /* ===========================
    Sercha Brand Color Palette
@@ -32,8 +64,9 @@
   --sercha-terminal-green: #27C93F; /* Terminal UI decoration */
 
   /* ===== Typography ===== */
-  --ifm-font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-  --ifm-font-family-monospace: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --ifm-font-family-base: 'Chillax', system-ui, -apple-system, sans-serif;
+  --sercha-font-display: 'Chillax', system-ui, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
 
   /* ===== Docusaurus Color Mappings (Light Mode) ===== */
   /* Primary accent - Sercha Indigo */
@@ -67,7 +100,7 @@
   --ifm-color-success: #10B981;
   --ifm-color-success-dark: #0e9f6e;
 
-  /* Code blocks — darker background for better contrast in light mode */
+  /* Code blocks - darker background for better contrast in light mode */
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(102, 117, 255, 0.1);
   --ifm-code-background: #e0e1e4;
@@ -333,7 +366,7 @@ code {
 }
 
 /* ===========================
-   Code Blocks — Darker background, persistent copy button
+   Code Blocks - Darker background, persistent copy button
    =========================== */
 
 /* Darker code block background in light mode */
@@ -351,7 +384,7 @@ div[class*='codeBlockTitle'] {
   letter-spacing: 0.02em;
 }
 
-/* Copy button — always visible */
+/* Copy button - always visible */
 button[class*='copyButton'] {
   opacity: 1 !important;
   visibility: visible !important;
@@ -369,10 +402,10 @@ button[class*='copyButton']:hover {
 }
 
 /* ===========================
-   Tables — Clean Sercha Style
+   Tables - Clean Sercha Style
    =========================== */
 
-/* All markdown tables — Sercha brand style */
+/* All markdown tables - Sercha brand style */
 table {
   border-collapse: separate;
   border-spacing: 0;
@@ -741,4 +774,156 @@ table tbody tr:nth-child(even) td {
 
 .header-discord-link::before {
   mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z'/%3E%3C/svg%3E");
+}
+
+/* ── SerchaQL token colours (Playground component) ───────────────────────────
+   Declared globally rather than in the CSS module so the dark-theme override
+   reliably wins the cascade. Light values match the Studio editor's
+   CodeMirror highlight style; dark values are lifted for contrast on the
+   dark surface. */
+:root {
+  --serchaql-keyword: #6675ff;
+  --serchaql-string: #0a8f4f;
+  --serchaql-number: #b5630a;
+  --serchaql-comment: #7b8088;
+  --serchaql-system: #9333ea;
+  --serchaql-ident: #333f50;
+  --serchaql-op: #7b8088;
+}
+
+[data-theme='dark'] {
+  --serchaql-keyword: #9aa5ff;
+  --serchaql-string: #4ade80;
+  --serchaql-number: #fbbf24;
+  --serchaql-comment: #8b93a1;
+  --serchaql-system: #c084fc;
+  --serchaql-ident: #e5e7eb;
+  --serchaql-op: #9ca3af;
+}
+
+/* ===========================
+   Landing console + grid tokens
+   =========================== */
+
+:root {
+  --grid-line: rgba(51, 63, 80, 0.07);
+  --edge: #333f50;              /* hard border + offset shadow colour */
+  --hero-bg: #f7f7f9;
+  --band-bg: #f2f2f5;
+  --mark-fg: #ffffff;           /* text sitting on the marker highlight */
+  --step-num-bg: #ffffff;
+  --console-bg: #ffffff;
+  --console-bar: #f0f1f4;
+  --console-out: #fafafb;
+  --console-hairline: rgba(51, 63, 80, 0.13);
+  --console-fg: #333f50;
+}
+
+[data-theme='dark'] {
+  --grid-line: rgba(255, 255, 255, 0.055);
+  --edge: #000000;
+  --hero-bg: #141519;
+  --band-bg: #131418;
+  --mark-fg: #ffffff;
+  --step-num-bg: #1e2024;
+  --console-bg: #16171a;
+  --console-bar: #1e2024;
+  --console-out: #121316;
+  --console-hairline: rgba(255, 255, 255, 0.1);
+  --console-fg: #e5e7eb;
+}
+
+/* ===========================
+   Navbar: thinner, quieter, monospace nav
+   =========================== */
+
+.navbar {
+  height: 3.5rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  box-shadow: none;
+  backdrop-filter: saturate(180%) blur(8px);
+  background: color-mix(in srgb, var(--ifm-navbar-background-color) 85%, transparent);
+}
+
+.navbar__inner {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.navbar__brand {
+  margin-right: 2rem;
+}
+
+.navbar__logo {
+  height: 1.6rem;
+}
+
+/* Nav items read as console labels rather than marketing links. */
+.navbar__item.navbar__link {
+  position: relative;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.79rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.navbar__item.navbar__link:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+/* Active section gets a small indigo underline. */
+.navbar__link--active::after {
+  content: '';
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: 0.1rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ifm-color-primary);
+}
+
+@media (max-width: 996px) {
+  .navbar__item.navbar__link {
+    font-size: 0.9rem;
+  }
+}
+
+/* Display face on headings, so doc pages share the landing page's voice. */
+h1, h2, h3,
+.navbar__title,
+.menu__link--sublist-caret {
+  font-family: var(--sercha-font-display);
+  letter-spacing: -0.012em;
+}
+
+/* Library detail pages: the MDX page wrapper constrains its child to a column
+   and adds padding, which stops the template header banding edge to edge.
+   Neutralise the wrapper so the header and body control their own width. */
+.library-detail {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.library-detail > .container,
+.library-detail > div > .container {
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.library-detail > div > .row,
+.library-detail .row {
+  margin: 0 !important;
+}
+
+/* The right-hand table of contents column keeps its own padding back. */
+.library-detail .col {
+  padding: 0 !important;
 }

@@ -1,0 +1,72 @@
+---
+id: check-grant
+title: "Check grant"
+description: "Checks whether the calling user has the action on the object, including transitive group membership."
+sidebar_label: "Check grant"
+hide_title: true
+hide_table_of_contents: true
+api: eJzdVttuGzcQ/ZXBPiWAbNlFCwTqk2ypqRrXcX1BCsRGQu2OtYy55IbkylEFAf2IfmG/pGe4K1/kOE2KvKSAIS/JGc6V58wyKzjkXtdRO5sNsv2S86tA1yXHkj3hh3JljLYzagI2ShXSpspFgfAnKzd9x3nskba5aQoRjl7ZoKOeM828a2qquJqyD6Wut8/tKXRCk5RIB1LmWi26exv82qhzFblIJn9M+2yL2mkbqXAcyLoID3Ku8W990RtdUK28qjiy38562c0iZIPXy404h63/0VEuEdOTwCaFAJM9UkWl7VPcoUX2fcN+gYXFdVi2oWPt+X2jPRfZIPqGe1nAVZXKBsssLmqRDNEjF9lq1ds0/7KN/Urbgp7kztdN6NEUK8j3qNY1I+X8mAdtut+I9ldxYzL6tCH9ZWYuRDjUzgYOcv7dzo782zD9AnfmzkZUW05VXRupOk7774KILO+YqL2r2UfdXoiGdNfiyY3tqXOGlZUY11ut79iRve8/5sKeKugYUXGIX+LLRiMdTYi9d57WMUvr3XM3HaePD6qqjTin7VwZNKxvzdPUFZL2BwV7JJjdh36cWXk6zus/uPimovnhY6WZwHtvlaET9nPAzjgZ/XbCkk01E+DJngMJY8jwKABGpUPXZjOOCZ9iiUV/lgT6CYewHVLELWY13kCijLEe9PvGAYlLF+Lg2c6z3b6qdX++m8mjvhULj8tdyNV543VcnEia2rD3WHn2w0Zc2czaL69OqT0HTl6x3aafnK9UHNB5p0fLdLA6z9YAUrIq2N8iyLBrStVhZpcqOPWCFyl52l46sS2lBbTKZ6eL2uelgtL9+ELa3i54juA3XBZimTnkz4I9aqPiJTymKVtGskFPkcFlM048kjeVfKANcg4BtQQxndsR5wahCa+kZiK5jRau8TcqoEeN21r3fjvoEX8A3QmVRbr0rkqE5bl2IEDEDr7aUFfGI00LMkKP2oJvQAMJejvV0JiI0ytxo1BRTVXgbRrPRUJUhTSnrrEFopy2SrH0zFtGLeAt2rrSCAkEV7mCDf3951/UsgylbuutV7es3DoBza2bzAz3DzrNCrHAVAp7eDhKopdKm63cyEGre43WwuMUTlUyJ5RbSA9YDMcRTwo381wXcrHCjID4XJvxt0cvT06p69N+SsNbCVCikrIYYf+IyNsBABUlTplYF4BCxLSQXBZKHNBohKKM9uXnV/yc/PzyFT7HJ/vHk71xj8a/Hx0MJ4fJ6eOzQ9qbHI4mh89lZgCisKDDbRMeASVQw6gSLz7Wif21ojx8Hc1t+9JYoAxXBCbAEO6Q19126+72jiggubFS9o7RNIW1pco2Wnx5i4H/p2Gtw4WIp9THuwWWrLpsLzugfJ21QCkskKASgCYoJyfLpbyQM29WK9lup5g09OmgpkZGhUtlMNk9nssnx91885Q+czb8qMtXQLU7IyIIpBGhBNP/yZnPnxQ/4c/9gfGrOZXmxn83q+8bvZCF12IVNbqAdEcaUrBWcZja5Y7WA7Jf3eXT5+NTUMk/H0506g==
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check grant"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/grants/check"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Checks whether the calling user has the action on the object, including transitive group membership.
+The subject is always the authenticated user; the endpoint does not accept a subject_id parameter.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Action to check (select, use, admin)","in":"query","name":"action","required":true,"schema":{"type":"string"}},{"description":"Object kind (corpus, binding, pipeline)","in":"query","name":"object_kind","required":true,"schema":{"type":"string"}},{"description":"Object ID","in":"query","name":"object_id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"allowed":{"type":"boolean"}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

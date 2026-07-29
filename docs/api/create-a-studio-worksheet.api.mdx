@@ -1,0 +1,71 @@
+---
+id: create-a-studio-worksheet
+title: "Create a studio worksheet"
+description: "Creates a new named worksheet for the authenticated user."
+sidebar_label: "Create a studio worksheet"
+hide_title: true
+hide_table_of_contents: true
+api: eJztV19PIzcQ/yojP4cEqlY65S2QtE175SgBXSVAnLM7yfrw2lvbG8hFkfoh+gn7STpjb0JCEtrrPVSVysOyjGdm589vfh4WIkefOVUFZY3oijOHMqAHCQYfwcgSc3i07sEXiAEm1kEoEGRNTxNURro51B5dW7SEw19r9OHU5nPRXYjMmkBK/CqrSrMyfaPz0fOHFsJnBZaS3ypnK3RBoX9hFuYVUkw+OGWmYtlKZ09hr9FETe8L6YsDhq6q/b3KXzvlbPee01etttP5Ifv1+V97mKHzKhXghRJpNRI7/ohZYLOJ1Tm6vR4PfGrXC4u2ezyKvcxxooyKotQ65ZDSC67GJQt8ZY1P1f3q+IR/7UNKLlr/N/rLG52lYt7LsFvo2qgnKL1YmymqzZRg8TpADqRwMPK6yv9BCPvwRrKvj493vZzKHC4TR3wOarad9C6GgM4REa0gSr62MRKP48uTLCud4p1JrXJoKArGzFGtvzM8MZk98L82TILWqU+fNwP/ejbf7GvNkKJ3RmoYoSPkwiB+9L+TFgvllBzfiFGoc2XFXUuUSA2iKRCVjYirZCDSEB0fNTrxSmNM+5gzGy9E7TSpFCFU3U5H20zqgoy7b47fnHRkpTqzE5qVTTV/WO+OXWe1U2E+4kKlxE9ROnS9OhS7dfvh/RWkcwj2AU0bvrWulKELt40dLOLB8lZQ4IptCpRMAavJFr0GlrKh9qZYFNSPOI/l4+5dPt/Vg1UDNih5Ve0tJt7i3k2NNeXuCJuY1uItgt0jPqi/ptMNxlqR37P6tjmToJnYVWIyi1k0OgT0rJBks91KH8XtHGdi5968os1naikSQ0tPpWWgdaiEMRri7gKYErVWU6of5DarS34hzGfoPUXTvjW3po+Zpi7SdpUmB9gbzG3t1iYeHhV5S+H9/LYFVHxHoYOi9cvZMu5fDgnSKlCbaVV7YS413SX5HLSaIQXVAmlyoGa7eWPqax3o9IHDIMqXY+mxDYMZa7ApKE+jV5ucshwno1A4xCMt5xQtzXCpPDcDSpujhj9++x1Su2HqpAmt1V8llmNqW6GqFARZHq0r0zt721iWlAtvmZx277wfVSdS6aNM80GyfaQpImjSWFDUjMAjKo8yfBwIvuQZZypnx5KGm/KzqeIfLt6NrqAZyU4swwdOkLPitmgEMqLMK0sNjAsuxkqsGgA+0LUYQ35QJu9Cv09N6Z/x4yd6jL5/955eB6Ozy+HpoAWDXy7e9obnMejL63M4HZ73h+ff8X5M9IlMhc8gvCBKpB4G6eavILGzMmSWU0E/wxcGzNvkwiMQ55KP5zk5aR+zAXNfKc3GR9PixhiMPPi83osXgN/kgy/5v6BhIKaRDo0NsdaySXbRcPKNSLEwGSdWJu5kQuWjxYIReu30csni2EOS0+tMOiXHXI+bO3LZMCHT+ANRHQWdwj+64gBYXdeJCl/cZMzoyaKXZViFV3U3LxYGFymPm/94eB5I6uQjr9T07DJL21jOyP1RthBammktp6ybfPLPn8C0vio=
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a studio worksheet"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/studio/sheets"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new named worksheet for the authenticated user.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={undefined}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"content":{"type":"string"},"context":{"properties":{"config_hash":{"type":"string"},"corpus_id":{"type":"string"},"corpus_name":{"type":"string"},"ontology_id":{"type":"string"},"ontology_name":{"type":"string"},"ontology_version":{"type":"string"}},"type":"object"},"folder":{"type":"string"},"name":{"type":"string"}},"type":"object"}}},"description":"Sheet definition","required":true}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"201":{"description":"Created","content":{"application/json":{"schema":{"properties":{"content":{"type":"string"},"context":{"properties":{"config_hash":{"type":"string"},"corpus_id":{"type":"string"},"corpus_name":{"type":"string"},"ontology_id":{"type":"string"},"ontology_name":{"type":"string"},"ontology_version":{"type":"string"}},"type":"object"},"created_at":{"description":"unix ms","type":"integer"},"folder":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"},"updated_at":{"description":"unix ms","type":"integer"}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

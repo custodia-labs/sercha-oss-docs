@@ -1,177 +1,500 @@
+/**
+ * Landing page.
+ *
+ * Deliberately not a SaaS template: hard 2px borders, offset drop shadows
+ * rather than soft blurs, flat colour blocks, and a display face with weight to
+ * it. The product is a query language, so the page is organised around the
+ * three statements you actually type (declare, extract, query) with a console
+ * as the hero object.
+ */
+
 /* Hero */
+
 .hero {
-  padding: 5rem 0 4rem;
-  text-align: center;
-  background: var(--ifm-background-color);
-  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  position: relative;
+  overflow: hidden;
+  padding: 4.5rem 0 4rem;
+  border-bottom: 2px solid var(--edge);
+  background: var(--hero-bg);
 }
 
-.heroLogo {
-  height: 64px;
-  width: auto;
-  margin-bottom: 1.5rem;
+/* Blueprint grid, masked so it dissolves toward the fold. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(120% 85% at 70% 15%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(120% 85% at 70% 15%, #000 0%, transparent 75%);
+  pointer-events: none;
+}
+
+.heroInner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  align-items: center;
+  gap: 3.25rem;
+}
+
+.heroCopy {
+  max-width: 33rem;
 }
 
 .heroTitle {
-  font-size: 2.5rem;
+  margin: 0 0 1.15rem;
+  font-family: var(--sercha-font-display);
+  font-size: clamp(2.6rem, 5.2vw, 4rem);
   font-weight: 700;
-  color: var(--ifm-heading-color);
-  margin-bottom: 1rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+/* Marker-pen highlight behind the payoff word. */
+.mark {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  padding: 0 0.14em;
+  color: var(--mark-fg);
+}
+
+/* Marker block sits under the glyphs within the mark's own stacking context. */
+.mark::before {
+  content: '';
+  position: absolute;
+  inset: 0.12em -0.04em 0.1em;
+  z-index: -1;
+  background: var(--ifm-color-primary);
+  border-radius: 3px;
+  transform: rotate(-1.1deg);
 }
 
 .heroSubtitle {
-  font-size: 1.15rem;
+  margin: 0 0 1.9rem;
+  font-size: 1.05rem;
+  line-height: 1.62;
   color: var(--ifm-color-content-secondary);
-  max-width: 560px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
 }
 
-.heroButtons {
+.heroActions {
   display: flex;
-  gap: 0.75rem;
-  justify-content: center;
   flex-wrap: wrap;
+  gap: 0.65rem;
 }
 
-.heroBtn {
-  border-radius: 6px;
+/* Hard-edged buttons with an offset shadow that collapses on press. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.15rem;
+  border: 2px solid var(--edge);
+  border-radius: 8px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btnPrimary {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--edge);
+}
+
+.btnSecondary {
+  background: var(--ifm-background-color);
+  color: var(--ifm-heading-color);
+  box-shadow: 3px 3px 0 var(--edge);
+}
+
+.btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--edge);
+  text-decoration: none;
+}
+
+.btnPrimary:hover {
+  color: #fff;
+}
+
+.btnSecondary:hover {
+  color: var(--ifm-heading-color);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--edge);
+}
+
+/* Hero console */
+
+.console {
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--console-bg);
+  box-shadow: 6px 6px 0 var(--edge);
+}
+
+.consoleBar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 2px solid var(--edge);
+  background: var(--console-bar);
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--edge);
+  border-radius: 50%;
+}
+.dotRed { background: var(--sercha-terminal-red); }
+.dotYellow { background: var(--sercha-terminal-yellow); }
+.dotGreen { background: var(--sercha-terminal-green); }
+
+.consoleTitle {
+  margin-left: 0.35rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--ifm-color-content-secondary);
+}
+
+.consoleBody code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+}
+
+.consoleBody {
+  margin: 0;
+  background: transparent;
+  padding: 1rem 1.1rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.78rem;
+  line-height: 1.72;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--console-fg);
+}
+
+.kw { color: var(--serchaql-keyword); font-weight: 700; }
+.sys { color: var(--serchaql-system); font-weight: 500; }
+.str { color: var(--serchaql-string); }
+.cmt { color: var(--serchaql-comment); font-style: italic; }
+
+.consoleOut {
+  border-top: 2px solid var(--edge);
+  background: var(--console-out);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.71rem;
+}
+
+.consoleOutHead {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.38rem 1.1rem;
+  color: var(--ifm-color-content-secondary);
+  border-bottom: 1px solid var(--console-hairline);
+}
+
+.consoleRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  padding: 0.32rem 1.1rem;
+  color: var(--console-fg);
+}
+
+.consoleRow + .consoleRow {
+  border-top: 1px solid var(--console-hairline);
+}
+
+.consoleRow span:last-child {
+  color: var(--ifm-color-content-secondary);
+}
+
+/* Section furniture */
+
+.sectionLabel {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border: 1.5px solid var(--edge);
+  border-radius: 5px;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  margin: 0 0 2rem;
+  font-family: var(--sercha-font-display);
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
   font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.14;
 }
 
-/* Quick Links */
-.quickLinks {
+/* Steps: the three statements, as a numbered spine */
+
+.steps {
+  padding: 4rem 0 3.5rem;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.step {
+  position: relative;
+  padding: 1.4rem 1.35rem 1.5rem;
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  background: var(--ifm-background-color);
+  box-shadow: 4px 4px 0 var(--edge);
+}
+
+.stepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 0.85rem;
+  border: 2px solid var(--edge);
+  border-radius: 50%;
+  background: var(--step-num-bg);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.stepTitle {
+  margin: 0 0 0.4rem;
+  font-family: var(--sercha-font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.008em;
+}
+
+.stepDesc {
+  margin: 0 0 0.9rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--ifm-color-content-secondary);
+}
+
+.stepCode {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  border: 1.5px solid var(--console-hairline);
+  border-radius: 7px;
+  background: var(--console-out);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--console-fg);
+}
+
+/* Facts strip */
+
+.facts {
+  padding: 3rem 0;
+  border-top: 2px solid var(--edge);
+  border-bottom: 2px solid var(--edge);
+  background: var(--band-bg);
+}
+
+.factsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.25rem;
+}
+
+.factKey {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary);
+}
+
+.factTitle {
+  margin: 0 0 0.4rem;
+  font-family: var(--sercha-font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.008em;
+}
+
+.factDesc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--ifm-color-content-secondary);
+}
+
+/* Reference cards */
+
+.refs {
   padding: 3.5rem 0;
 }
 
-.quickLinksGrid {
+.refsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.quickLinkCard {
+.refCard {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
+  gap: 0.9rem;
+  padding: 1.2rem 1.3rem;
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  background: var(--ifm-background-color);
+  box-shadow: 4px 4px 0 var(--edge);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.quickLinkCard:hover {
-  border-color: var(--ifm-color-primary);
-  box-shadow: 0 2px 12px rgba(102, 117, 255, 0.1);
+.refCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ifm-color-primary);
   text-decoration: none;
   color: inherit;
 }
 
-.quickLinkIcon {
-  font-family: var(--ifm-font-family-monospace);
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--ifm-color-primary);
-  background: var(--ifm-color-primary-lightest);
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+.refIcon {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--edge);
+  border-radius: 8px;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
-[data-theme='dark'] .quickLinkIcon {
-  background: rgba(127, 140, 255, 0.15);
+.refTitle {
+  margin: 0 0 0.2rem;
+  font-family: var(--sercha-font-display);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.006em;
 }
 
-.quickLinkTitle {
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.quickLinkDesc {
-  font-size: 0.875rem;
-  color: var(--ifm-color-content-secondary);
+.refDesc {
   margin: 0;
+  font-size: 0.84rem;
   line-height: 1.5;
+  color: var(--ifm-color-content-secondary);
 }
 
-/* Value Props */
-.valueProps {
-  padding: 3.5rem 0;
-  background: var(--ifm-card-background-color);
-  border-top: 1px solid var(--ifm-color-emphasis-300);
-  border-bottom: 1px solid var(--ifm-color-emphasis-300);
-}
+/* Closing */
 
-.valuePropsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-.valuePropCard {
+.closing {
+  padding: 3.5rem 0 4rem;
+  border-top: 2px solid var(--edge);
   text-align: center;
 }
 
-.valuePropTitle {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+.closingTitle {
+  margin: 0 0 0.55rem;
+  font-family: var(--sercha-font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.014em;
 }
 
-.valuePropDesc {
-  font-size: 0.9rem;
-  color: var(--ifm-color-content-secondary);
+.closingDesc {
+  max-width: 33rem;
+  margin: 0 auto 1.5rem;
+  font-size: 0.98rem;
   line-height: 1.6;
-  margin: 0;
-}
-
-/* Open Source */
-.openSource {
-  padding: 3.5rem 0;
-  text-align: center;
-}
-
-.openSourceTitle {
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.openSourceDesc {
-  font-size: 1rem;
   color: var(--ifm-color-content-secondary);
-  margin-bottom: 1.5rem;
 }
 
-.openSourceLinks {
+.closingLinks {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.65rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* Responsive */
+
+@media screen and (max-width: 996px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+
+  .heroCopy {
+    max-width: none;
+  }
+
+  .stepsGrid,
+  .factsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .factsGrid {
+    gap: 1.75rem;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .hero {
-    padding: 3rem 1rem 2.5rem;
+    padding: 3rem 0 2.75rem;
   }
 
-  .heroTitle {
-    font-size: 1.8rem;
-  }
-
-  .quickLinksGrid {
+  .refsGrid {
     grid-template-columns: 1fr;
   }
 
-  .valuePropsGrid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .consoleBody {
+    font-size: 0.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .refCard {
+    transition: none;
+  }
+  .btn:hover,
+  .refCard:hover {
+    transform: none;
   }
 }

@@ -1,0 +1,481 @@
+---
+title: Contract analysis
+description: Master agreements, statements of work and amendment chains
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="contract-analysis">
+
+## 1. What this models
+
+A commercial contract estate: master services agreements, the statements of work executed beneath them, non-disclosure agreements, software and content licence agreements, and the amendment, variation and novation deeds that accumulate on top of all of the above. In a mature organisation this is thousands of PDFs across a shared drive, filed by counterparty, with no reliable convention for which document is currently in force.
+
+The questions this makes answerable without a paralegal reading every file:
+
+- Which live agreements auto-renew, and which of those have a non-renewal notice window opening in the next quarter?
+- What is our aggregate uncapped indemnity exposure to a single counterparty, across every document in that relationship?
+- Which agreements were amended in a way that moved the liability cap, and by how much?
+- Which SOWs are orphaned, in the sense that their governing master agreement has terminated?
+- Which agreements contain a change of control clause that would be triggered by a pending acquisition?
+- Which obligations fall on us rather than on the counterparty, and when are they due?
+
+Each of these is currently a spreadsheet maintained by hand, and each is wrong within a month of being built.
+
+## 2. The modelling decisions
+
+**ROOT is `Agreement`, and an amendment is its own `Agreement` row.** The root entity must be the document kind, because extraction starts from a document and the DAG hangs off it. Every PDF in the estate is one of: a master agreement, a SOW, an NDA, a licence, an amendment, or a novation deed. All six are legally instruments in their own right, each with its own execution date, its own signatories and its own governing law. The tempting shortcut is to make amendments a repeated field on the parent agreement, and it is wrong twice over: an amendment often has a different execution date and sometimes a different set of parties from the deal it varies, and an amendment can itself be amended. So `instrument_type` is a CHECK enum on `Agreement`, and the relationship between instruments is an edge.
+
+**`LiabilityCap` and `IndemnityProvision` are entities, not columns.** A column that is only sometimes populated is a modelling error dressed up as convenience. Not every contract has a liability cap; NDAs typically do not, and a mutual NDA that does have one caps a completely different thing. More importantly, a real limitation-of-liability clause is structured: it has a basis (a fixed sum, or a multiple of fees paid in the preceding twelve months), an amount, a currency, a set of carve-outs sitting outside the cap, and a direction (mutual, or one-way in the customer's favour). Flattening that into `liability_cap_amount FLOAT` throws away everything that makes the number meaningful, and produces the classic error of comparing a fixed 1,000,000 cap against a "12 months' fees" cap as though they were the same object. Same argument for `Obligation`: an agreement has zero to fifty of them, and `obligation_1`, `obligation_2` is not a schema.
+
+**KEY choices are the resolution identity, not a convenience.** `Agreement` is keyed on `(counterparty_name, agreement_reference, execution_date)`. No single field identifies an instrument: references are frequently missing on older documents, counterparties sign many agreements, and the same reference gets reused across a renewal. The composite is what actually distinguishes two documents in the estate. `Counterparty` is keyed on `legal_name` alone, deliberately: that is the whole point of the entity, and every mention of a counterparty anywhere in the corpus should collapse into one node. `Clause` is keyed on `(clause_number, clause_heading)` within its parent, because clause 11.2 in one agreement and clause 11.2 in another are different things, and the `UNDER` hierarchy supplies the document scoping.
+
+**FUZZY where names drift, EXACT where identifiers do not.** The counterparty edge is the canonical fuzzy case. A single relationship will spell the same organisation "Northwind Freight Ltd" in the MSA preamble, "Northwind Freight Limited" in the signature block, "Northwind" in the SOW, and "Northwind Freight Ltd (ACN 000 000 000)" in the amendment. Normalised string equality resolves none of those pairs, and no amount of suffix-stripping helps, because "Group" and "Holdings" carry real meaning and cannot be normalised away: "Northwind Holdings Ltd" is a genuinely different legal entity from "Northwind Freight Ltd", and a naive matcher will happily merge them. So `signed_with` uses `RESOLVE FUZZY WITHIN sercha_contracts.Counterparty`. The `WITHIN` clause matters: it restricts the candidate pool the judge considers to extracted `Counterparty` nodes rather than every keyed node in the graph, which both bounds the cost and stops a counterparty name being matched against a signatory's personal name. By contrast, `amends` links on `amended_agreement_reference` with `RESOLVE EXACT`, because an amendment that quotes a parent reference quotes it verbatim: it is a transcribed identifier, not a name written from memory, and fuzzy matching here would silently attach Amendment No. 3 to the wrong SOW.
+
+**The amendment chain is a self-referencing edge.** `sercha_contracts.amends ON Agreement AMENDS Agreement`. A `superseded_by` column on `Agreement` fails for three reasons. It is single-valued, and one amendment can vary a master agreement and two SOWs simultaneously. It has no room for the relationship's own attributes, and "amends" is not the only verb: `novates` and `terminates` are different relationships with different legal effect, and a novation deed substitutes a party rather than changing a term. And it cannot be traversed transitively; the question "give me the current effective liability cap" requires walking Amendment 3 to Amendment 1 to the MSA, which is a `WITH RECURSIVE` over an edge, not a column lookup. Three separate edges, one per verb, keeps the semantics honest.
+
+**Renewal windows are stored as they are written, and computed at query time.** `RenewalTerm` carries `notice_days_before INTEGER` and `anchor` as an enum, not a materialised `next_notice_deadline DATE`. Contracts say "not less than sixty (60) days prior to each anniversary of the Effective Date", and that expression is stable while the derived date is not: it moves every year, and it moves again the moment an amendment changes the term length. Extracting a computed date bakes today's arithmetic into the graph permanently and guarantees it goes stale. Store the rule; compute the deadline in the query, where it is cheap and always current.
+
+**What is deliberately not modelled.** Payment schedules, rate cards and pricing tables. They are genuinely important, and they belong in a separate ontology bound to the same corpus. A rate card is a dense, highly structured table with its own units, tiers, escalators and volume bands; modelling it properly needs five entities of its own and would double the size of this schema for a question set that is financial rather than legal. Cramming a `contract_value FLOAT` onto `Agreement` to gesture at it would be worse than leaving it out, because it would be populated for fixed-fee SOWs, null for MSAs, and meaningless for time-and-materials work. Also excluded: clause-level full text. `Clause` stores heading, number and a short summary; the body is reachable through the pipeline with `MATCHES`, and duplicating it into the graph makes the graph large without making it more answerable.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY sercha_contracts;
+
+-- ROOT. Every PDF in the estate is exactly one instrument.
+-- Amendments and novation deeds are instruments too: they get their own row.
+CREATE ENTITY sercha_contracts.Agreement (
+  agreement_reference   TEXT
+    EXTRACT 'the contract or document number printed on the cover page or in the preamble, e.g. MSA-2024-018 or SOW-4; null if the document carries none',
+  title                 TEXT NOT NULL,
+  instrument_type       TEXT NOT NULL CHECK (instrument_type IN
+    ('master_agreement','statement_of_work','nda','licence','amendment','novation_deed','order_form')),
+  counterparty_name     TEXT NOT NULL
+    EXTRACT 'the other side, as written in the preamble; the legal name including any suffix such as Ltd or Pty Ltd, not our own entity',
+  contracting_entity    TEXT
+    EXTRACT 'which of our own group entities signed this instrument',
+  execution_date        DATE
+    EXTRACT 'the date the last party signed; not the effective date if they differ',
+  effective_date        DATE,
+  initial_term_months   INTEGER,
+  expiry_date           DATE
+    EXTRACT 'the stated end of the current term; null where the agreement is evergreen or terminates only on notice',
+  governing_law         TEXT
+    EXTRACT 'the named jurisdiction, e.g. New South Wales or England and Wales',
+  status                TEXT CHECK (status IN ('draft','executed','expired','terminated','novated','superseded')),
+  -- Only populated on amendments and novation deeds. Carries the parent's
+  -- reference verbatim, which is what the amends/novates edges link on.
+  amended_agreement_reference TEXT
+    EXTRACT 'on an amendment or novation deed only: the reference of the agreement being varied, exactly as quoted in the recitals',
+  -- Neither reference nor counterparty identifies an instrument alone.
+  KEY (counterparty_name, agreement_reference, execution_date)
+) ROOT;
+
+-- Resolution target for counterparty name drift. Keyed on legal_name alone:
+-- collapsing every spelling variant into one node is the entity's whole job.
+CREATE ENTITY sercha_contracts.Counterparty (
+  legal_name        TEXT KEY
+    EXTRACT 'the full registered legal name including suffix, taken from the signature block in preference to the preamble',
+  registered_number TEXT
+    EXTRACT 'company or business registration number, e.g. ACN, ABN, company number',
+  jurisdiction      TEXT,
+  entity_role       TEXT CHECK (entity_role IN ('supplier','customer','licensor','licensee','partner','guarantor'))
+);
+
+-- UNDER Agreement: clauses are structural children of the document they sit in.
+-- Composite key because clause 11.2 exists in almost every agreement.
+CREATE ENTITY sercha_contracts.Clause (
+  clause_number   TEXT
+    EXTRACT 'the numbering as printed, e.g. 11.2 or Schedule 3 paragraph 4',
+  clause_heading  TEXT,
+  clause_type     TEXT NOT NULL CHECK (clause_type IN
+    ('limitation_of_liability','indemnity','termination_for_cause','termination_for_convenience',
+     'auto_renewal','assignment','change_of_control','confidentiality','ip_ownership',
+     'data_protection','insurance','audit','dispute_resolution','force_majeure','other')),
+  summary         TEXT
+    EXTRACT 'one sentence describing what the clause does; do not reproduce the clause text',
+  favours         TEXT CHECK (favours IN ('mutual','us','counterparty','unclear'))
+    EXTRACT 'which party the clause is drafted in favour of, judged on its substance',
+  KEY (clause_number, clause_heading)
+) UNDER sercha_contracts.Agreement;
+
+-- A separate entity, not a column, because a cap is structured and optional.
+-- SINGULAR PER DOC: one instrument states at most one primary cap.
+CREATE ENTITY sercha_contracts.LiabilityCap (
+  basis            TEXT NOT NULL CHECK (basis IN
+    ('fixed_amount','multiple_of_fees','fees_paid_period','no_cap','unlimited_for_carveouts')),
+  cap_amount       FLOAT
+    EXTRACT 'the monetary figure, where the cap is a fixed amount; null where the cap is expressed as a multiple or a period of fees',
+  currency         TEXT CHECK (currency IN ('AUD','USD','GBP','EUR','NZD','SGD')),
+  fees_multiple    FLOAT
+    EXTRACT 'the multiplier where the cap is expressed as N times fees, e.g. 1.5',
+  lookback_months  INTEGER
+    EXTRACT 'the fee period the cap is measured over, e.g. 12 for "fees paid in the preceding twelve months"',
+  is_mutual        BOOLEAN,
+  carve_outs       TEXT
+    EXTRACT 'the categories excluded from the cap, e.g. breach of confidentiality, IP infringement, wilful misconduct'
+) SINGULAR PER DOC UNDER sercha_contracts.Agreement;
+
+-- Also its own entity: an agreement can carry several indemnities pointing in
+-- different directions, and each has its own trigger and its own cap treatment.
+CREATE ENTITY sercha_contracts.IndemnityProvision (
+  indemnitor       TEXT NOT NULL CHECK (indemnitor IN ('us','counterparty','mutual'))
+    EXTRACT 'who gives the indemnity, i.e. who pays',
+  trigger_category TEXT NOT NULL CHECK (trigger_category IN
+    ('ip_infringement','data_breach','third_party_claim','personal_injury',
+     'regulatory_penalty','breach_of_confidentiality','tax','other')),
+  is_capped        BOOLEAN
+    EXTRACT 'true where the indemnity sits inside the liability cap; false where it is expressly carved out',
+  defence_duty     BOOLEAN
+    EXTRACT 'true where the indemnitor must defend the claim, not merely reimburse it',
+  KEY (indemnitor, trigger_category)
+) UNDER sercha_contracts.Agreement;
+
+-- The renewal rule as written, not a computed date. See the modelling notes.
+CREATE ENTITY sercha_contracts.RenewalTerm (
+  renewal_mode        TEXT NOT NULL CHECK (renewal_mode IN
+    ('automatic','mutual_written','none','evergreen')),
+  renewal_length_months INTEGER,
+  notice_days_before  INTEGER
+    EXTRACT 'the minimum number of days before the anchor date that non-renewal notice must be given; take the LOWER bound where the clause states a window such as "not less than 30 and not more than 60 days"',
+  notice_window_days  INTEGER
+    EXTRACT 'the upper bound where notice may only be given within a window; null where the clause states only a minimum',
+  anchor              TEXT CHECK (anchor IN ('expiry_date','effective_date_anniversary','renewal_date','term_end')),
+  price_increase_cap_pct FLOAT
+    EXTRACT 'any stated ceiling on the uplift applied on renewal, as a percentage'
+) SINGULAR PER DOC UNDER sercha_contracts.Agreement;
+
+-- Ongoing commitments. Zero to many per instrument, which is exactly why it is
+-- an entity: obligation_1, obligation_2 is not a schema.
+CREATE ENTITY sercha_contracts.Obligation (
+  description      TEXT NOT NULL,
+  obligor          TEXT NOT NULL CHECK (obligor IN ('us','counterparty','both'))
+    EXTRACT 'which party must perform',
+  obligation_type  TEXT CHECK (obligation_type IN
+    ('deliverable','service_level','reporting','payment','insurance',
+     'audit_cooperation','notification','data_return')),
+  due_basis        TEXT CHECK (due_basis IN ('fixed_date','recurring','on_event','continuous'))
+    EXTRACT 'how the timing is expressed; recurring for monthly or quarterly duties, on_event for duties triggered by termination or a breach',
+  due_date         DATE
+    EXTRACT 'only where the contract states an absolute date; leave null for recurring or event-triggered obligations',
+  recurrence       TEXT CHECK (recurrence IN ('monthly','quarterly','half_yearly','annual')),
+  KEY (description, obligor)
+) UNDER sercha_contracts.Agreement;
+
+-- ---------- Edges ----------
+
+-- External, FUZZY: counterparty names drift across the estate.
+-- WITHIN bounds the candidate pool to Counterparty nodes, so a company name is
+-- never judged against a signatory's personal name.
+CREATE EDGE sercha_contracts.signed_with
+  ON sercha_contracts.Agreement SIGNED_WITH sercha_contracts.Counterparty
+  LINK BY counterparty_name RESOLVE FUZZY
+  WITHIN sercha_contracts.Counterparty;
+
+-- Self-referencing, EXACT: an amendment transcribes the parent's reference
+-- verbatim from the recitals, so fuzzy matching here would only create errors.
+CREATE EDGE sercha_contracts.amends
+  ON sercha_contracts.Agreement AMENDS sercha_contracts.Agreement
+  LINK BY amended_agreement_reference RESOLVE EXACT;
+
+-- Different verb, different legal effect: a novation substitutes a party.
+CREATE EDGE sercha_contracts.novates
+  ON sercha_contracts.Agreement NOVATES sercha_contracts.Agreement
+  LINK BY amended_agreement_reference RESOLVE EXACT;
+
+-- SOW to its governing master agreement. EXACT on the quoted MSA reference.
+CREATE EDGE sercha_contracts.governed_by
+  ON sercha_contracts.Agreement GOVERNED_BY sercha_contracts.Agreement
+  LINK BY agreement_reference RESOLVE EXACT;
+
+-- Internal edges: structural, resolved by position within one document.
+CREATE EDGE sercha_contracts.contains_clause
+  ON sercha_contracts.Agreement CONTAINS sercha_contracts.Clause;
+
+CREATE EDGE sercha_contracts.caps_liability_at
+  ON sercha_contracts.Agreement CAPS_LIABILITY_AT sercha_contracts.LiabilityCap;
+
+CREATE EDGE sercha_contracts.imposes
+  ON sercha_contracts.Agreement IMPOSES sercha_contracts.Obligation;
+
+CREATE EDGE sercha_contracts.renews_under
+  ON sercha_contracts.Agreement RENEWS_UNDER sercha_contracts.RenewalTerm;
+```
+
+## 4. Extraction
+
+The corpus partitions by folder because the estate is filed one folder per counterparty relationship. That makes `_folder` a first-class dimension: "everything in the Northwind relationship" becomes a `GROUP BY`, not string surgery on a path.
+
+```sql
+CREATE CORPUS contract_estate
+  ON sharepoint.legal_drive."Contracts.Executed",
+     sharepoint.legal_drive."Contracts.Amendments"
+  USING ONTOLOGY sercha_contracts
+  PARTITION BY FOLDER LEVEL 1;
+
+BIND CORPUS contract_estate TO ONTOLOGY sercha_contracts;
+
+RUN BINDING contract_estate.sercha_contracts;
+```
+
+The hint attaches to the root, because `extract_internals` invocations exist only for root entities; children declared `UNDER Agreement` are extracted inside the `Agreement` invocation, so the way to steer them is to describe them here.
+
+```sql
+ALTER BINDING contract_estate.sercha_contracts
+  SET HINT ON extract_internals WHERE root = Agreement AS
+  'Classify instrument_type from the document title and the recitals, not from
+   the folder name: amendments are frequently filed alongside the agreement they
+   vary. A document titled "Amendment No. 2", "Variation Deed" or "Change Order"
+   is instrument_type = amendment, and its amended_agreement_reference is the
+   reference quoted in the recitals, copied character for character including
+   any prefix. For counterparty_name take the name from the signature block in
+   preference to the preamble, and preserve the legal suffix exactly as printed:
+   do not expand Ltd to Limited or strip Pty. Our own group entities are the
+   contracting_entity and must never be extracted as counterparty_name.
+   For LiabilityCap, read the whole limitation of liability clause including its
+   provisos: where the clause says "the greater of X or 12 months fees", set
+   basis = fees_paid_period and record both cap_amount and lookback_months, and
+   list every carve-out named in the "nothing in this clause limits" proviso.
+   For RenewalTerm record the notice rule as drafted; do not compute a date.
+   Where an agreement states no limitation of liability at all, emit no
+   LiabilityCap rather than a row with nulls.';
+```
+
+Backfilling a column added later reuses the same run machinery, without re-extracting everything:
+
+```sql
+ALTER ENTITY sercha_contracts.LiabilityCap ADD COLUMN carve_out_count INTEGER;
+
+RUN BINDING contract_estate.sercha_contracts
+  EXTRACT (LiabilityCap.carve_out_count);
+```
+
+## 5. Queries that earn their keep
+
+**Every live agreement with a supplier, and the cap that applies, following the counterparty edge rather than matching on name.**
+
+```sql
+SELECT c.legal_name,
+       a.title,
+       a.instrument_type,
+       lc.basis,
+       lc.cap_amount,
+       lc.currency
+FROM contract_estate.Agreement a
+JOIN contract_estate.Counterparty c VIA a.signed_with
+LEFT JOIN contract_estate.LiabilityCap lc USING (_doc)
+WHERE a.status = 'executed'
+  AND c.entity_role = 'supplier'
+ORDER BY lc.cap_amount DESC;
+```
+
+The `LEFT JOIN` is the point: agreements with no cap are exactly the ones worth seeing, and an inner join would hide them.
+
+**Exposure concentration: which counterparties hold the most uncapped indemnities against us.**
+
+```sql
+SELECT c.legal_name,
+       COUNT(*)                       AS uncapped_indemnities,
+       COUNT(DISTINCT a._id)          AS across_agreements,
+       ARRAY_AGG(i.trigger_category)  AS triggers
+FROM contract_estate.Agreement a
+JOIN contract_estate.Counterparty c VIA a.signed_with
+JOIN contract_estate.IndemnityProvision i USING (_doc)
+WHERE i.indemnitor IN ('us','mutual')
+  AND i.is_capped = false
+  AND a.status = 'executed'
+GROUP BY c.legal_name
+ORDER BY uncapped_indemnities DESC;
+```
+
+**Extraction quality triage, using system columns: which clause classifications need a human before anyone relies on them.**
+
+```sql
+SELECT cl._doc,
+       cl._confidence,
+       cl._folder,
+       a.title,
+       cl.clause_number,
+       cl.clause_type
+FROM contract_estate.Clause cl
+JOIN contract_estate.Agreement a USING (_doc)
+WHERE cl._confidence < 0.75
+  AND cl.clause_type IN ('limitation_of_liability','indemnity','change_of_control')
+ORDER BY cl._confidence ASC
+LIMIT 50;
+```
+
+`_folder` is in the projection because the reviewer works one counterparty relationship at a time, and the folder partition is what makes that grouping free.
+
+**Change of control review for a pending transaction, pulling entity rows out of a text search rather than a document list.**
+
+```sql
+SELECT a.title,
+       a.counterparty_name,
+       a.governing_law,
+       cl.clause_number,
+       cl.summary,
+       cl.favours
+FROM contract_estate.Agreement a
+JOIN contract_estate.Clause cl VIA a.contains_clause
+WHERE a MATCHES ('change of control consent assignment restriction' USING default TOP 200)
+  AND cl.clause_type IN ('change_of_control','assignment')
+  AND cl.favours <> 'us'
+  AND a.status = 'executed'
+ORDER BY a.counterparty_name;
+```
+
+`MATCHES` narrows to documents that plausibly discuss the topic; the clause filter does the precise work. Using `SEARCH()` as a table here would return ranked documents, which is the wrong shape: the answer is a list of clauses.
+
+**The hard one, part one: which live agreements have a non-renewal notice window opening in the next quarter.**
+
+The renewal rule is stored as written, so the deadline is arithmetic done here, against whatever the current effective term is.
+
+```sql
+WITH live AS (
+  SELECT a._id,
+         a._doc,
+         a.title,
+         a.counterparty_name,
+         a.expiry_date,
+         a.effective_date
+  FROM contract_estate.Agreement a
+  WHERE a.status = 'executed'
+    AND a.instrument_type IN ('master_agreement','statement_of_work','licence')
+),
+windows AS (
+  SELECT l._doc,
+         l.title,
+         l.counterparty_name,
+         r.notice_days_before,
+         r.anchor,
+         r.renewal_length_months,
+         r.price_increase_cap_pct,
+         -- The anchor date the notice period counts back from.
+         CASE WHEN r.anchor = 'effective_date_anniversary'
+              THEN l.effective_date
+              ELSE l.expiry_date
+         END AS anchor_date
+  FROM live l
+  JOIN contract_estate.RenewalTerm r USING (_doc)
+  WHERE r.renewal_mode = 'automatic'
+)
+SELECT counterparty_name,
+       title,
+       anchor_date,
+       notice_days_before,
+       renewal_length_months,
+       price_increase_cap_pct,
+       GENERATE('In one sentence, state the last date on which non-renewal notice
+                 can be served for an agreement anchored on {anchor_date} with a
+                 notice period of {notice_days_before} days, and say whether that
+                 date falls in the next ninety days.') AS notice_deadline_note
+FROM windows
+WHERE anchor_date IS NOT NULL
+ORDER BY anchor_date ASC;
+```
+
+**The hard one, part two: which agreements were amended in a way that moved the liability cap.**
+
+An amendment is its own document with its own `LiabilityCap`, so this is a self-join across the `amends` edge. That is the payoff for not making amendments a column.
+
+```sql
+SELECT parent.agreement_reference    AS varied_agreement,
+       parent.counterparty_name,
+       parent_cap.basis              AS original_basis,
+       parent_cap.cap_amount         AS original_cap,
+       amd.title                     AS amending_instrument,
+       amd.execution_date            AS amended_on,
+       amd_cap.basis                 AS new_basis,
+       amd_cap.cap_amount            AS new_cap
+FROM contract_estate.Agreement amd
+JOIN contract_estate.Agreement parent VIA amd.amends
+JOIN contract_estate.LiabilityCap amd_cap    ON amd_cap._doc    = amd._doc
+JOIN contract_estate.LiabilityCap parent_cap ON parent_cap._doc = parent._doc
+WHERE amd.instrument_type = 'amendment'
+  AND (amd_cap.cap_amount <> parent_cap.cap_amount
+       OR amd_cap.basis   <> parent_cap.basis)
+ORDER BY amd.execution_date DESC;
+```
+
+**Orphaned work: SOWs whose governing master agreement is no longer live.**
+
+```sql
+SELECT sow.agreement_reference,
+       sow.title,
+       sow.counterparty_name,
+       sow.expiry_date,
+       msa.agreement_reference AS governing_msa,
+       msa.status              AS msa_status
+FROM contract_estate.Agreement sow
+JOIN contract_estate.Agreement msa VIA sow.governed_by
+WHERE sow.instrument_type = 'statement_of_work'
+  AND sow.status = 'executed'
+  AND msa.status IN ('terminated','expired','novated')
+ORDER BY sow.expiry_date ASC;
+```
+
+## 6. Views
+
+Named vocabulary, so the questions above stop being queries and start being nouns.
+
+```sql
+-- "Live agreements" is a concept the whole team uses; define it once.
+CREATE OR REPLACE VIEW live_agreements AS
+SELECT a._id,
+       a._doc,
+       a._folder,
+       a.agreement_reference,
+       a.title,
+       a.instrument_type,
+       a.governing_law,
+       a.effective_date,
+       a.expiry_date,
+       c.legal_name    AS counterparty,
+       c.jurisdiction  AS counterparty_jurisdiction,
+       c.entity_role
+FROM contract_estate.Agreement a
+JOIN contract_estate.Counterparty c VIA a.signed_with
+WHERE a.status = 'executed'
+  AND a.instrument_type NOT IN ('amendment','novation_deed');
+
+-- The renewal watchlist, minus the arithmetic, which callers apply themselves.
+CREATE OR REPLACE VIEW renewal_watchlist AS
+SELECT a._doc,
+       a.title,
+       a.counterparty_name,
+       a.effective_date,
+       a.expiry_date,
+       r.renewal_mode,
+       r.renewal_length_months,
+       r.notice_days_before,
+       r.notice_window_days,
+       r.anchor,
+       r.price_increase_cap_pct
+FROM contract_estate.Agreement a
+JOIN contract_estate.RenewalTerm r USING (_doc)
+WHERE a.status = 'executed'
+  AND r.renewal_mode IN ('automatic','evergreen');
+
+-- One row per counterparty relationship, for the quarterly risk review.
+CREATE OR REPLACE VIEW counterparty_risk_profile AS
+SELECT c.legal_name,
+       c.jurisdiction,
+       c.entity_role,
+       COUNT(DISTINCT a._id)  AS live_instruments,
+       MIN(lc.cap_amount)     AS lowest_cap,
+       MAX(lc.cap_amount)     AS highest_cap,
+       COUNT(i._id)           AS indemnities_given_by_us
+FROM contract_estate.Agreement a
+JOIN contract_estate.Counterparty c VIA a.signed_with
+LEFT JOIN contract_estate.LiabilityCap lc USING (_doc)
+LEFT JOIN contract_estate.IndemnityProvision i
+       ON i._doc = a._doc AND i.indemnitor = 'us'
+WHERE a.status = 'executed'
+GROUP BY c.legal_name, c.jurisdiction, c.entity_role;
+```
+
+</TemplatePage>

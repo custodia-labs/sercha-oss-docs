@@ -1,0 +1,71 @@
+---
+id: restore-a-pipeline-version
+title: "Restore a pipeline version"
+description: "Takes the DAG from the specified historical version and publishes it as a new version, then advances current_version_id to the new version. The DAG is validated against the current ops registry before persisting; a validation failure returns 400 without creating any new rows."
+sidebar_label: "Restore a pipeline version"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Restore a pipeline version"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/pipelines/{id}/versions/{version}/restore"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Takes the DAG from the specified historical version and publishes it as a new version, then advances current_version_id to the new version. The DAG is validated against the current ops registry before persisting; a validation failure returns 400 without creating any new rows.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Pipeline ID","in":"path","name":"id","required":true,"schema":{"type":"string"}},{"description":"Version number to restore","in":"path","name":"version","required":true,"schema":{"type":"integer"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"pipeline":{"properties":{"created_at":{"description":"CreatedAt is when this pipeline was first created.","type":"string"},"current_version_id":{"description":"CurrentVersionID is the ID of the [PipelineVersion] that represents the\nmost recent edit to this pipeline. It is empty for a newly created\npipeline that has not yet had a version published.","type":"string"},"id":{"description":"ID is the stable unique identifier for this pipeline.","type":"string"},"name":{"description":"Name is the human-readable label. Names are unique within a deployment\nand are used as stable identifiers in API paths.","type":"string"},"updated_at":{"description":"UpdatedAt is when this pipeline was last modified (e.g. a new version\nwas published or CurrentVersionID was advanced).","type":"string"}},"type":"object"},"version":{"properties":{"created_at":{"description":"CreatedAt is when this version was created.","type":"string"},"dag":{"allOf":[{"properties":{"invocations":{"additionalProperties":{"properties":{"config":{"description":"Config is the static input passed to op.Run alongside any wired\nupstream outputs. When the input is a JSON object and wires target this\ninvocation, the runtime merges wire-fed payload data under each wired\nDynamicInputs name before calling op.Run. For wires whose FromOutputName\nis empty the legacy behaviour applies: the upstream op's persisted node\nIDs are injected. Ops that take non-object input cannot consume upstream\nwires (documented limit in v1).","items":{"type":"integer"},"type":"array"},"id":{"description":"ID identifies this invocation uniquely within the DAG. Wires reference\ninvocations by this ID.","type":"string"},"op_id":{"description":"OpID matches a registered op's ID() return value.","type":"string"},"op_version":{"description":"OpVersion matches a registered op's Version() return value. Combined\nwith OpID, this selects the exact implementation from the registry.","type":"string"}},"type":"object"},"description":"Invocations is keyed by invocation ID. Each invocation is a configured\ncall site of a registered op within this pipeline version.","type":"object"},"wires":{"description":"Wires describe data flow between invocations. Each wire carries a named\npayload from an upstream op's declared OutputPayloads to a downstream\nop's declared DynamicInputs. When FromOutputName is empty the wire uses\nthe legacy behaviour of forwarding the upstream op's persisted node IDs.","items":{"properties":{"from_invocation_id":{"description":"FromInvocationID is the upstream invocation that emits the data.","type":"string"},"from_output_name":{"description":"FromOutputName names which of the upstream op's declared OutputPayloads\nis forwarded over this wire. Empty string keeps the legacy\nnode-IDs-from-staging behaviour (the upstream op's persisted node IDs\nare forwarded under ToInputName).","type":"string"},"to_input_name":{"description":"ToInputName names which of the downstream op's declared DynamicInputs\nreceives the wired data. Must match a DynamicInputs[].Name in the\ndownstream op's schema.","type":"string"},"to_invocation_id":{"description":"ToInvocationID is the downstream invocation that consumes the data.","type":"string"}},"type":"object"},"type":"array"}},"type":"object"}],"description":"DAG is the complete, immutable graph of op invocations and wires for\nthis version. Callers must call [DAG.Validate] before persisting."},"id":{"description":"ID is the stable unique identifier for this version.","type":"string"},"pipeline_id":{"description":"PipelineID references the parent [Pipeline].","type":"string"},"version_number":{"description":"VersionNumber is a monotonically increasing counter starting at 1. The\nrepository is responsible for computing the next version number by\ncounting existing versions for the pipeline.","type":"integer"}},"type":"object"}},"type":"object"}}}},"400":{"description":"Validation error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Pipeline or version not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Ops registry not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

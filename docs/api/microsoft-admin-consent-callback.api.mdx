@@ -1,0 +1,73 @@
+---
+id: microsoft-admin-consent-callback
+title: "Microsoft admin-consent callback"
+description: "Microsoft redirects the admin's browser here after consent."
+sidebar_label: "Microsoft admin-consent callback"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVttu20YQ/ZUBX5oAutjtSyCgD7alJG4d27UdpEBsJCtyJC683GV3l3JUVUA/ol/YL+kZkrJkO5Zhv/VFIrkzc+Z6dhZJxiH1uoza2WSQfNCpd8FNInnOtOc0Boo5k8oKbX8INPbuJrCnnD0+TiIeU2cD29i7tGccK28D/bTzI0VX663tnfhpY4VKNWW60TGvJVwVU1fwpWWbuowzgsQfFfs55LwqAr1qAX6eemUjZ39lbDVnr3tJJ6lFGF6EZPB5cS+WC1/BvKVQpSmHAHEtn2vjeLHQxGvt05cWA59DmnOhksEiifNSBEL02k6T5bLzAIAtPEIUKlLrHK0NfQ8s1hrPQzkpFaxQiCoyvWosDFKjgfL6EZha9pkoexUKwt47qWjGNPGuWJfvEaBa/nlA76tC2a5nlamx4RaxQH3QFdtQvmya2YZ41Uk8h1LqEOQc3Sh/d7146yqbiXtJVFNpnuTAWYt2x3FIYAJdlbsMklOOdaPFHC/9dC3VL1bJ6auy7Dpr5v22+t1UGTNW6bU4yn626s/KGxjJYywH/b5xkMpdiIM3O292YUP3Z7uJJGwtFh6XuxLTaeV1nJ9LLppg91l59lLLhzH/8umCmnNM5zXbHr11vlBxQJetHi3qg+VlsqpEjjqxX5dCLDuv/1RtGdrkw6lfeV7nU9uJE2ykIqo0ymOre84+zRWU7sYX6s+9jGcI/v6EgSCmDvmzGK3SqDiBxzRmy6gHmCKyMXqKjFPm0qqQh9I7mXb0Ahjp0g45NUq4ipqOIbFGc1f5W5XQkFHj3m9HHeJv0cN10rGZAqEpz6ULOiJ2DvfVlZF2npPRM4ZTHVI2azmsUQ2ViTi9FjcyFdVYBe7RaCYSokoazCodiSjHjVLMPXPXqDm8LdkXGiGBywqMpqF///4HQ+rLKjS801m9FVyM0Wy5LhsnoNm9zczewVGrWSAWQNVh7x0Pa9GJ0qabGjlodG/QWmAbYXJFuQp5F+nRVo6jKsQyz3QmhlWVIVXGNRn/enpyfkFtn/brNHyVACUqKYsMvY3C7w4FJFSUuM7EqgAN1dUuX2ubDWg4RFGGB/LzAT/n708+4XF0fnB2uD/q0Oj306O9w+Pa6bOPx7R/eDw8PH4n94PRKWMiN5rw1LsSNYyqJpjHOrG/UhSC0NGs25dGaDoPE4Fp7/QQNmS6m27d7e2IApIbwXEboOtbsL5tui1N0AZN3On7ZnrkGvnf3cgtIUTMUB8DCxJZtmletCT6OdkgUWgUG3fMikjx+IBKQXjCgmJgsZAJ+ujNcimfm+uiXgB0kFsFvD1RJvCWtD5cDr7r+TVY7eGOMFOmEtmarZ+BuXVf2IJ/uza8EPiJFWIL8mqTeCnwk1vFFuzVcvFC7CcWjaeA7+0bayeu5MVrMYqeu1pu7ArvRhe4A/8Dlcb1HA==
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Microsoft admin-consent callback"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/connections/microsoft/app-only/consent-callback"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Microsoft redirects the admin's browser here after consent.
+Returns 302 to the Microsoft Org admin page with the outcome
+encoded in query params (consent=granted|denied).
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"True on success","in":"query","name":"admin_consent","schema":{"type":"string"}},{"description":"Tenant that granted consent","in":"query","name":"tenant","schema":{"type":"string"}},{"description":"Opaque state (tenant:client)","in":"query","name":"state","schema":{"type":"string"}},{"description":"OAuth error code from Microsoft","in":"query","name":"error","schema":{"type":"string"}},{"description":"Human-readable error message","in":"query","name":"error_description","schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"302":{"description":"Found"}}}
+>
+  
+</StatusCodes>
+
+
+      

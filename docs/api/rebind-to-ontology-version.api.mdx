@@ -1,0 +1,71 @@
+---
+id: rebind-to-ontology-version
+title: "Rebind to ontology version"
+description: "Updates the binding's version pin and re-derives the extraction DAG. No Run is started; use POST /run to trigger extraction."
+sidebar_label: "Rebind to ontology version"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVt1u2zYUfpUD3WQDHCsZOqDQrpzY67xmTuYk64AmaGnp2GJDkSpJOdUMA3uIPeGeZOdQUuw4abFkF0NvbIrn/4ffOasoQ5daWXppdJREl2UmPDrwOcJM6kzqxZ6DJVpHdCilBqEzsLifoZXLlhE/eStS1gDDwas+TAxMKw3SgfPCesx+gMohnJ2eX0BsieINeCsXC7Rbsv2oF5XCigI9mYuSt6sd346NLSsH4yExSr4ohc/prEmEvtJADlSLHytpMYsSbyvsRS7NsRBRsop8XTKvI/N6Ea3XvV0jp9obZRb1Z82YluG/GroQdoG+S+07XRUzSoexsKe4An6vM/+xQltv7HvzJLvXzOxKox06pn93cMB/O0G/Jp0pRYbaM1WUpZKpYGr8wTHLastEaU2J1stGYSlLVFLjuy4SmT00cNYy/dbwjIfcHNw6dDLzcNJ4q2po2iqDTmuXn/6VviCmpsawsKLMWUWl01zoBQlU2ksF08sJHI0nw/HkFZOlcxVm3FgPytHdmNkHTD3d8N2Lx5JzJDKYUr6pJk/J0n0lg7MxoLVU3q4a3O33EhnI4fBJFKVi56ReCiX5vQXzMDNZ/YRgXjz0Y2I8/GgqnX1VoXz/WF3G5L3VQsE5WuoSGAWjX09YfCkWDHTRUYO0LqLXSvCXm4xhx4SGC+iTRHGLxi5edUC3jlcbMFrHFpmFJFzIR4OglVUknHtfJnGsTCpUTmqTlwcvD2NRynh5GDE0bdjc5/muWXVaWenrc05ik5QjFBbtoGIvd3P685sLaOgE+Teo+9R7thA+gatWDlaBsL6KOrjLURAIbPCONRsr/whV3KSWnHqNdUit1HPDtrnwNEr42MpSZxA+kND9+Fy47me4pOB3YZlQZmEof5pRiKB4Th7DDDVSHUBSayklF9RfkJm0KvhATZKic1QcQqkrPcRUUWggoGk1YG1Qm8reiTi4laStce/Xk143BUF6mFtTBEC0SB0gPcVOY3ZHXChLaapBEViSU70wlcOgaEVdpTxRb9gNmuhiJhz2YbRkDhZldJwxDlCUs0bI5xZxX4mavKWmLwg8eaIXJkMFf//51xb4at/rvgrkueVyWTZOkOT+XWYGxyetZEGxkKkQ9mAyDKxzIdV+qpjQyN5Sa9HT5fVAQC5cvk/poSFAZE8PjjTjUmasWFQZpYo6P2T8fbNZNH0ahzS87wYMl0XRiqI9RV4aKiBQRQFDJroC8J7iMbh8Q28ogeGQijI85p9f6Of8p9M3dBydH0/HR6MejH4/OxmMJ8HprZHDg4bwBhk7Nk14RhhCNaRNqP5CJ8adIMOC9GrTvjBioCMVtEIRSJGOdiYSx2H/gAUYKgqht4xOAxhwJjuI6CZptNPxqw1g/t/bX/u0Pd3G9PQIDtZtwlYtDL6NOhgk9mRr40t21rIAhQRYjGIstlrxC7i0ar3m62anCiumdGKmeJOaC+XwC8n5ZtouXd/Cv9ndHg3mhiCrXeFoblTMEHB1KaxkN57v0vZy/KjpDjd1vW28c+kulWFRfY4D9xfnZ7iwVcH1NXG3g4Az0jAM0hRLvyX6YLyvt+cnNxzNh38ASix4yw==
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Rebind to ontology version"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/bindings/{corpusID}/{ontologyID}/rebind"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Updates the binding's version pin and re-derives the extraction DAG. No Run is started; use POST /run to trigger extraction.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Corpus ID","in":"path","name":"corpusID","required":true,"schema":{"type":"string"}},{"description":"Ontology ID","in":"path","name":"ontologyID","required":true,"schema":{"type":"string"}},{"description":"Target version_number or 'latest'","in":"query","name":"to","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"pipeline_version_id":{"description":"PipelineVersionID is the ID of the newly derived pipeline version.\nThe corpus graph is unchanged until RUN BINDING is issued.","type":"string"}},"type":"object"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

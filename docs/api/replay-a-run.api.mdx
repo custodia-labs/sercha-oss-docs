@@ -1,0 +1,71 @@
+---
+id: replay-a-run
+title: "Replay a run"
+description: "Clones a historical run as a new queued run, reusing the exact same pipeline version as the original. This guarantees the replay executes the same DAG even if the pipeline has been updated since the original ran. The new run is returned immediately in the queued state; poll GET /api/v1/runs/{id} for status transitions. Replays appear as manual triggers — TriggerKindManual is used because TriggerKindReplay does not yet exist as a distinct constant."
+sidebar_label: "Replay a run"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Replay a run"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/runs/{id}/replay"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Clones a historical run as a new queued run, reusing the exact same pipeline version as the original. This guarantees the replay executes the same DAG even if the pipeline has been updated since the original ran. The new run is returned immediately in the queued state; poll GET /api/v1/runs/\{id\} for status transitions. Replays appear as manual triggers — TriggerKindManual is used because TriggerKindReplay does not yet exist as a distinct constant.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Source run ID to replay","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"202":{"description":"Accepted","content":{"application/json":{"schema":{"properties":{"created_at":{"description":"CreatedAt is when this run record was created (before execution began).","type":"string"},"ended_at":{"description":"EndedAt is when the run reached a terminal state ([RunStatusSealed] or\n[RunStatusFailed]). Nil until then.","type":"string"},"error":{"description":"Error contains the error message if the run ended in [RunStatusFailed].","type":"string"},"id":{"description":"ID is the stable unique identifier for this run.","type":"string"},"input_overrides":{"additionalProperties":{"items":{"type":"integer"},"type":"array"},"description":"InputOverrides carries per-invocation Config overrides applied by the\nexecutor before each op runs. The map is keyed by [OpInvocation.ID]\n(the invocation key), and each value is a JSON object whose fields are\nshallow-merged into that invocation's [OpInvocation.Config] before\nop.Run is called.\n\nUsed by triggers that need to scope a Run without re-deriving a new\nPipelineVersion — e.g. a per-document incremental Run reuses the\nbinding's DAG but overrides the extraction invocations' document_ids\nto a single ID. Nil means no overrides; the executor runs the\ninvocations with their persisted Config as-is.","type":"object"},"kind":{"allOf":[{"enum":["extraction","query"],"type":"string","x-enum-varnames":["RunKindExtraction","RunKindQuery"]}],"description":"Kind discriminates between extraction runs and query runs. Extraction\nruns stage nodes/edges into the graph; query runs return a RowSet\ndirectly to the caller without touching the staging tables.\n\nDefaults to [RunKindExtraction] when constructed via [NewRun] or\n[NewRunWithOverrides] so that all existing call sites continue to\nproduce extraction runs without modification. Use [NewQueryRun] to\ncreate a query run."},"pipeline_id":{"description":"PipelineID references the parent [Pipeline].","type":"string"},"pipeline_version_id":{"description":"PipelineVersionID references the exact [PipelineVersion] that was\nexecuted. Stored separately so historical runs always reflect the DAG\nthat was actually used, even after the pipeline is edited.","type":"string"},"started_at":{"description":"StartedAt is when the executor began invoking ops. Nil until the run\ntransitions to [RunStatusRunning].","type":"string"},"status":{"allOf":[{"enum":["queued","running","sealing","sealed","failed"],"type":"string","x-enum-varnames":["RunStatusQueued","RunStatusRunning","RunStatusSealing","RunStatusSealed","RunStatusFailed"]}],"description":"Status is the current state of this run."},"trace":{"description":"Trace holds structured per-op status, timing, and error information\nwritten by the executor as the run progresses. The shape is defined by\nthe executor; the domain layer treats it as opaque JSON.","items":{"type":"integer"},"type":"array"},"trigger_kind":{"allOf":[{"enum":["manual","scheduled","binding","sync"],"type":"string","x-enum-varnames":["TriggerKindManual","TriggerKindScheduled","TriggerKindBinding","TriggerKindSync"]}],"description":"TriggerKind describes what caused this run to be created."},"triggered_by":{"description":"TriggeredBy is an optional identifier for the principal that triggered\nthis run (e.g. a user ID for manual runs, a scheduled-task ID for\nscheduled runs). May be empty.","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Source run not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Run repository not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

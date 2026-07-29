@@ -1,0 +1,71 @@
+---
+id: get-a-node-any-graph
+title: "Get a node (any graph)"
+description: "Returns a single node by ID without requiring the caller to know which graph it belongs to. The node carries its own GraphID in the response. Useful for lineage and delete-cascade flows that only know the node ID."
+sidebar_label: "Get a node (any graph)"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a node (any graph)"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/nodes/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a single node by ID without requiring the caller to know which graph it belongs to. The node carries its own GraphID in the response. Useful for lineage and delete-cascade flows that only know the node ID.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Node ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"acl_payload":{"description":"AclPayload holds opaque bytes stored verbatim by the repository.\nThe byte content and its interpretation are defined entirely by\nthe caller; the domain layer treats it as an untyped payload.","items":{"type":"integer"},"type":"array"},"created_at":{"description":"CreatedAt is when the node was first written.","type":"string"},"created_by_run_id":{"description":"CreatedByRunID identifies the pipeline run that wrote this node.","type":"string"},"graph_id":{"description":"GraphID references the graph this node belongs to.","type":"string"},"id":{"description":"ID is the stable unique identifier.","type":"string"},"lineage_refs":{"description":"LineageRefs records the provenance of this node.","items":{"properties":{"derived_from_node_id":{"description":"DerivedFromNodeID is the ID of the base graph node that this node was\nderived from. Set for derived lineage (derive_entities op); empty for\nextraction lineage. Exactly one of DocID and DerivedFromNodeID is\nnon-empty for any given LineageRef.","type":"string"},"doc_id":{"description":"DocID is the identifier of the source document. Set for extraction\nlineage; empty for derived lineage.","type":"string"},"op_id":{"description":"OpID identifies the specific operation within the run.","type":"string"},"run_id":{"description":"RunID identifies the pipeline run that produced this node or edge.","type":"string"}},"type":"object"},"type":"array"},"properties":{"description":"Properties holds arbitrary structured attributes defined by the\noperation that created this node. Stored verbatim by the repository.","items":{"type":"integer"},"type":"array"},"reasoning_trace":{"description":"ReasoningTrace holds an optional structured trace of the reasoning\nthat produced this node, stored verbatim by the repository.","items":{"type":"integer"},"type":"array"},"type":{"description":"Type is a caller-defined label identifying the node's semantic category.","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Node not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

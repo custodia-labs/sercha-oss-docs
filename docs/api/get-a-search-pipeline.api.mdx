@@ -1,0 +1,71 @@
+---
+id: get-a-search-pipeline
+title: "Get a search pipeline"
+description: "Returns a SearchPipeline by its primary key."
+sidebar_label: "Get a search pipeline"
+hide_title: true
+hide_table_of_contents: true
+api: eJzVVttuGzcQ/ZXBPrWALNlFCgR6ky3VVeMqru0gBWIjoXbHWsZccktylWwFAf2IfmG/pGe4UmTLdtA89kXici6cy5lDrrKCQ+51HbWz2TC74Nh4G0jRJSufl+e6ZqMt07wlHQPVXlfKt3THbT/rZbXyquLIPmTDd6s9X3sepmMYaBHUKpZYW5jiSxdYe/6j0Z6LbBh9w70s5CVXKhuustjWohWi13aRrdc3ohxqZwMHkf9weCh/D49+/Qo+c2cj2yhSVddG50qkg49BVFb3jqi9q9lH3TnMna+b8B5hPT4dTj2ryMV7FZ8UP2PVpfqEIBUwHasjd4uNjkbwC/aitNlR3qt29/2Et6Yung9u58jNP3IesSN7Lw5fPK7fzEX6yTW2+JYyPnQxOp8Se+88bdsleHlQ6SROi8+qqk2X9VIZXZDggUOkuSvarPcfU/nxKShMEb23ygDQfsmeJunQ/09asqkWMl/ZdpRChiHA2JUOaMsWHNMkYqaG2SCkoTuot6qDlS7WkIeUfTemjTdQLWOsh4OBcbkypQtx+PLw5dFA1XqwPAKY7quF5/VuxHXeeB3bSylZV4JjRMF+1EhM+xX85e0VdXKK7o5tH0jzlYpDut7Y0SoJ1tfZljFKVgX7HWeIZ+f1n6lnu0IiqFfcpkJqe+u6abZR5anNG1vgIC8VjB7mF9J2v+ClTNLDkK9KpoVD/SwXVBsVbxExzdmCC0qSSTVGL4AmKlzeVLIAJHIOAX3tX9trO+bcIDXwagcsEm/UusZ/MQn0ScNbF95vZz3iz9EjdPAu3XpXUUQUnmsXdETuHPbNlQE3FS0ZvWQE1SNlCwLeQNedaWhMhPROwgBRqLkK3KfJUjTElHQAMjH1yHLeGcXSMx8Y1SJaQLzSSMlZqlzBhv7562/q2JIWXtnY235VXM0BtlLXXRCwPPhSmdHJ2cayQi44KqU9mo2T6q3S5iA3IuhsPwFaGFRgBVGXKpQHKA+QDXHEeMEzL3UhjlVToFTGdRX/cP768oo2OB2kMnyQBCUraYthghEyrx0aSOgocarEtgEUIsg0hXynbTGk8RhNGZ/Iz6/4ufz59VssJ5cnF9PjSY8mv5+fjaazFPTFmxkdT2fj6exUrkmwCwtT7EB4DsZADyPu0q8gcbA1FBLQ0ezgSxOhNbgITKAk+JDp7tB61D9MVwtmtVL23qGnHAWAiSFoyxDZHthXO2b81tfAZgojgDvAlGBy15vcVht+epft8xPMhrg0QSPCLaKxWgku33izXst26hz2sVwqr9VcqiBvDR1kDQa8VSbwV7L47mLzuPh+P430JHky6i2hWGkPuLuRLyyRafdkWd9Aa0NLEk4nGOU51/GeyaOrZX2fuk8nVyCrfwG1E0uk
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get a search pipeline"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/search-pipelines/{id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a SearchPipeline by its primary key.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"SearchPipeline ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"corpus_id":{"type":"string"},"created_at":{"type":"string"},"id":{"type":"string"},"name":{"type":"string"},"params":{"items":{"type":"integer"},"type":"array"},"type":{"type":"string"},"updated_at":{"type":"string"}},"type":"object"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

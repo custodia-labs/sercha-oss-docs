@@ -1,0 +1,71 @@
+---
+id: trigger-a-pipeline-run
+title: "Trigger a pipeline run"
+description: "Creates a queued Run for the pipeline's current version (identified by id) and enqueues a pipeline_run task for the worker to execute. The run is returned immediately in the queued state; poll GET /api/v1/runs/{id} for status transitions."
+sidebar_label: "Trigger a pipeline run"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Trigger a pipeline run"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/pipelines/{id}/runs"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a queued Run for the pipeline's current version (identified by id) and enqueues a pipeline_run task for the worker to execute. The run is returned immediately in the queued state; poll GET /api/v1/runs/\{id\} for status transitions.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Pipeline ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={{"content":{"application/json":{"schema":{"properties":{"triggered_by":{"description":"TriggeredBy is an optional identifier for the principal triggering this\nrun (e.g. a user ID). When empty the authenticated user's ID is used.","type":"string"}},"type":"object"}}},"description":"Optional run parameters"}}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"202":{"description":"Accepted","content":{"application/json":{"schema":{"properties":{"created_at":{"description":"CreatedAt is when this run record was created (before execution began).","type":"string"},"ended_at":{"description":"EndedAt is when the run reached a terminal state ([RunStatusSealed] or\n[RunStatusFailed]). Nil until then.","type":"string"},"error":{"description":"Error contains the error message if the run ended in [RunStatusFailed].","type":"string"},"id":{"description":"ID is the stable unique identifier for this run.","type":"string"},"input_overrides":{"additionalProperties":{"items":{"type":"integer"},"type":"array"},"description":"InputOverrides carries per-invocation Config overrides applied by the\nexecutor before each op runs. The map is keyed by [OpInvocation.ID]\n(the invocation key), and each value is a JSON object whose fields are\nshallow-merged into that invocation's [OpInvocation.Config] before\nop.Run is called.\n\nUsed by triggers that need to scope a Run without re-deriving a new\nPipelineVersion — e.g. a per-document incremental Run reuses the\nbinding's DAG but overrides the extraction invocations' document_ids\nto a single ID. Nil means no overrides; the executor runs the\ninvocations with their persisted Config as-is.","type":"object"},"kind":{"allOf":[{"enum":["extraction","query"],"type":"string","x-enum-varnames":["RunKindExtraction","RunKindQuery"]}],"description":"Kind discriminates between extraction runs and query runs. Extraction\nruns stage nodes/edges into the graph; query runs return a RowSet\ndirectly to the caller without touching the staging tables.\n\nDefaults to [RunKindExtraction] when constructed via [NewRun] or\n[NewRunWithOverrides] so that all existing call sites continue to\nproduce extraction runs without modification. Use [NewQueryRun] to\ncreate a query run."},"pipeline_id":{"description":"PipelineID references the parent [Pipeline].","type":"string"},"pipeline_version_id":{"description":"PipelineVersionID references the exact [PipelineVersion] that was\nexecuted. Stored separately so historical runs always reflect the DAG\nthat was actually used, even after the pipeline is edited.","type":"string"},"started_at":{"description":"StartedAt is when the executor began invoking ops. Nil until the run\ntransitions to [RunStatusRunning].","type":"string"},"status":{"allOf":[{"enum":["queued","running","sealing","sealed","failed"],"type":"string","x-enum-varnames":["RunStatusQueued","RunStatusRunning","RunStatusSealing","RunStatusSealed","RunStatusFailed"]}],"description":"Status is the current state of this run."},"trace":{"description":"Trace holds structured per-op status, timing, and error information\nwritten by the executor as the run progresses. The shape is defined by\nthe executor; the domain layer treats it as opaque JSON.","items":{"type":"integer"},"type":"array"},"trigger_kind":{"allOf":[{"enum":["manual","scheduled","binding","sync"],"type":"string","x-enum-varnames":["TriggerKindManual","TriggerKindScheduled","TriggerKindBinding","TriggerKindSync"]}],"description":"TriggerKind describes what caused this run to be created."},"triggered_by":{"description":"TriggeredBy is an optional identifier for the principal that triggered\nthis run (e.g. a user ID for manual runs, a scheduled-task ID for\nscheduled runs). May be empty.","type":"string"}},"type":"object"}}}},"400":{"description":"Bad request (no current version)","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Pipeline not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

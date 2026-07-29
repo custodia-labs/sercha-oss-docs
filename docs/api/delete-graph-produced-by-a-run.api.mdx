@@ -1,0 +1,71 @@
+---
+id: delete-graph-produced-by-a-run
+title: "Delete graph produced by a run"
+description: "Deletes all graph nodes and edges whose created_by_run_id equals the run identified by id, WITHOUT deleting the run row itself. Node search-index and embedding entries are purged for each deleted node (via ObservedGraphRepository when wired). Returns 404 when the run does not exist. Admin only."
+sidebar_label: "Delete graph produced by a run"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVttuGzcQ/ZXBPiWALNmtCwR6UyI1UePaji9IgdhIqN2RljGX3JJc2aogoB/RL+yX9MxSsnxL0D4a6ItE7syQZy48M8us4JB7XUftbNbPhmw4ciBlDM28qkuyrpC9LYiLGVbXpQtMuWcVufg8WXz2jf2sIf29USZQLJnwhXTBNuqp5oImC+w69HF89u7o/IwKuULb2a2qd9ekY2Az7dIhbqPAyufljrYF36SbqwkXhdjgUK8Fj2eqGz/D8VPniVVepoPxQRDTi7lWdDQJ7OdcvBVPTrh2QUfnF/CBLV1rz8XLLp1wbLwNtL+7nwQbXIXDRdZF4hsdYpcGRaUtOWsW3ayT1cqrCvf5kPU/LR+E8QTm4yG0tOxqFUusLfSx0wXWHuGS+7N+9A13spCXXKmsv8ziohatAD/tLFutLkU51M4GDiL/YXdX/u7fd/QeZ+bORsRHpKqujc6VSHtfg6gs71yhEEsRKXPsXc0+6nT0g6s7mw9u8pXzCCwrfNvf3Xt8/7lVTSyd139w8V+Q3D9lcDwm9h753Hgscb4HsRW3ixtV1aaNp50rgwKUkHKINHHFIus8iuO3vPnxMY6fnZ/oAgX8zFzZf4xDClFKeOoa+7wy89NTdT4Geo+6pfZd+4Tpmbn1RMFJlgAiEa7f8pRkTs2VNmpi+Bm5iY+B88bruGjJ8TUInf0AFIHtpVBaVDPhTfE8ZNiDSUsHNswSibf8KtpZD0wcektdrHpteDI5WnKfaLfxBkpljHW/1zMuVwbtKfZf7b7a66la9+Z74LG7auHbepdb1KcSyRSZu9gfBvaXj2eU5BTdFdsugToqFft0sbajZStYXWSbZlCyKthv28FgTZxtKrfxBaj3vGjjq+3Uyd2SfZW32V/bnjL6pILRff9C+7lb8FxI/D7kMzS3mUP8LDplbVRE+6xowhb9vCSN+jJGz1BkaH95U8kClZJzCEh398Je2CHnRtqvolRvJKfRwjX+1gRTgsZpCd6Hgw46aPSAjjZPU++q1GI3dS79/IG5MpgvigUZPWeA6rRTAMoQbyKZhsZESK8ERqGimqjAXRrNRUNMSQcULDgvzR9iFEvPvGPUAmhR+ZWGS85ShWnB0N9//kW583UT5BXa2NnsKpk9fCh1nUDAcuc2MoM3B2vLCr7gqtbtweGwVZ3i4e7kRgTJ9hqlFWXAcEBdqlDuIDzaijji1eFknrdzE6kGHZqMSxH/cnx0ekbrOu21YfgiDopXkhbD7Vy0oNohgWkgaiOxSQCFiGmthXyFqapPwyGSMnwjP7/i5/Td0UcsR6dvTsavRx0a/XZ8MBgftqBPzg/p9fhwOD58K2MPSIeFQLZFKDMEchiVX3ynEnsbQyEMHc22fGkkpI4jMFaCqXCGvO5UrXvdXTFAcGOl7J1L05y6ZkwUaNHkKdNKRrfsQdUvt8z5/4T7ryfcNRNFPN4emALstVrnd7lm50+ZsDNU++1QmwgaNCrcKtLlUt7luTerlXxuK1c6AFKsvG6bWjs76yBr0P8UAebvJO/FyXpufkm3I/aTMDcsaqUm0cca2WF5BU5tR/DVJbTWXCwYkmCQ51zHOyaP2uzqbrMajg5GZyOoq3V72JK3nNfZLOSCJxE9JP+EQn6laz1pslym1oCQbvST6JsWtx1n7bw4gR79D6vi3hw=
+sidebar_class_name: "delete api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Delete graph produced by a run"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/runs/{id}/graph"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Deletes all graph nodes and edges whose created_by_run_id equals the run identified by id, WITHOUT deleting the run row itself. Node search-index and embedding entries are purged for each deleted node (via ObservedGraphRepository when wired). Returns 404 when the run does not exist. Admin only.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Run ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"additionalProperties":{"type":"string"},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"403":{"description":"Forbidden","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Run not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Run or graph repository not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

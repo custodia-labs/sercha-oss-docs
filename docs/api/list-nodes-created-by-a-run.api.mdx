@@ -1,0 +1,71 @@
+---
+id: list-nodes-created-by-a-run
+title: "List nodes created by a run"
+description: "Returns all graph nodes whose created_by_run_id equals the run identified by id. The response includes the run_id and the full list of nodes. Returns 404 when the run does not exist."
+sidebar_label: "List nodes created by a run"
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List nodes created by a run"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/runs/{id}/nodes"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns all graph nodes whose created_by_run_id equals the run identified by id. The response includes the run_id and the full list of nodes. Returns 404 when the run does not exist.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Run ID","in":"path","name":"id","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"nodes":{"items":{"properties":{"acl_payload":{"description":"AclPayload holds opaque bytes stored verbatim by the repository.\nThe byte content and its interpretation are defined entirely by\nthe caller; the domain layer treats it as an untyped payload.","items":{"type":"integer"},"type":"array"},"created_at":{"description":"CreatedAt is when the node was first written.","type":"string"},"created_by_run_id":{"description":"CreatedByRunID identifies the pipeline run that wrote this node.","type":"string"},"graph_id":{"description":"GraphID references the graph this node belongs to.","type":"string"},"id":{"description":"ID is the stable unique identifier.","type":"string"},"lineage_refs":{"description":"LineageRefs records the provenance of this node.","items":{"properties":{"derived_from_node_id":{"description":"DerivedFromNodeID is the ID of the base graph node that this node was\nderived from. Set for derived lineage (derive_entities op); empty for\nextraction lineage. Exactly one of DocID and DerivedFromNodeID is\nnon-empty for any given LineageRef.","type":"string"},"doc_id":{"description":"DocID is the identifier of the source document. Set for extraction\nlineage; empty for derived lineage.","type":"string"},"op_id":{"description":"OpID identifies the specific operation within the run.","type":"string"},"run_id":{"description":"RunID identifies the pipeline run that produced this node or edge.","type":"string"}},"type":"object"},"type":"array"},"properties":{"description":"Properties holds arbitrary structured attributes defined by the\noperation that created this node. Stored verbatim by the repository.","items":{"type":"integer"},"type":"array"},"reasoning_trace":{"description":"ReasoningTrace holds an optional structured trace of the reasoning\nthat produced this node, stored verbatim by the repository.","items":{"type":"integer"},"type":"array"},"type":{"description":"Type is a caller-defined label identifying the node's semantic category.","type":"string"}},"type":"object"},"type":"array"},"run_id":{"type":"string"}},"type":"object"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"404":{"description":"Run not found","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal server error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"503":{"description":"Run or graph repository not available","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      

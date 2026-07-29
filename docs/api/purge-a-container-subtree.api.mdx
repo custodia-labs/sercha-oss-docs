@@ -1,0 +1,74 @@
+---
+id: purge-a-container-subtree
+title: "Purge a container subtree"
+description: "Deletes the container and its descendant subtree plus every"
+sidebar_label: "Purge a container subtree"
+hide_title: true
+hide_table_of_contents: true
+api: eJzlVttuGzcQ/ZXBPsWALNlFC6Tqk22prRrXdi0HKRAbCbU7khhzyS3JVaIKAvoR/cJ+Sc9wV5Z8iYHkrShgyFzOfebMDFdZwSH3uora2ayfDdhw5EBxzpQ7G5W27EnZgnQMJLxsC2UjhXoSPTNVpg7EC/bLa1u4vC4ZRG2DLrhDKvcuBFLGUIjOc+jSJU/rAAMvvj34fo/0VCxd260pJ9bwl7NIkA6UG6VLLmiyJAWffFWHH2jiwTLnANEdsnXQ5lsmUh7u+dqCKAFUsM9+wUU362SV8qpEpD5k/berB0kYu9rnTKMBGLVcVCrOcbYQwVdI5ET1/EetPRdZP/qaO1mAT6XK+qssLqvEG722s2y97jw0cnIX8mhALzbp9M7FvafN3uXoCy3fCHOonEXahf7NwYH8u+/N+SvoFAson1BVVRmdK6H2PgRhWe2YqLyr2EfdKNzU4l2T7B0fNPTN2Gfrztb78K5IGPsM3wZDz7KBr71ykw+cR9zIHSD1OLJtnrdY+pJY72s7uhgRew9kbnIqYLqXjkROh0+qrEzj+EIZXZAUDbimiSuWWecxRp6M6run6jWC994qQ2OBtKdhMvrfCUsu1Uyar+22kAGn6Mi5Q8WzpvapT9EC/azX9FzorTbNt+5tEdVb7fTGGlKpz9vWrr2BgnmMVb/XMy5XZu5C7L88eHnYU5XuLQ4zac4tW/g8342ozmuv43IsmWwyc8yYNP6oFk8fJvaXN1fU0Cm6W7Zd+tH5UsU+XbdytEqE9XW2afs5q4L9tvFFs/P6z1TKbX7h1CtepvxqO3ViO6UhT9VvZQGPfK4gdD++kK67BS9Sz91z+Qqjf+aQPxmclVFxCo9pwpZRC5IeNEbPZMzfzXsgBcUJKHf32l7bAaPPMHwVNXgj0UZLVO5OJNBHDW2Ne7+ddog/RQ/XsWZo6l2ZFpDnygWNNQAIPhRXxiNNSzJ6wXCqk0Y8YOiXrWioTQT1VtwoVFQTFbhLQ9lUJKIyDiautkWzO0QozjGC941awlsgv9QIyVkqHeBI//z192axzDDwYmfzVXI5AdjmumqcgOT+XWaOTk5byRKxwFQK++hskFinSpv93Aihkf0IaKF/gRV4PVdhvo/0ANcgR3QdNPMCmxWKVV0gVcY1GX9/cT6+ohanvZSG9xKgRCVlMUwQQuSVQwEJFW129l0BsJ9V5OTyrbZFnwYDFGVwIj+/4mf88/kbHIfjk8vR8bBDw98vTo9GZ8npy9dndDw6G4zOfpLViqHDMkC2ILzAIEENo/LLZ5DY2wjKbNDRbOFLQ5l2UBGYMKmgQ7q7Qeth90AEkNxYKrtrtPYzTi+Gzfxvd2z2APCr7dD83zx/2hES0XU9tDjGzrotzKoduW/bZ04Ad3/nxbOdukLYfZNgOMrEFNHVSrrttTfrtVwnPOIex4XyWk2ktvLq0kHOGPhTZQI/U5cXl+1zZ492H2dPhrEZj1bAhgVVyxeOtxiWO4+39CL7Ggeef7h9hUu7SVzfgL1dAJKihuMoz7mKO7KPdvt6d3sOhqfDqyE2w798JiXL
+sidebar_class_name: "delete api-method"
+info_path: api//sercha-enterprise-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Purge a container subtree"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/sources/{sourceID}/containers/{containerID}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Deletes the container and its descendant subtree plus every
+document inside, across all stores. Refuses (409) if the
+container or an ancestor is claimed by a corpus; branches
+claimed by another corpus are pruned and preserved.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
+
+<ParamsDetails
+  parameters={[{"description":"Source ID","in":"path","name":"sourceID","required":true,"schema":{"type":"string"}},{"description":"Container ID (subtree root)","in":"path","name":"containerID","required":true,"schema":{"type":"string"}}]}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"OK","content":{"application/json":{"schema":{"properties":{"branches_pruned":{"type":"integer"},"containers_deleted":{"type":"integer"},"documents_deleted":{"type":"integer"}},"type":"object"}}}},"409":{"description":"Container is claimed","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"description":"API error response","properties":{"error":{"example":"invalid request body","type":"string"}},"type":"object"}}}}}}
+>
+  
+</StatusCodes>
+
+
+      
