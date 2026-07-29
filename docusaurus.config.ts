@@ -144,6 +144,11 @@ const config: Config = {
           position: 'left',
         },
         {
+          to: '/library',
+          label: 'Library',
+          position: 'left',
+        },
+        {
           to: '/api/sercha-enterprise-api',
           label: 'API Reference',
           position: 'left',
@@ -169,6 +174,7 @@ const config: Config = {
           title: 'Docs',
           items: [
             {label: 'SerchaQL', to: '/serchaql/intro'},
+            {label: 'Library', to: '/library'},
             {label: 'API Reference', to: '/api/sercha-enterprise-api'},
           ],
         },

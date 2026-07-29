@@ -1,0 +1,607 @@
+---
+title: HR surveys
+description: Engagement reports, pulse surveys and exit interviews
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="hr-surveys">
+
+## 1. What this models
+
+An employee listening programme produces a genuinely awkward corpus. An annual
+engagement report arrives as a 60-page deck with driver scores, favourability
+percentages, benchmark deltas and a word cloud. Four pulse waves follow, each
+shorter, each with a slightly different item set because someone on the people
+analytics team improved the wording. Exit interview write-ups accumulate one
+per leaver in a folder nobody aggregates. A culture audit commissioned after a
+bad quarter reads like a consulting report and cites the same numbers with
+different labels. Comment sets sit in spreadsheets exported from three vendors
+across two migrations.
+
+The questions this ontology makes answerable are the ones people analytics teams
+currently answer with a fortnight of manual spreadsheet work: which engagement
+driver has declined for three consecutive waves in the divisions large enough to
+report; whether that decline is real or an artefact of the item being reworded
+in wave two; which free-text theme accounts for a driver falling while its
+sibling items held; and whether the reasons leavers give in exit conversations
+match what current employees are saying while still employed.
+
+## 2. The modelling decisions
+
+**The root is the report, not the survey.** `SurveyReport` is `ROOT` because the
+document kind that anchors this corpus is the delivered report: the artefact that
+exists once per wave per audience, carries the field dates and the response rate,
+and is the thing every score in the corpus was published inside. The tempting
+alternative is to root on `SurveyWave`, since a wave is how the programme is
+managed. That is wrong for the same reason it is always wrong: a wave is a
+resolved concept spanning many documents (a group report, eleven division
+reports, a comment appendix), and a root must be a document. Rooting on the
+report means `response_count` and `respondent_base` are properties of the thing
+that actually reported them, which turns out to matter enormously below.
+
+**Anonymity is a schema decision, and the first one we made.** There is no
+`Respondent` entity in this ontology and there never will be. Not because the
+documents lack the data (an exit interview write-up names the leaver in the
+header; a 360 report names the subject), but because creating the entity creates
+the join. Once `Respondent` exists with a KEY, the resolution engine will happily
+unify a person across an exit interview, a 360 subject line and a comment
+attribution, and you have built a re-identification machine out of a listening
+programme. The schema simply does not offer that shape. `ExitInterview` carries
+`leaver_reference`, a pseudonymous case identifier, and no name field: an
+extractor cannot populate a column that does not exist.
+
+**`respondent_base` is NOT NULL on every scored entity, so the threshold can be
+enforced in SQL.** Minimum reporting thresholds (typically five, sometimes ten
+for sensitive demographic cuts) are usually a dashboard setting, which means they
+are one export away from being forgotten. Here the count travels with the score
+on the same row. Any query can guard with `respondent_base >= 5`, and the
+`reportable_scores` view in section 6 bakes that in so a downstream analyst
+cannot omit it by accident. `suppression_applied` records whether the vendor
+already withheld a cut, which is different from a cut being absent because the
+question was not asked, and conflating those two is how people invent trends.
+
+**Free text is a separate entity precisely because it is riskier than the
+numbers.** `CommentTheme` is a child entity rather than a `top_themes TEXT[]`
+column on the driver. The obvious argument is the usual one: the theme set is
+open, varies by wave, and a rarely populated column cannot distinguish absent
+from missed. The real argument is governance. A verbatim quote can re-identify a
+person even when a favourability percentage cannot: "the only person on the
+night shift in the Riverbend depot" is anonymous arithmetically and identifiable
+in practice. Making themes their own entity means `illustrative_quote` is one
+nullable column on one entity, which is one thing to redact, one thing to grant
+separately, and one thing to filter out of an executive view. `comment_count`
+sits alongside it so a theme reported from two comments in a team of seven can be
+suppressed by the same threshold logic as a score.
+
+**Keys are resolution identities, and the question key is the interesting one.**
+`SurveyReport` keys on `(programme_code, wave_label, population_scope)`: a wave
+produces many reports and only the audience separates them. `SurveyItem` is the
+hard case. Keying on `question_text` is the naive choice and it is actively
+harmful: reword "My manager gives me useful feedback" to "I receive useful
+feedback from my manager" and the trend line breaks into two unrelated series.
+Keying on the vendor's item code fails across the migration that renumbered
+everything. So `SurveyItem` keys on `(construct_code, item_slug)`, where
+`item_slug` is a stable analyst-assigned mnemonic and `construct_code` is the
+driver it loads onto. The wording lives in `question_text` as an ordinary,
+non-key column, and `wording_revision` increments when it changes. Identity is
+"the thing this item is trying to measure"; wording is an attribute of it that
+drifts. That single decision is what makes the wave-comparison query in section 5
+possible at all.
+
+**Fuzzy where a human typed it, exact where a code was assigned.**
+`reports_on_item` uses `RESOLVE FUZZY WITHIN hr.SurveyItem` because the item
+label printed next to a score in a report deck is a truncated, re-punctuated,
+sometimes paraphrased version of the item: "Mgr gives useful feedback (Q14)"
+must reach the same node as the full wording. `belongs_to_unit` uses `RESOLVE
+FUZZY` too, because organisational unit names in HR documents are a swamp:
+"Customer Ops", "Customer Operations", "Cust. Ops ANZ" and "Customer Operations
+(ANZ)" are one team written four ways by four people across two reorganisations.
+By contrast `explains_driver` and `succeeds_wave` resolve `EXACT`: both link on
+codes the analytics team assigns rather than prose anyone types, and a fuzzy
+match there would silently merge two genuinely different constructs, which is
+worse than failing to match.
+
+**What we deliberately did not model, beyond the respondent.** There is no
+`Manager` or `Employee` entity, for the same re-identification reason: a 360
+review's subject is modelled as `subject_reference`, a pseudonym, and the review
+is scoped to a unit rather than to a person. We also did not model the
+per-question response distribution (the count in each of the five scale points).
+It appears in appendices, extracts poorly from stacked bar charts, and it is the
+single most re-identifying artefact in a survey report: in a team of six, a
+distribution of 5/0/0/0/1 tells a manager exactly how many people to be annoyed
+with. Favourability and mean, with a base count, carry the signal without the
+hazard.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY hr;
+
+-- The delivered report. One document, one row: the anchor for everything else.
+CREATE ENTITY hr.SurveyReport (
+  programme_code    TEXT NOT NULL
+    EXTRACT 'short code naming the listening programme, e.g. ENG-ANNUAL or PULSE-Q',
+  wave_label        TEXT NOT NULL
+    EXTRACT 'the wave or cycle this report covers, e.g. 2026-W1 or Autumn 2025',
+  population_scope  TEXT NOT NULL
+    EXTRACT 'the audience this copy of the report covers: whole organisation, a division, a site',
+  survey_kind       TEXT NOT NULL CHECK (survey_kind IN
+    ('engagement','pulse','onboarding','exit_aggregate','culture_audit','three_sixty_aggregate')),
+  field_start       DATE,
+  field_end         DATE,
+  invited_count     INTEGER,
+  -- The denominator. NOT NULL because every threshold guard downstream needs it.
+  response_count    INTEGER NOT NULL,
+  response_rate_pct FLOAT,
+  vendor_platform   TEXT
+    EXTRACT 'the survey platform that produced the report, if named on the cover or footer',
+  benchmark_source  TEXT
+    EXTRACT 'the external comparison set cited, e.g. a named industry norm or global norm',
+  is_confidential   BOOLEAN
+    EXTRACT 'true if the report carries a confidentiality or restricted-circulation marking',
+  KEY (programme_code, wave_label, population_scope)
+) ROOT SINGULAR PER DOC;
+
+-- The stable identity of a question, independent of how it was worded this wave.
+-- item_slug is analyst-assigned and survives reword and vendor migration.
+CREATE ENTITY hr.SurveyItem (
+  construct_code    TEXT NOT NULL
+    EXTRACT 'the driver or construct the item loads onto, e.g. MGR, GROWTH, RECOG, WLB',
+  item_slug         TEXT NOT NULL
+    EXTRACT 'the stable short identifier for this item across waves, not the vendor question number',
+  question_text     TEXT NOT NULL
+    EXTRACT 'the exact wording printed in this report; do not normalise or tidy it',
+  wording_revision  INTEGER
+    EXTRACT 'revision number if the report flags the item as reworded or newly phrased',
+  scale_type        TEXT CHECK (scale_type IN
+    ('agree_5','agree_7','freq_5','enps_11','binary','open_text')),
+  is_benchmarked    BOOLEAN,
+  KEY (construct_code, item_slug)
+) UNDER hr.SurveyReport;
+
+-- One score for one item for one cut of the population.
+-- respondent_base is NOT NULL: no score exists in this ontology without its N.
+CREATE ENTITY hr.ItemScore (
+  item_slug           TEXT NOT NULL,
+  cut_label           TEXT NOT NULL
+    EXTRACT 'the population cut this score applies to: overall, a division, a tenure band, a level',
+  cut_dimension       TEXT CHECK (cut_dimension IN
+    ('overall','business_unit','location','tenure_band','level','function','manager_span')),
+  favourable_pct      FLOAT
+    EXTRACT 'percentage selecting the top two scale points, sometimes labelled favourable or agreement',
+  unfavourable_pct    FLOAT,
+  mean_score          FLOAT,
+  respondent_base     INTEGER NOT NULL
+    EXTRACT 'number of respondents behind this figure, often shown as n= beside the score',
+  benchmark_delta     FLOAT
+    EXTRACT 'difference against the external benchmark, signed; null if no benchmark shown',
+  prior_wave_delta    FLOAT
+    EXTRACT 'change against the previous wave as printed, signed; null if not shown or not comparable',
+  -- Distinguishes "vendor withheld this cut" from "this cut was never asked".
+  suppression_applied BOOLEAN
+    EXTRACT 'true if the report shows this cut as withheld, masked or below reporting threshold',
+  KEY (item_slug, cut_label)
+) UNDER hr.SurveyReport;
+
+-- Rolled-up driver scores. Separate from ItemScore because reports publish
+-- driver-level figures that are not simply the mean of their items.
+CREATE ENTITY hr.DriverScore (
+  construct_code   TEXT NOT NULL,
+  construct_label  TEXT
+    EXTRACT 'the human-readable driver name as printed, e.g. Manager Effectiveness',
+  cut_label        TEXT NOT NULL,
+  favourable_pct   FLOAT,
+  respondent_base  INTEGER NOT NULL,
+  benchmark_delta  FLOAT,
+  is_key_driver    BOOLEAN
+    EXTRACT 'true if the report flags this construct as a key or priority driver from its impact analysis',
+  impact_rank      INTEGER
+    EXTRACT 'rank in the driver impact or key driver analysis, 1 being highest impact',
+  KEY (construct_code, cut_label)
+) UNDER hr.SurveyReport;
+
+-- Free text, aggregated into themes. The illustrative quote is the single
+-- highest re-identification risk in the corpus, so it lives on exactly one
+-- entity, on one nullable column, and can be granted and redacted separately.
+CREATE ENTITY hr.CommentTheme (
+  theme_label        TEXT NOT NULL
+    EXTRACT 'the theme name as reported in the open-text analysis section',
+  theme_category     TEXT CHECK (theme_category IN
+    ('compensation','career_growth','manager','workload','leadership','culture',
+     'flexibility','tools_systems','role_clarity','recognition','wellbeing','other')),
+  cut_label          TEXT NOT NULL,
+  comment_count      INTEGER NOT NULL
+    EXTRACT 'number of comments coded to this theme; the threshold guard for free text',
+  sentiment          TEXT CHECK (sentiment IN ('positive','mixed','negative')),
+  share_of_comments  FLOAT,
+  explains_construct TEXT
+    EXTRACT 'the driver code this theme is said to explain, if the report links them',
+  illustrative_quote TEXT
+    EXTRACT 'a verbatim quote if the report prints one; leave null rather than paraphrasing',
+  KEY (theme_label, cut_label)
+) UNDER hr.SurveyReport;
+
+-- One leaver conversation. Pseudonymous by construction: leaver_reference is a
+-- case identifier, and there is deliberately no name, email or manager column.
+CREATE ENTITY hr.ExitInterview (
+  leaver_reference  TEXT KEY
+    EXTRACT 'the case or reference number for this exit conversation; never a person name',
+  exit_date         DATE,
+  business_unit     TEXT,
+  tenure_months     INTEGER,
+  level_band        TEXT,
+  exit_type         TEXT CHECK (exit_type IN
+    ('voluntary','involuntary','end_of_contract','retirement','redundancy')),
+  primary_reason    TEXT CHECK (primary_reason IN
+    ('compensation','career_growth','manager','workload','culture','relocation',
+     'flexibility','role_fit','external_offer','personal','other'))
+    EXTRACT 'the single reason the leaver gave as decisive, not the full list of contributing factors',
+  would_recommend   BOOLEAN
+    EXTRACT 'whether the leaver said they would recommend the organisation as a place to work',
+  would_return      BOOLEAN,
+  interviewer_role  TEXT
+    EXTRACT 'the role of whoever conducted the interview, e.g. HR business partner; not their name'
+) ROOT SINGULAR PER DOC;
+
+-- Contributing factors, separate from primary_reason. A leaver relocating may
+-- still tell you the workload was unsustainable, and that is the useful part.
+CREATE ENTITY hr.ExitFactor (
+  factor_category  TEXT NOT NULL CHECK (factor_category IN
+    ('compensation','career_growth','manager','workload','leadership','culture',
+     'flexibility','tools_systems','role_clarity','recognition','wellbeing','other')),
+  factor_note      TEXT,
+  severity         TEXT CHECK (severity IN ('mentioned','emphasised','decisive')),
+  KEY (factor_category, severity)
+) UNDER hr.ExitInterview;
+
+-- The organisational unit a report or exit relates to. An entity rather than a
+-- string so the four spellings of one team resolve to one node.
+CREATE ENTITY hr.OrgUnit (
+  unit_name       TEXT KEY
+    EXTRACT 'the organisational unit name as written; do not expand abbreviations',
+  unit_type       TEXT CHECK (unit_type IN
+    ('division','department','team','site','function','region')),
+  headcount       INTEGER
+    EXTRACT 'headcount for the unit if stated on the report; this is the eligible population, not the response count',
+  parent_unit     TEXT
+) ROOT;
+
+-- External edge: a report's score labels are truncated and re-punctuated
+-- versions of the item wording, so this must tolerate drift.
+CREATE EDGE hr.reports_on_item
+  ON hr.SurveyReport COVERS hr.SurveyItem
+  LINK BY item_slug RESOLVE FUZZY WITHIN hr.SurveyItem;
+
+-- Unit names in HR documents are a swamp; fuzzy is the only honest choice.
+CREATE EDGE hr.belongs_to_unit
+  ON hr.SurveyReport SCOPED_TO hr.OrgUnit
+  LINK BY population_scope RESOLVE FUZZY WITHIN hr.OrgUnit;
+
+CREATE EDGE hr.exit_from_unit
+  ON hr.ExitInterview LEFT_FROM hr.OrgUnit
+  LINK BY business_unit RESOLVE FUZZY WITHIN hr.OrgUnit;
+
+-- EXACT: construct codes are assigned, not typed. A fuzzy match here would
+-- merge two genuinely distinct drivers, which is worse than no match at all.
+CREATE EDGE hr.explains_driver
+  ON hr.CommentTheme EXPLAINS hr.DriverScore
+  LINK BY explains_construct RESOLVE EXACT;
+
+CREATE EDGE hr.scores_item
+  ON hr.ItemScore MEASURES hr.SurveyItem
+  LINK BY item_slug RESOLVE EXACT;
+
+-- Internal edges: structural containment within one document.
+CREATE EDGE hr.report_has_driver
+  ON hr.SurveyReport CONTAINS hr.DriverScore;
+
+CREATE EDGE hr.exit_has_factor
+  ON hr.ExitInterview CITES hr.ExitFactor;
+```
+
+## 4. Extraction
+
+The folder partition is the governance boundary, not a convenience. Level 2 is
+the division folder, which is what per-document ACLs and the `_folder` column
+both key on.
+
+```sql
+CREATE CORPUS listening
+  ON sharepoint.people_analytics.'Engagement Reports',
+     sharepoint.people_analytics.'Pulse Waves',
+     sharepoint.people_analytics.'Exit Conversations'
+  USING ONTOLOGY hr
+  PARTITION BY FOLDER LEVEL 2;      -- level 2 is the division folder
+
+BIND CORPUS listening TO ONTOLOGY hr;
+
+RUN BINDING listening.hr;
+```
+
+A hint attaches to a root node of the extraction DAG. `SurveyReport` is a root,
+so this is legal; hinting `ItemScore` would fail, because it is extracted inside
+its parent's invocation. Describe the children from the parent.
+
+```sql
+ALTER BINDING listening.hr
+  SET HINT ON extract_internals WHERE root = SurveyReport AS
+  'Reports in this corpus put driver scores on a summary page as a horizontal
+   bar chart with the favourable percentage printed at the bar end and the
+   benchmark delta in a small signed box beside it: capture both, preserving the
+   sign. Item-level scores appear in a heat-map grid later in the deck, one row
+   per item and one column per cut; the n= figure sits in the column header or in
+   a footnote, and it must be captured for every score, never inferred from the
+   overall response count. Where a cell is shown as a dash, a grey block or the
+   text below threshold, set suppression_applied true and leave the percentage
+   null rather than reading zero. item_slug is the short mnemonic in the leftmost
+   column or the appendix item map; if the deck shows only a vendor question
+   number, use that verbatim as the slug rather than inventing one. Copy
+   question_text exactly as printed, including any asterisk or note marking the
+   item as reworded this wave, and set wording_revision when such a marker is
+   present. Open-text themes come from the comments section: capture the theme
+   name, its comment count and its sentiment, and extract illustrative_quote only
+   where a quote is printed verbatim in quotation marks. Never construct a quote
+   from a summary sentence.';
+```
+
+Backfilling a column added after the first run, without re-extracting everything:
+
+```sql
+RUN BINDING listening.hr
+  EXTRACT (ItemScore.suppression_applied, CommentTheme.explains_construct);
+```
+
+**Access control is the point in this domain.** Three checks compose with AND:
+the corpus grant, corpus membership, and the per-document ACL. That composition
+is what lets an HR business partner see their own division while an executive
+sees only rolled-up figures, without maintaining two copies of the data.
+
+```sql
+-- People analytics owns the corpus and can see everything in it.
+GRANT SELECT ON CORPUS listening TO GROUP people_analytics;
+
+-- HR business partners hold the same corpus grant. What differs is the
+-- per-document ACL on the division folders, which intersects with it: the
+-- grant opens the corpus, the ACL decides which division's reports are inside
+-- it for this caller. Nobody writes a WHERE clause to enforce that.
+GRANT SELECT ON CORPUS listening TO GROUP hr_business_partners;
+
+-- The executive group is granted the derived corpus of rolled-up figures, not
+-- the source corpus. Verbatim comments and unit-level cuts are not in it, so
+-- there is nothing to accidentally expose in a screenshot of a board pack.
+GRANT SELECT ON CORPUS listening_rollup TO GROUP executive_committee;
+
+-- Exit conversations are a narrower circle again, by folder ACL within the
+-- same corpus grant.
+GRANT SELECT ON CORPUS listening TO USER employee_relations_lead@examplecorp.test;
+
+GRANT USE ON PIPELINE comment_search TO GROUP people_analytics;
+```
+
+## 5. Queries that earn their keep
+
+**Which drivers are below benchmark in units large enough to report?** The
+threshold guard, written out in full so the shape is obvious. Anything under
+five respondents is not merely excluded from the answer; it never enters the
+scan.
+
+```sql
+SELECT u.unit_name,
+       d.construct_label,
+       d.favourable_pct,
+       d.benchmark_delta,
+       d.respondent_base
+FROM listening.DriverScore d
+JOIN listening.SurveyReport r VIA d.report_has_driver
+JOIN listening.OrgUnit u VIA r.belongs_to_unit
+WHERE d.respondent_base >= 5          -- minimum reporting threshold, never optional
+  AND d.suppression_applied IS NOT NULL
+  AND d.benchmark_delta < -5
+  AND r.survey_kind = 'engagement'
+ORDER BY d.benchmark_delta ASC;
+```
+
+**Where is engagement weakest by division and driver, across the whole
+programme?** An aggregate with `GROUP BY`, guarded by `HAVING` on an aliased
+count so a division only appears once enough of its teams reported.
+
+```sql
+SELECT r.population_scope,
+       d.construct_label,
+       AVG(d.favourable_pct)   AS avg_favourable,
+       SUM(d.respondent_base)  AS total_base,
+       COUNT(*)                AS cuts_reported
+FROM listening.SurveyReport r
+JOIN listening.DriverScore d VIA r.report_has_driver
+WHERE d.respondent_base >= 5
+  AND r.field_end >= DATE '2026-01-01'
+GROUP BY r.population_scope, d.construct_label
+HAVING cuts_reported >= 3            -- alias the aggregate; HAVING COUNT(*) does not parse
+ORDER BY avg_favourable ASC
+LIMIT 25;
+```
+
+**Which extracted scores should a human check before we brief the board?** A
+system column doing real work. `_confidence` surfaces heat-map cells the
+extractor was unsure about, and `_doc` tells you which deck to reopen.
+
+```sql
+SELECT s._doc,
+       s._confidence,
+       s._folder,
+       s.item_slug,
+       s.cut_label,
+       s.favourable_pct,
+       s.respondent_base
+FROM listening.ItemScore s
+WHERE s._confidence < 0.75
+  AND s.respondent_base >= 5
+ORDER BY s._confidence ASC
+LIMIT 40;
+```
+
+**Is a driver's decline real, or an artefact of the item being reworded?** The
+hard one, and the reason `SurveyItem` keys on `(construct_code, item_slug)`
+rather than on wording. The same slug across three waves gives a comparable
+series; `wording_revision` and the distinct wordings tell you whether the series
+is safe to read as a trend.
+
+```sql
+WITH series AS (
+  SELECT i.construct_code,
+         i.item_slug,
+         r.wave_label,
+         i.question_text,
+         i.wording_revision,
+         s.favourable_pct,
+         s.respondent_base
+  FROM listening.ItemScore s
+  JOIN listening.SurveyItem i VIA s.scores_item
+  JOIN listening.SurveyReport r USING (_doc)
+  WHERE s.cut_label = 'overall'
+    AND s.respondent_base >= 5
+)
+SELECT construct_code,
+       item_slug,
+       COUNT(*)                     AS waves_observed,
+       COUNT(DISTINCT question_text) AS distinct_wordings,
+       MAX(wording_revision)        AS latest_revision,
+       MIN(favourable_pct)          AS lowest,
+       MAX(favourable_pct)          AS highest,
+       MAX(favourable_pct) - MIN(favourable_pct) AS swing
+FROM series
+GROUP BY construct_code, item_slug
+HAVING waves_observed >= 3
+ORDER BY swing DESC;
+```
+
+Read the output as two populations. A large `swing` with `distinct_wordings = 1`
+is a genuine movement worth investigating. A large swing with
+`distinct_wordings > 1` is a rewording artefact until proven otherwise, and
+should not be put in front of a leadership team as a trend.
+
+**Which free-text theme explains a driver that fell?** The traversal that turns
+qualitative and quantitative into one answer, and the reason `explains_driver`
+exists as an edge rather than as a note in a slide.
+
+```sql
+SELECT u.unit_name,
+       d.construct_label,
+       d.favourable_pct,
+       t.theme_label,
+       t.theme_category,
+       t.sentiment,
+       t.comment_count
+FROM listening.CommentTheme t
+JOIN listening.DriverScore d VIA t.explains_driver
+JOIN listening.SurveyReport r USING (_doc)
+JOIN listening.OrgUnit u VIA r.belongs_to_unit
+WHERE d.respondent_base >= 5
+  AND t.comment_count >= 5          -- free text needs its own threshold, and a stricter one
+  AND t.sentiment = 'negative'
+  AND d.benchmark_delta < 0
+ORDER BY t.comment_count DESC;
+```
+
+**Do leavers say what current employees are still saying?** Exit factors against
+live survey themes, on the shared category vocabulary that both entities use.
+This is the question the `CHECK` enum on `theme_category` and `factor_category`
+was written to make joinable.
+
+```sql
+SELECT f.factor_category,
+       COUNT(DISTINCT e.leaver_reference) AS leavers_citing,
+       AVG(e.tenure_months)               AS avg_tenure_months
+FROM listening.ExitInterview e
+JOIN listening.ExitFactor f VIA e.exit_has_factor
+WHERE e.exit_type = 'voluntary'
+  AND e.exit_date >= DATE '2026-01-01'
+  AND f.severity IN ('emphasised','decisive')
+GROUP BY f.factor_category
+ORDER BY leavers_citing DESC;
+```
+
+**Which reports discuss psychological safety, whatever they called it?** Search
+as a filter, entity rows as the answer. Culture audits and engagement decks use
+different vocabulary for the same concept, so a `LIKE` on a theme label misses
+most of it.
+
+```sql
+SELECT r.programme_code, r.wave_label, r.population_scope, r.response_count
+FROM listening.SurveyReport r
+WHERE r MATCHES ('psychological safety speaking up without fear of retribution'
+                 USING comment_search TOP 30)
+  AND r.response_count >= 5;
+```
+
+## 6. Views
+
+Named vocabulary, so the threshold cannot be forgotten and the executive cut
+cannot accidentally contain a quote.
+
+```sql
+-- The only entry point analysts should use for driver scores. The minimum
+-- reporting threshold is inside the view, so a downstream query cannot omit it
+-- by writing SELECT * and forgetting why the n column was there.
+CREATE OR REPLACE VIEW reportable_scores AS
+SELECT r.programme_code,
+       r.wave_label,
+       r.population_scope,
+       r.survey_kind,
+       r.field_end,
+       u.unit_name,
+       d.construct_code,
+       d.construct_label,
+       d.cut_label,
+       d.favourable_pct,
+       d.benchmark_delta,
+       d.respondent_base,
+       d.is_key_driver,
+       d.impact_rank
+FROM listening.DriverScore d
+JOIN listening.SurveyReport r VIA d.report_has_driver
+LEFT JOIN listening.OrgUnit u VIA r.belongs_to_unit
+WHERE d.respondent_base >= 5;
+
+-- Free text at a stricter threshold and with the verbatim column deliberately
+-- absent. Themes are safe to circulate; the quote that illustrates them is not,
+-- so this view does not offer it and no consumer has to remember to drop it.
+CREATE OR REPLACE VIEW safe_themes AS
+SELECT r.programme_code,
+       r.wave_label,
+       r.population_scope,
+       t.theme_label,
+       t.theme_category,
+       t.sentiment,
+       t.comment_count,
+       t.share_of_comments,
+       t.explains_construct
+FROM listening.CommentTheme t
+JOIN listening.SurveyReport r USING (_doc)
+WHERE t.comment_count >= 5
+  AND r.response_count >= 20;      -- a theme from a small survey is identifying even at n=5
+
+-- One row per item per wave, wording drift flagged. This is the trend table:
+-- read favourable_pct as a series only where wording_stable is true.
+CREATE OR REPLACE VIEW item_trend AS
+SELECT i.construct_code,
+       i.item_slug,
+       r.wave_label,
+       r.field_end,
+       i.question_text,
+       i.wording_revision,
+       s.cut_label,
+       s.favourable_pct,
+       s.prior_wave_delta,
+       s.respondent_base
+FROM listening.ItemScore s
+JOIN listening.SurveyItem i VIA s.scores_item
+JOIN listening.SurveyReport r USING (_doc)
+WHERE s.respondent_base >= 5
+  AND s.suppression_applied IS NOT NULL;
+```
+
+</TemplatePage>

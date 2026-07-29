@@ -1,0 +1,388 @@
+---
+title: Code and documentation
+description: READMEs, ADRs, API references, runbooks and changelogs
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="code-and-docs">
+
+## What this models
+
+A single repository and everything written about it: the top-level README, per-package READMEs, architecture decision records, generated and hand-written API references, operational runbooks, release changelogs and the doc comments that live above exported symbols. These are usually treated as unrelated piles. They are not. They are one graph in which prose makes claims about code, and code silently stops honouring them.
+
+Questions that were previously a matter of an engineer grepping and squinting become queries here:
+
+- Which documented endpoints or configuration keys no longer appear anywhere in the code?
+- Which runbooks name a service under a name nobody uses now?
+- Which ADRs are still cited by current docs despite having been superseded?
+- Which ADR decisions are still load-bearing, meaning they constrain code that is still shipping?
+- What must a new engineer read, in order, to understand one subsystem?
+- Which changelog entries announced a behaviour change with no corresponding documentation edit?
+
+The payoff query is the first section of the review: what is our documentation currently lying about.
+
+## The modelling decisions
+
+**ROOT is `DocFile`, not `Repository` and not `Subsystem`.** The extraction DAG must start at the unit that arrives as a document, and a document here is one file on disk: one ADR, one runbook, one source file's doc block. `Repository` is tempting because it is the conceptual centre, but a repository is not a document; making it root would force every extraction to hallucinate a whole-repo context from a single file. `Subsystem` fails for the opposite reason: it is a concept many documents mention and none owns. Both are better modelled as resolution targets that documents point at.
+
+**`DocumentedEndpoint` is a separate entity, not columns on `DocFile`.** An early draft had `endpoint_path` and `endpoint_method` on the doc file. That is a modelling error twice over. An API reference page documents a dozen endpoints, so a single column loses eleven of them; and a runbook documents none, so the column sits null on most rows. A column that is only sometimes populated is a column that cannot be reasoned about: `WHERE endpoint_path IS NULL` conflates "no endpoints here" with "extraction missed them". The same argument makes `ConfigOption` and `SymbolReference` their own entities. The test I applied to every candidate column: can one document have two of these? If yes, it is an entity.
+
+**Keys are chosen so that the key is what the world uses to refer to the thing.** `DocFile.path` is the repository-relative path, which is genuinely unique and genuinely stable. `CodeSymbol` uses a composite `KEY (module_path, symbol_name)` because `handle` is a fine function name in eleven modules and identifies nothing on its own; the pair is the fully qualified name an engineer would actually paste into a search. `DocumentedEndpoint` likewise uses `KEY (http_method, route_template)`, because `/v1/ledger/{id}` is three different endpoints depending on the verb, and treating the path alone as identity would silently merge a read with a delete. `AdrRecord.adr_number` is a single field because ADR numbering is monotonic and never reused, which is precisely what makes it a durable identity. `ConfigOption.option_key` is the dotted key as it appears in the settings file: the one string both the docs and the loader agree on.
+
+**EXACT where there is an identifier; FUZZY where there is only prose.** `supersedes` links ADR to ADR by a parsed number, so `RESOLVE EXACT` is correct and an LLM would only add noise and cost. `documents_option` matches a documented key against the config loader's key: also an identifier, also EXACT. The FUZZY edges are the ones crossing from prose into code. A runbook says "restart the ledger reconciler"; the deployable is `ledger-recon-worker`; the ADR calls it "the reconciliation service". `mentions_service` therefore resolves FUZZY, scoped `WITHIN docs.Subsystem` so the candidate pool is the declared subsystem list rather than every noun in the repository. `refers_to_symbol` is FUZZY for the same reason: prose writes `UserStore.fetch()` where the code has `user_store.fetch_by_id`, and normalised string equality would report a false drift signal on almost every doc comment. The rule I would defend in review: FUZZY is for bridging a naming boundary between two human vocabularies, not for papering over a key we were too lazy to extract properly.
+
+**What is deliberately not modelled: the abstract syntax tree.** There is no `FunctionCall`, no `TypeSignature`, no call graph. Building those from an LLM extraction pass would be strictly worse than a language server that already parses the grammar correctly, and it would produce confident nonsense on the code this ontology cares about most, which is the code nobody has touched in three years. The boundary is: this ontology models declarations and references as *text with an identity*, sufficient to ask "does this name exist anywhere in the code", and stops there. If you need "is this function actually reachable", pipe the language server's output in as another corpus and join on the symbol key. Also unmodelled: git history and authorship. Blame is a different data source with a different grain, and `_run_id` plus a scheduled re-extraction gives you drift over time without pretending to be a version control system.
+
+## The schema
+
+```sql
+CREATE ONTOLOGY docs;
+
+-- ROOT: one file on disk. Everything else hangs off this.
+CREATE ENTITY docs.DocFile (
+  path          TEXT KEY EXTRACT 'repository-relative path, e.g. docs/adr/0042-event-log.md',
+  title         TEXT,
+  doc_kind      TEXT NOT NULL CHECK (doc_kind IN
+                  ('readme','adr','api_reference','runbook','changelog',
+                   'inline_doc','tutorial','spec')),
+  owning_team   TEXT EXTRACT 'team named in a CODEOWNERS line or an Owner field, not the last committer',
+  last_reviewed DATE EXTRACT 'an explicit review or last-updated date stated in the document body; null if absent',
+  audience      TEXT CHECK (audience IN ('contributor','operator','integrator','end_user')),
+  is_generated  BOOLEAN EXTRACT 'true if the file carries a do-not-edit or auto-generated banner'
+) ROOT;
+
+-- Declared, not inferred. The list of subsystems is curated vocabulary:
+-- it is the target every FUZZY prose mention resolves into.
+CREATE ENTITY docs.Subsystem (
+  slug          TEXT KEY EXTRACT 'canonical kebab-case identifier, e.g. ledger-recon-worker',
+  display_name  TEXT,
+  aliases       TEXT EXTRACT 'other names the same component is called in prose, comma separated',
+  lifecycle     TEXT CHECK (lifecycle IN ('active','deprecated','retired','planned'))
+) SINGULAR PER DOC;
+
+-- Separate entity, not a column: one API reference page documents many.
+CREATE ENTITY docs.DocumentedEndpoint (
+  http_method    TEXT NOT NULL CHECK (http_method IN
+                   ('GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS')),
+  route_template TEXT NOT NULL EXTRACT 'path with parameters in braces, e.g. /v1/ledger/{entry_id}',
+  stability      TEXT CHECK (stability IN ('stable','beta','experimental','deprecated')),
+  deprecation_note TEXT,
+  -- method alone is not identity, path alone merges a read with a delete
+  KEY (http_method, route_template)
+) UNDER docs.DocFile;
+
+-- Same reasoning: a settings reference documents dozens of keys.
+CREATE ENTITY docs.ConfigOption (
+  option_key    TEXT KEY EXTRACT 'the dotted key exactly as written in the settings file, e.g. ledger.retry.max_attempts',
+  default_value TEXT,
+  value_type    TEXT CHECK (value_type IN ('string','integer','boolean','duration','list','secret')),
+  required      BOOLEAN
+) UNDER docs.DocFile;
+
+-- A code declaration. Extracted from source files and from generated references.
+CREATE ENTITY docs.CodeSymbol (
+  module_path   TEXT NOT NULL EXTRACT 'import path or file path of the declaring module',
+  symbol_name   TEXT NOT NULL,
+  symbol_kind   TEXT CHECK (symbol_kind IN ('function','class','method','constant','type','handler')),
+  visibility    TEXT CHECK (visibility IN ('public','internal','private')),
+  -- fully qualified name is the identity; symbol_name alone collides everywhere
+  KEY (module_path, symbol_name)
+);
+
+-- Every prose reference to a symbol, kept distinct from the declaration itself.
+-- This is the join that lets us ask "documented but nonexistent".
+CREATE ENTITY docs.SymbolReference (
+  referenced_name TEXT KEY EXTRACT 'the symbol as written in prose, verbatim, including any wrong casing',
+  reference_context TEXT CHECK (reference_context IN
+                    ('example_code','narrative','signature_block','link_text'))
+) UNDER docs.DocFile;
+
+CREATE ENTITY docs.AdrRecord (
+  adr_number    INTEGER KEY EXTRACT 'the monotonic ADR number from the filename or title, digits only',
+  decision      TEXT EXTRACT 'the one-sentence decision itself, not the surrounding context or consequences',
+  status        TEXT NOT NULL CHECK (status IN
+                  ('proposed','accepted','superseded','deprecated','rejected')),
+  decided_on    DATE,
+  supersedes_number INTEGER EXTRACT 'the ADR number this record replaces, if the status line names one'
+) SINGULAR PER DOC UNDER docs.DocFile;
+
+CREATE ENTITY docs.ChangelogEntry (
+  release_version TEXT NOT NULL EXTRACT 'the version string of the release heading this entry sits under',
+  summary         TEXT,
+  change_type     TEXT CHECK (change_type IN
+                    ('added','changed','deprecated','removed','fixed','security')),
+  released_on     DATE,
+  breaking        BOOLEAN EXTRACT 'true only if the entry is explicitly marked breaking',
+  -- one release has many entries; version alone is not a row identity
+  KEY (release_version, summary)
+) UNDER docs.DocFile;
+
+-- Edges. Internal edges (no LINK BY) are structural; external edges cross documents.
+
+-- Prose to declaration. FUZZY because prose writes UserStore.fetch() for user_store.fetch_by_id.
+CREATE EDGE docs.refers_to_symbol
+  ON docs.SymbolReference REFERS_TO docs.CodeSymbol
+  LINK BY referenced_name RESOLVE FUZZY WITHIN docs.CodeSymbol;
+
+-- Prose to component. FUZZY, scoped to the curated subsystem list so the
+-- candidate pool is bounded rather than every capitalised noun in the repo.
+CREATE EDGE docs.mentions_service
+  ON docs.DocFile MENTIONS docs.Subsystem
+  LINK BY title RESOLVE FUZZY WITHIN docs.Subsystem;
+
+-- ADR to ADR. A parsed integer is a real identifier: EXACT, no LLM.
+CREATE EDGE docs.supersedes
+  ON docs.AdrRecord SUPERSEDES docs.AdrRecord
+  LINK BY supersedes_number RESOLVE EXACT;
+
+-- Documented key to the key the loader reads. Both sides are the same string
+-- by construction, so EXACT; a fuzzy match here would invent matches.
+CREATE EDGE docs.documents_option
+  ON docs.ConfigOption CONFIGURES docs.CodeSymbol
+  LINK BY option_key RESOLVE EXACT WITHIN docs.CodeSymbol;
+
+-- Endpoint to its handler. FUZZY: the reference page writes the route,
+-- the handler is named for it but never identically.
+CREATE EDGE docs.handled_by
+  ON docs.DocumentedEndpoint HANDLED_BY docs.CodeSymbol
+  LINK BY route_template RESOLVE FUZZY WITHIN docs.CodeSymbol;
+
+-- Structural: no LINK BY, resolved by position within the document.
+CREATE EDGE docs.contains_endpoint
+  ON docs.DocFile DOCUMENTS docs.DocumentedEndpoint;
+
+CREATE EDGE docs.records_change
+  ON docs.DocFile RECORDS docs.ChangelogEntry;
+```
+
+## Extraction
+
+```sql
+CREATE CORPUS platform_repo
+  ON github.internal_mirror.'orbital-ledger'.docs,
+     github.internal_mirror.'orbital-ledger'.src,
+     github.internal_mirror.'orbital-ledger'.runbooks
+  USING ONTOLOGY docs
+  PARTITION BY FOLDER LEVEL 2;
+
+BIND CORPUS platform_repo TO ONTOLOGY docs;
+
+RUN BINDING platform_repo.docs;
+```
+
+`PARTITION BY FOLDER LEVEL 2` makes `docs/adr`, `docs/api`, `src/ledger` and so on first-class values in `_folder`. Without it, "how much of the API reference is stale" is a string operation on paths; with it, it is a `GROUP BY`.
+
+The hint below attaches to `DocFile`, which is the only root entity in this ontology. Hints cannot attach to `AdrRecord` or `DocumentedEndpoint`, because those are extracted inside the root's invocation, so their guidance goes in the root's hint text:
+
+```sql
+ALTER BINDING platform_repo.docs
+  SET HINT ON extract_internals WHERE root = DocFile AS
+  'Classify doc_kind from location and shape before content: files under an adr
+   or decisions folder with a numeric prefix are adr, files under runbooks or
+   containing an ordered recovery procedure are runbook, CHANGELOG files are
+   changelog, doc comments lifted from source are inline_doc. For adr files,
+   read status from the Status line only; if it says "Superseded by ADR-0031"
+   set status to superseded and supersedes_number is 31 on the record that
+   replaced it, never on the one being replaced. Extract every endpoint and
+   every config key on the page, not just the first: reference pages are tables
+   and each row is an instance. Record SymbolReference verbatim including wrong
+   casing and stale module paths; do not silently correct a name to something
+   that exists, because the mismatch is the signal we are looking for.';
+```
+
+Re-running after adding a column backfills only that column, which matters when the corpus is large:
+
+```sql
+RUN BINDING platform_repo.docs EXTRACT (DocFile.last_reviewed, AdrRecord.status);
+```
+
+## Queries that earn their keep
+
+**Which documented endpoints have no handler in the code?** The core drift query: prose promising an API that was deleted.
+
+```sql
+SELECT e.http_method, e.route_template, e.stability, d.path
+FROM platform_repo.DocumentedEndpoint e
+JOIN platform_repo.DocFile d USING (_doc)
+WHERE e._id NOT IN (
+  SELECT src._id
+  FROM platform_repo.DocumentedEndpoint src
+  JOIN platform_repo.CodeSymbol s VIA src.handled_by
+)
+ORDER BY e.stability, e.route_template;
+```
+
+**Which runbooks name a subsystem that has been retired or renamed?** An operator following one of these at 3am is being actively misled.
+
+```sql
+SELECT d.path, d.owning_team, sub.display_name, sub.lifecycle
+FROM platform_repo.DocFile d
+JOIN platform_repo.Subsystem sub VIA d.mentions_service
+WHERE d.doc_kind = 'runbook'
+  AND sub.lifecycle IN ('deprecated','retired')
+ORDER BY d.owning_team, d.path;
+```
+
+**Which ADRs were superseded but are still cited by live documentation?** The genuinely hard one, and the one that produces the most surprise in review. It needs the supersession chain and the citation graph at once.
+
+```sql
+WITH dead_adrs AS (
+  SELECT old.adr_number AS number, old.decision, new.adr_number AS replaced_by
+  FROM platform_repo.AdrRecord new
+  JOIN platform_repo.AdrRecord old VIA new.supersedes
+  WHERE new.status = 'accepted'
+),
+live_citations AS (
+  SELECT r.referenced_name, d.path, d.doc_kind
+  FROM platform_repo.SymbolReference r
+  JOIN platform_repo.DocFile d USING (_doc)
+  WHERE d.doc_kind IN ('readme','runbook','api_reference','tutorial')
+    AND r.reference_context = 'link_text'
+)
+SELECT c.path, c.doc_kind, c.referenced_name, a.number, a.replaced_by, a.decision
+FROM live_citations c
+JOIN dead_adrs a ON a.number = c.referenced_name
+ORDER BY a.number;
+```
+
+**Where is extraction least certain, so a human should check the drift report before acting on it?** Uses `_confidence` and `_folder` to separate real drift from extraction noise.
+
+```sql
+SELECT _folder,
+       COUNT(*)          AS references_found,
+       AVG(_confidence)  AS mean_confidence,
+       MIN(_confidence)  AS worst
+FROM platform_repo.SymbolReference
+GROUP BY _folder
+ORDER BY mean_confidence ASC;
+```
+
+**Which teams carry the largest stale documentation debt?** Turns a diffuse complaint into an owner and a number.
+
+```sql
+SELECT d.owning_team,
+       d.doc_kind,
+       COUNT(*) AS files,
+       AVG(d._confidence) AS mean_confidence
+FROM platform_repo.DocFile d
+WHERE d.last_reviewed < DATE '2025-01-01'
+   OR d.last_reviewed IS NULL
+GROUP BY d.owning_team, d.doc_kind
+ORDER BY files DESC;
+```
+
+**What must a new engineer read to understand the ledger subsystem, and in what order?** Search picks the relevant set; the edge and the doc kind impose a reading order.
+
+```sql
+SELECT d.path, d.title, d.doc_kind, d.audience, sub.display_name
+FROM platform_repo.DocFile d
+JOIN platform_repo.Subsystem sub VIA d.mentions_service
+WHERE sub.slug = 'ledger-recon-worker'
+  AND d MATCHES ('reconciliation ledger settlement' USING default TOP 40)
+  AND d.doc_kind IN ('readme','adr','api_reference','runbook')
+ORDER BY CASE d.doc_kind
+           WHEN 'readme' THEN 1
+           WHEN 'adr' THEN 2
+           WHEN 'api_reference' THEN 3
+           ELSE 4
+         END,
+         d.last_reviewed DESC;
+```
+
+**Which config options are documented but never read by the loader?** Config that exists only in prose: operators set it, nothing happens.
+
+```sql
+SELECT c.option_key, c.value_type, c.default_value, d.path
+FROM platform_repo.ConfigOption c
+JOIN platform_repo.DocFile d USING (_doc)
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM platform_repo.ConfigOption c2
+  JOIN platform_repo.CodeSymbol s VIA c2.documents_option
+  WHERE c2.option_key = c.option_key
+)
+ORDER BY c.option_key;
+```
+
+## Views
+
+Names for the three things people actually ask for, so that a question becomes a `SELECT` and not an archaeology exercise.
+
+```sql
+-- Every claim we can show is false, in one place. This is the review agenda.
+CREATE OR REPLACE VIEW lying_documentation AS
+SELECT d.path,
+       d.doc_kind,
+       d.owning_team,
+       'endpoint_without_handler' AS drift_kind,
+       e.route_template            AS subject
+FROM platform_repo.DocumentedEndpoint e
+JOIN platform_repo.DocFile d USING (_doc)
+WHERE e._id NOT IN (
+  SELECT src._id FROM platform_repo.DocumentedEndpoint src
+  JOIN platform_repo.CodeSymbol s VIA src.handled_by
+)
+UNION ALL
+SELECT d.path, d.doc_kind, d.owning_team,
+       'option_not_read' AS drift_kind,
+       c.option_key      AS subject
+FROM platform_repo.ConfigOption c
+JOIN platform_repo.DocFile d USING (_doc)
+WHERE c._id NOT IN (
+  SELECT src._id FROM platform_repo.ConfigOption src
+  JOIN platform_repo.CodeSymbol s VIA src.documents_option
+)
+UNION ALL
+SELECT d.path, d.doc_kind, d.owning_team,
+       'names_retired_subsystem' AS drift_kind,
+       sub.display_name          AS subject
+FROM platform_repo.DocFile d
+JOIN platform_repo.Subsystem sub VIA d.mentions_service
+WHERE sub.lifecycle IN ('deprecated','retired');
+
+-- Decisions that are still binding: accepted, and nothing has replaced them.
+CREATE OR REPLACE VIEW load_bearing_decisions AS
+SELECT a.adr_number,
+       a.decision,
+       a.decided_on,
+       d.path,
+       d.owning_team
+FROM platform_repo.AdrRecord a
+JOIN platform_repo.DocFile d USING (_doc)
+WHERE a.status = 'accepted'
+  AND a.adr_number NOT IN (
+    SELECT old.adr_number
+    FROM platform_repo.AdrRecord newer
+    JOIN platform_repo.AdrRecord old VIA newer.supersedes
+  );
+
+-- The onboarding path for any subsystem: filter this by slug.
+CREATE OR REPLACE VIEW subsystem_reading_order AS
+SELECT sub.slug,
+       sub.display_name,
+       d.path,
+       d.title,
+       d.doc_kind,
+       d.audience,
+       d.last_reviewed,
+       ROW_NUMBER() OVER (
+         PARTITION BY sub.slug
+         ORDER BY CASE d.doc_kind
+                    WHEN 'readme' THEN 1
+                    WHEN 'adr' THEN 2
+                    WHEN 'api_reference' THEN 3
+                    WHEN 'runbook' THEN 4
+                    ELSE 5
+                  END,
+                  d.last_reviewed DESC
+       ) AS reading_position
+FROM platform_repo.DocFile d
+JOIN platform_repo.Subsystem sub VIA d.mentions_service
+WHERE sub.lifecycle = 'active'
+  AND d.audience IN ('contributor','operator');
+```
+
+</TemplatePage>

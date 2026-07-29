@@ -1,0 +1,343 @@
+---
+title: Health administration
+description: Clinical policies, procedures, guidelines and work instructions
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="health-admin">
+
+## 1. What this models
+
+A health service's controlled document library: the clinical policies, procedures, clinical guidelines, work instructions, care pathways and credentialling instruments that tell staff how care is to be organised. These are administrative instruments about the operation of a service. No patient record, no clinical note, no episode of care appears anywhere in this ontology.
+
+Every one of these documents carries governance metadata that is real but unqueryable in its native form: a document identifier, a version, an effective date, a scheduled review date, an approving committee, a nominated custodian, and a list of instruments it supersedes or references. A library of six thousand such documents holds that metadata in six thousand cover pages.
+
+Once extracted, the questions a governance unit currently answers by hand become one statement. Which instruments are past their review date and still published? Which procedures cite a policy that has been rescinded? Where do two instruments impose different time limits on the same action? Which committee approved the most documents now overdue? Which care pathways depend on a credentialling requirement no current instrument grants?
+
+## 2. The modelling decisions
+
+**ControlledDocument is ROOT, and the document kind is the instrument, not the topic.** A file in this library is one governance artefact with one identifier, one version and one approval decision. Every question the governance unit asks starts from an instrument and works outward. Topic is a poor root because a topic spans instruments and no topic has an effective date. The root is where extraction begins, so the root should be the thing that has provenance, and here that is the instrument.
+
+**Directive is a separate entity, not columns on ControlledDocument.** This is the important one. Instruments contain obligations: "notify the duty manager", "complete within four hours", "escalate to the on-call consultant". A procedure carries thirty of them; a governance framework policy carries three; a definitions annex carries none. Modelling this as `obligation_text` and `timeframe_hours` on the document would be wrong twice over. It would truncate a thirty-obligation procedure to one, and it would leave those columns null on every instrument that is purely declaratory. A column that is only sometimes populated is not a nullable column; it is a mis-sited entity. `Directive` is `UNDER ControlledDocument`, so a document with no obligations simply produces no children.
+
+**TimingRule is separate again, for the same reason one level down.** Not every directive is on a clock. "Document the decision in the local register" has no timeframe. "Review within seven days of admission" has a value, a unit and, critically, a clock start: the event the clock runs from. Splitting the timing rule out of the directive means the absence of a rule is representable, and it means the clock start is a first-class field rather than prose buried in the obligation text. This is what makes the hard query in section 5 possible: two instruments can require the same action on different clocks only if the clock is a column.
+
+**Keys are the governance identity, not the filename.** `ControlledDocument` keys on `(document_ref, version)`. Neither identifies alone: `CLIN-PROC-0412` names an instrument across its whole history, and `4.2` is meaningless in isolation. Together they name exactly one approved artefact, which is what supersession edges must resolve to. `GoverningBody` keys on `body_name` because a committee has one canonical name in a delegations schedule. `AccountableRole` keys on `role_title`, not on a person: an instrument names the office, and offices outlive incumbents. `AccreditationCriterion` keys on `(standard_code, criterion_code)` because criterion `3.7` exists under several standards.
+
+**RESOLVE FUZZY where humans typed the reference; RESOLVE EXACT where a system generated it.** Supersession is `EXACT`: a supersession statement quotes a document reference and version, and those are machine-formatted strings that normalise cleanly. Committee attribution is `FUZZY`, `WITHIN GoverningBody`: the same committee is written "Clinical Governance Committee", "Clinical Gov Cttee" and "CGC" across three versions of the same policy, because three different custodians typed the cover page. Accountable roles are `FUZZY` for the same reason, plus title drift over time: "Director of Nursing" becomes "Executive Director of Nursing and Midwifery" while the delegation is unchanged. Cross-references are `FUZZY` deliberately, because the interesting result is the near-miss: a procedure citing a title that no longer resolves cleanly is exactly the dangling reference the governance unit wants surfaced.
+
+**What is deliberately not modelled: the individual holding a role.** No `Person` entity, no incumbent names. Instruments name roles, and the mapping from role to person changes on a payroll cycle rather than a document cycle. Extracting incumbents would create an entity that is stale within weeks, would invite name-matching against a workforce system this ontology has no business touching, and would answer no question the library can legitimately answer. Where an instrument does name an individual, that is a document-quality defect worth finding, and it is findable as free text without giving it a schema. Consultation history and the drafting workflow are also out: those live in the document management system's audit log, which is a better source than the cover page.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY health_admin;
+
+-- The root. One approved instrument at one version.
+CREATE ENTITY health_admin.ControlledDocument (
+  document_ref     TEXT NOT NULL EXTRACT 'the controlled document identifier printed in the header or footer, not the filename',
+  version          TEXT NOT NULL EXTRACT 'version or revision number of this approved instrument',
+  title            TEXT NOT NULL,
+  instrument_type  TEXT NOT NULL CHECK (instrument_type IN (
+                     'policy','procedure','clinical_guideline','work_instruction',
+                     'care_pathway','credentialling_instrument','framework','form')),
+  -- The applicability tier. A statewide instrument and a ward-level work
+  -- instruction can carry the same document_ref prefix; this is what
+  -- separates them when two instruments conflict.
+  scope_level      TEXT CHECK (scope_level IN ('organisation','division','service','unit')),
+  status           TEXT NOT NULL CHECK (status IN ('draft','current','under_review','superseded','rescinded')),
+  effective_from   DATE,
+  review_due       DATE EXTRACT 'the scheduled next review or expiry date, not the date of the last revision',
+  approved_on      DATE,
+  -- Written as it appears on the cover page; the edge resolves it to a node.
+  approving_body   TEXT EXTRACT 'name of the committee or executive forum that approved this version',
+  custodian_role   TEXT EXTRACT 'the position title of the document owner or custodian, not a person name',
+  KEY (document_ref, version)
+) ROOT;
+
+-- Committees and executive forums, deduplicated across naming drift.
+CREATE ENTITY health_admin.GoverningBody (
+  body_name    TEXT KEY NOT NULL,
+  body_type    TEXT CHECK (body_type IN ('board','executive','standing_committee','working_group','delegated_officer')),
+  meets_every  TEXT EXTRACT 'stated meeting cadence, for example monthly or quarterly'
+);
+
+-- Positions, never people. An office outlives its incumbent.
+CREATE ENTITY health_admin.AccountableRole (
+  role_title    TEXT KEY NOT NULL EXTRACT 'position title only; if a personal name appears, capture the title it holds',
+  role_class    TEXT CHECK (role_class IN ('executive','medical','nursing','allied_health','corporate','clinical_lead'))
+);
+
+-- An obligation stated in an instrument. Many per document, or none.
+CREATE ENTITY health_admin.Directive (
+  directive_text     TEXT NOT NULL EXTRACT 'the single obligation as stated, one row per distinct requirement',
+  clause_ref         TEXT EXTRACT 'section or clause number carrying this obligation',
+  obligation_force   TEXT NOT NULL CHECK (obligation_force IN ('must','should','may','must_not')),
+  -- Who has to do it, as written. Resolved to AccountableRole by edge.
+  responsible_role   TEXT EXTRACT 'position title carrying this obligation',
+  action_category    TEXT CHECK (action_category IN (
+                       'notify','escalate','document','review','assess',
+                       'authorise','report','train','audit','handover'))
+) UNDER health_admin.ControlledDocument;
+
+-- Split from Directive because most obligations carry no clock at all.
+CREATE ENTITY health_admin.TimingRule (
+  clock_start   TEXT NOT NULL EXTRACT 'the triggering event the clock runs from, for example admission, request, incident, decision',
+  limit_value   FLOAT,
+  limit_unit    TEXT CHECK (limit_unit IN ('minutes','hours','days','weeks','months','years')),
+  boundary      TEXT CHECK (boundary IN ('within','no_later_than','at_least','before','after')),
+  recurrence    TEXT EXTRACT 'set only when the requirement repeats, for example annually'
+) UNDER health_admin.Directive;
+
+-- A citation as written in the instrument, before resolution succeeds or fails.
+CREATE ENTITY health_admin.CrossReference (
+  cited_ref     TEXT EXTRACT 'document identifier of the cited instrument, if one is printed',
+  cited_title   TEXT NOT NULL EXTRACT 'the title of the cited instrument as written in this document',
+  citation_kind TEXT NOT NULL CHECK (citation_kind IN (
+                  'supersedes','read_with','implements','replaced_by','external_standard'))
+) UNDER health_admin.ControlledDocument;
+
+-- Accreditation criteria the instrument claims to address.
+CREATE ENTITY health_admin.AccreditationCriterion (
+  standard_code   TEXT NOT NULL EXTRACT 'the accreditation standard identifier, for example the standard number',
+  criterion_code  TEXT NOT NULL,
+  criterion_label TEXT,
+  KEY (standard_code, criterion_code)
+);
+
+-- Edges. Note the resolution choice on each.
+
+-- Machine-formatted refs on both sides: normalised equality is correct.
+CREATE EDGE health_admin.supersedes
+  ON health_admin.ControlledDocument SUPERSEDES health_admin.ControlledDocument
+  LINK BY document_ref RESOLVE EXACT;
+
+-- Committee names drift across versions and custodians. FUZZY, pool-narrowed.
+CREATE EDGE health_admin.approved_by
+  ON health_admin.ControlledDocument APPROVED_BY health_admin.GoverningBody
+  LINK BY approving_body RESOLVE FUZZY WITHIN health_admin.GoverningBody;
+
+CREATE EDGE health_admin.owned_by
+  ON health_admin.ControlledDocument CUSTODIAN_IS health_admin.AccountableRole
+  LINK BY custodian_role RESOLVE FUZZY WITHIN health_admin.AccountableRole;
+
+-- Title drift over time is the norm here, so FUZZY again.
+CREATE EDGE health_admin.assigned_to
+  ON health_admin.Directive ASSIGNED_TO health_admin.AccountableRole
+  LINK BY responsible_role RESOLVE FUZZY WITHIN health_admin.AccountableRole;
+
+-- FUZZY on purpose: the near-misses are the dangling references we want.
+CREATE EDGE health_admin.cites
+  ON health_admin.CrossReference CITES health_admin.ControlledDocument
+  LINK BY cited_title RESOLVE FUZZY WITHIN health_admin.ControlledDocument;
+
+CREATE EDGE health_admin.addresses
+  ON health_admin.ControlledDocument ADDRESSES health_admin.AccreditationCriterion
+  LINK BY document_ref RESOLVE EXACT;
+
+-- Internal edges: structural, resolved by position within the document.
+CREATE EDGE health_admin.states
+  ON health_admin.ControlledDocument STATES health_admin.Directive;
+
+CREATE EDGE health_admin.timed_by
+  ON health_admin.Directive TIMED_BY health_admin.TimingRule;
+```
+
+## 4. Extraction
+
+```sql
+CREATE CORPUS governance_library
+  ON sharepoint.clinical_docs.Controlled.Library,
+     sharepoint.clinical_docs.Controlled.Archive
+  USING ONTOLOGY health_admin
+  PARTITION BY FOLDER LEVEL 2;   -- folder becomes the division dimension
+
+BIND CORPUS governance_library TO ONTOLOGY health_admin;
+
+RUN BINDING governance_library.health_admin;
+```
+
+The hint attaches to the root, and describes the children from there. Hinting `Directive` directly would fail: it is extracted inside the root's invocation.
+
+```sql
+ALTER BINDING governance_library.health_admin
+  SET HINT ON extract_internals WHERE root = ControlledDocument AS
+  'Governance metadata sits in the cover-page control table or the document footer.
+   Prefer the footer document_ref over any reference typed in the body text; body
+   references usually name a different instrument. Treat the header "Review date"
+   as review_due and "Approved" as approved_on; where only one date is printed and
+   it is in the future, it is review_due. Emit one Directive per distinct
+   obligation sentence, not one per paragraph, and keep the modal verb: it drives
+   obligation_force. Emit a TimingRule only where an actual duration is stated;
+   phrases like "promptly" or "as soon as practicable" are not timing rules and
+   must not be given a limit_value. Under CrossReference, capture citations from
+   the Related Documents and Supersedes sections and from inline body references;
+   set citation_kind from the section heading. For custodian_role and
+   responsible_role, record the position title; if a personal name appears, record
+   the title held rather than the name.';
+```
+
+Later, once `scope_level` is added to instruments that predate the column, backfill without a full re-extraction.
+
+```sql
+RUN BINDING governance_library.health_admin
+  EXTRACT (ControlledDocument.scope_level);
+```
+
+## 5. Queries that earn their keep
+
+**Which current instruments are past their scheduled review date, and who owns them?**
+
+```sql
+SELECT d.document_ref, d.version, d.title, d.review_due, r.role_title
+FROM governance_library.ControlledDocument d
+JOIN governance_library.AccountableRole r VIA d.owned_by
+WHERE d.status = 'current'
+  AND d.review_due < DATE '2026-07-01'
+ORDER BY d.review_due ASC;
+```
+
+**Which instruments cite a document that has since been rescinded or superseded?** The dangling-reference report, and the one governance units currently build by clicking every hyperlink.
+
+```sql
+SELECT src.document_ref  AS citing_ref,
+       src.title         AS citing_title,
+       x.cited_title,
+       tgt.document_ref  AS cited_ref,
+       tgt.status
+FROM governance_library.CrossReference x
+JOIN governance_library.ControlledDocument src USING (_doc)
+JOIN governance_library.ControlledDocument tgt VIA x.cites
+WHERE src.status = 'current'
+  AND tgt.status IN ('superseded','rescinded')
+  AND x.citation_kind <> 'supersedes'
+ORDER BY citing_ref;
+```
+
+**Which committees carry the largest overdue review load?** Approval volume against overdue volume, per body.
+
+```sql
+SELECT g.body_name,
+       g.body_type,
+       COUNT(*) AS instruments_approved,
+       MIN(d.review_due) AS oldest_review_due
+FROM governance_library.ControlledDocument d
+JOIN governance_library.GoverningBody g VIA d.approved_by
+WHERE d.status = 'current'
+  AND d.review_due < DATE '2026-07-01'
+GROUP BY g.body_name, g.body_type
+ORDER BY instruments_approved DESC;
+```
+
+**Where did the extractor struggle, and in which division?** Uses the system columns `_confidence` and `_folder`, the latter available because the corpus partitions by folder. Low-confidence governance metadata is a document-quality signal: it usually means the cover-page control table is missing or non-standard.
+
+```sql
+SELECT d._folder AS division,
+       COUNT(*) AS low_confidence_instruments,
+       AVG(d._confidence) AS mean_confidence
+FROM governance_library.ControlledDocument d
+WHERE d._confidence < 0.6
+  AND d.status = 'current'
+GROUP BY d._folder
+ORDER BY low_confidence_instruments DESC;
+```
+
+**The hard one: two current instruments requiring the same action from the same clock, on different limits.** This is the contradiction that produces incident reports. It needs the timing rule as an entity, the clock start as a column, and a self-join that will not match a rule against itself.
+
+```sql
+WITH timed AS (
+  SELECT d.document_ref, d.version, d.title, d.scope_level, d.instrument_type,
+         dir.action_category, dir.obligation_force, dir.clause_ref,
+         t.clock_start, t.limit_value, t.limit_unit, t.boundary
+  FROM governance_library.ControlledDocument d
+  JOIN governance_library.Directive dir VIA d.states
+  JOIN governance_library.TimingRule t VIA dir.timed_by
+  WHERE d.status = 'current'
+    AND dir.obligation_force IN ('must','must_not')
+    AND t.limit_value IS NOT NULL
+)
+SELECT a.action_category,
+       a.clock_start,
+       a.document_ref AS instrument_a, a.clause_ref AS clause_a,
+       a.limit_value  AS limit_a,      a.limit_unit  AS unit_a,
+       b.document_ref AS instrument_b, b.clause_ref AS clause_b,
+       b.limit_value  AS limit_b,      b.limit_unit  AS unit_b
+FROM timed a
+JOIN timed b ON a.action_category = b.action_category
+            AND a.clock_start     = b.clock_start
+            AND a.limit_unit      = b.limit_unit
+            AND a.boundary        = b.boundary
+WHERE a.document_ref < b.document_ref     -- one row per pair, never self-matched
+  AND a.limit_value <> b.limit_value
+ORDER BY a.action_category, a.clock_start;
+```
+
+Read the result with `scope_level` in mind. A unit work instruction that is stricter than the organisational policy is usually intentional local tightening; two organisation-level policies disagreeing is a defect.
+
+**Which accreditation criteria are addressed only by instruments that are overdue for review?** Not "which criteria are uncovered", which is easy, but "which are covered on paper by evidence nobody has checked in years".
+
+```sql
+SELECT c.standard_code, c.criterion_code, c.criterion_label,
+       COUNT(*) AS supporting_instruments
+FROM governance_library.AccreditationCriterion c
+JOIN governance_library.ControlledDocument d VIA c.addresses
+WHERE d.status = 'current'
+GROUP BY c.standard_code, c.criterion_code, c.criterion_label
+HAVING supporting_instruments > 0
+   AND c.criterion_code NOT IN (
+     SELECT c2.criterion_code
+     FROM governance_library.AccreditationCriterion c2
+     JOIN governance_library.ControlledDocument d2 VIA c2.addresses
+     WHERE d2.status = 'current'
+       AND d2.review_due >= DATE '2026-07-01'
+   )
+ORDER BY supporting_instruments DESC;
+```
+
+## 6. Views
+
+Named vocabulary, so the governance unit asks for the thing rather than rebuilding the join.
+
+```sql
+-- The review backlog, as one noun.
+CREATE OR REPLACE VIEW overdue_register AS
+SELECT d.document_ref, d.version, d.title, d.instrument_type, d.scope_level,
+       d.review_due, d._folder AS division,
+       r.role_title AS custodian, g.body_name AS approving_body
+FROM governance_library.ControlledDocument d
+LEFT JOIN governance_library.AccountableRole r VIA d.owned_by
+LEFT JOIN governance_library.GoverningBody   g VIA d.approved_by
+WHERE d.status = 'current'
+  AND d.review_due < DATE '2026-07-01';
+
+-- Every stated obligation with its clock flattened alongside it. LEFT JOIN is
+-- the point: obligations without a timing rule must still appear.
+CREATE OR REPLACE VIEW obligation_register AS
+SELECT d.document_ref, d.version, d.instrument_type, d.scope_level,
+       dir.clause_ref, dir.obligation_force, dir.action_category,
+       dir.directive_text, r.role_title AS responsible_role,
+       t.clock_start, t.boundary, t.limit_value, t.limit_unit
+FROM governance_library.ControlledDocument d
+JOIN governance_library.Directive dir VIA d.states
+LEFT JOIN governance_library.TimingRule    t VIA dir.timed_by
+LEFT JOIN governance_library.AccountableRole r VIA dir.assigned_to
+WHERE d.status = 'current';
+
+-- Citations that resolved to something no longer in force.
+CREATE OR REPLACE VIEW broken_citations AS
+SELECT src.document_ref AS citing_ref, src.title AS citing_title,
+       src._folder      AS division,
+       x.citation_kind, x.cited_title,
+       tgt.document_ref AS cited_ref, tgt.status AS cited_status
+FROM governance_library.CrossReference x
+JOIN governance_library.ControlledDocument src USING (_doc)
+JOIN governance_library.ControlledDocument tgt VIA x.cites
+WHERE src.status = 'current'
+  AND tgt.status IN ('superseded','rescinded')
+  AND x.citation_kind <> 'supersedes';
+```
+
+</TemplatePage>

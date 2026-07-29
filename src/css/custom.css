@@ -900,3 +900,30 @@ h1, h2, h3,
   font-family: var(--sercha-font-display);
   letter-spacing: -0.012em;
 }
+
+/* Library detail pages: the MDX page wrapper constrains its child to a column
+   and adds padding, which stops the template header banding edge to edge.
+   Neutralise the wrapper so the header and body control their own width. */
+.library-detail {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.library-detail > .container,
+.library-detail > div > .container {
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.library-detail > div > .row,
+.library-detail .row {
+  margin: 0 !important;
+}
+
+/* The right-hand table of contents column keeps its own padding back. */
+.library-detail .col {
+  padding: 0 !important;
+}

@@ -1,0 +1,153 @@
+/**
+ * TemplateHeader: the overview panel above each template's schema.
+ */
+
+.wrap {
+  margin: 0 0 2.25rem;
+}
+
+.summary {
+  margin: 0 0 1.25rem;
+  font-size: 1.02rem;
+  line-height: 1.62;
+  color: var(--ifm-color-content-secondary);
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ifm-background-color);
+  box-shadow: 4px 4px 0 var(--edge);
+}
+
+.panel {
+  padding: 1.1rem 1.15rem 1.2rem;
+  border-left: 2px solid var(--edge);
+}
+
+.panel:first-child {
+  border-left: none;
+}
+
+.panelLabel {
+  display: block;
+  margin-bottom: 0.65rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.list li {
+  position: relative;
+  margin-bottom: 0.4rem;
+  padding-left: 0.85rem;
+  color: var(--ifm-color-content-secondary);
+}
+
+/* Monospace tick rather than a bullet, to match the console voice. */
+.list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--ifm-color-primary);
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: 700;
+}
+
+.list li:last-child {
+  margin-bottom: 0;
+}
+
+.stats {
+  display: flex;
+  gap: 1.1rem;
+  margin: 0 0 0.95rem;
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats dt {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ifm-color-content-secondary);
+}
+
+.stats dd {
+  margin: 0;
+  font-family: var(--sercha-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.back {
+  display: inline-block;
+  padding: 0.32rem 0.6rem;
+  border: 2px solid var(--edge);
+  border-radius: 7px;
+  background: var(--ifm-background-color);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ifm-heading-color);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.back:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--edge);
+  text-decoration: none;
+  color: var(--ifm-heading-color);
+}
+
+.missing {
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--ifm-color-danger);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+@media screen and (max-width: 900px) {
+  .panels {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    border-left: none;
+    border-top: 2px solid var(--edge);
+  }
+
+  .panel:first-child {
+    border-top: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back {
+    transition: none;
+  }
+  .back:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,464 @@
+---
+title: Insurance underwriting
+description: Submissions, schedules of cover, endorsements and loss runs
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="insurance-underwriting">
+
+## 1. What this models
+
+A commercial underwriting file is not one document; it is a pile of them that
+arrive out of order and disagree with each other. A broker sends a submission
+with a statement of values. A placement slip records who took what share of the
+risk. A schedule of cover lists limits, sublimits and deductibles, some of which
+are then quietly rewritten by an endorsement three months later. Loss runs come
+from the expiring carrier in whatever format their bordereau system emits. A
+risk surveyor visits two of the eleven locations and writes recommendations that
+nobody tracks to closure.
+
+The questions this ontology makes answerable are the ones underwriters currently
+answer by opening seven PDFs side by side: what is our true aggregate exposure in
+a given peril zone once you account for shared limits; which subscribing markets
+appear across our worst-performing occupancy classes; which risks were bound with
+an outstanding high-priority survey recommendation; and which endorsements
+materially eroded a sublimit that pricing was originally based on.
+
+## 2. The modelling decisions
+
+**The root is the slip, not the risk.** `Placement` is `ROOT` because the
+document kind that anchors this corpus is the placement slip: the artefact that
+actually exists once per binder, carries the unique market reference, and is the
+thing every other document either supports or amends. It is tempting to make the
+insured organisation the root, since that is how underwriters think. That would
+be wrong. An organisation is a resolved concept spanning many documents; a root
+must be a document. Making the slip the root means every extraction run has an
+obvious anchor and a natural boundary, and `SINGULAR PER DOC` on `Placement` is
+honestly true rather than aspirationally true.
+
+**`Sublimit` is an entity, not a set of columns.** The naive schema puts
+`flood_sublimit`, `quake_sublimit`, `water_damage_sublimit` on `Placement`.
+That schema is a modelling error waiting to be discovered, because the set of
+perils that get sublimited is open, varies by territory and line of business, and
+is populated for maybe a fifth of any given corpus. A column that is only
+sometimes populated tells you nothing about whether it was absent from the
+document or missed by the extractor. As a child entity, an absent sublimit is
+simply a row that does not exist, which is a fact, and the peril vocabulary can
+grow without an `ALTER ENTITY` per peril. The same argument drove `Recommendation`
+out of `RiskSurvey`: surveys carry zero to forty of them.
+
+**Keys are resolution identities, and most of them are composite.**
+`Placement.market_reference` is genuinely unique and stands alone. `Location`
+cannot: a street address repeats across insureds and across policy years, so the
+key is `(placement_reference, location_number)`, which is the identity the market
+itself uses on a statement of values. `LossRecord` keys on
+`(claim_reference, loss_date)` because carriers recycle claim references across
+systems and a bare reference collides. `SubscribingMarket` keys on
+`(market_name, market_code)` rather than name alone, because the same trading
+name fronts several distinct underwriting entities and only the code separates
+them. The rule we applied throughout: the key is whatever a careful human would
+use to decide "these two mentions are the same thing", not whatever happens to be
+unique in the sample we tested on.
+
+**Fuzzy where humans typed it, exact where a system emitted it.**
+`written_on_risk` links a placement to its insured organisation `RESOLVE FUZZY`,
+because named insureds are written as a legal entity on the slip, a trading name
+on the survey, and an abbreviation on the loss run. `covers_location` and
+`amends_section` are internal edges: they are structural, resolved by position
+within a single document, and inventing a link field for them would be a fiction.
+`subscribed_by` is internal rather than external, which is the subtler call: the
+security section physically sits on the slip, so there is no field to link by, and
+the cross-document identity of a syndicate is carried entirely by the composite
+`KEY`. That is the right division of labour. Position resolves the edge; the key
+resolves the node. `surveyed` is `RESOLVE FUZZY WITHIN underwriting.Location`
+because a surveyor writes prose about a site and the statement of values gives an
+address, and only an LLM-judged match bridges the two. `prior_loss_of` and `amends`
+are `RESOLVE EXACT` because loss runs and endorsements are machine-generated and
+quote the policy or market reference verbatim; fuzzy there would invent matches
+and silently attach a claim to the wrong binder.
+
+**What we deliberately did not model: premium build-up.** There is no
+`RatingStep`, no technical price ladder, no ILF or loss-cost decomposition. Two
+reasons. First, that data does not live in these documents; it lives in the rating
+engine, and modelling it here would produce an entity with a five per cent fill
+rate that quietly poisons every average. Second, an ontology should model what the
+corpus asserts, not what the business wishes it asserted. We also did not model
+policy wording clauses as individual entities. Wordings are long, largely
+boilerplate, and the useful question about them ("does this slip attach a
+non-standard wording") is a column on `Placement`, not a graph of clauses.
+Full-text search over the wording covers the rest.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY underwriting;
+
+-- ROOT: the placement slip is the anchoring document kind.
+-- One market reference, one binder, one document.
+CREATE ENTITY underwriting.Placement (
+  market_reference   TEXT KEY NOT NULL EXTRACT 'the unique market or contract reference printed in the header, not the broker job number',
+  insured_name       TEXT NOT NULL EXTRACT 'the named insured exactly as written on the slip, before any normalisation',
+  broker_name        TEXT,
+  line_of_business   TEXT CHECK (line_of_business IN ('property','casualty','marine_cargo','marine_hull','construction','financial_lines','cyber','aviation','terrorism')),
+  placement_basis    TEXT CHECK (placement_basis IN ('direct','facultative','treaty_proportional','treaty_excess_of_loss','binder')),
+  inception_date     DATE,
+  expiry_date        DATE,
+  currency           TEXT EXTRACT 'the settlement currency code of the slip, e.g. the three-letter ISO code',
+  total_insured_value FLOAT EXTRACT 'the aggregate declared value across all locations, sometimes labelled TIV or sum insured',
+  order_percentage   FLOAT EXTRACT 'the share of the risk this slip places, as a percentage; 100 when the whole order is placed here',
+  primary_limit      FLOAT EXTRACT 'the headline limit of liability on the slip, not the total insured value',
+  attachment_point   FLOAT EXTRACT 'the amount this placement attaches excess of; zero or null on a primary layer',
+  deductible_amount  FLOAT,
+  deductible_basis   TEXT CHECK (deductible_basis IN ('each_and_every_loss','aggregate','percentage_of_value','waiting_period','franchise')),
+  wording_reference  TEXT EXTRACT 'the identifier of the attached policy wording or form',
+  wording_is_bespoke BOOLEAN EXTRACT 'true when the wording is manuscript or amended rather than a standard market form',
+  status             TEXT CHECK (status IN ('quoted','bound','declined','lapsed','not_taken_up'))
+) ROOT SINGULAR PER DOC;
+
+-- A separate entity, not a column per peril on Placement: the peril vocabulary
+-- is open and any given slip sublimits only a handful of them.
+CREATE ENTITY underwriting.Sublimit (
+  peril              TEXT NOT NULL CHECK (peril IN ('flood','windstorm','earthquake','water_damage','machinery_breakdown','theft','subsidence','strikes_riots','contingent_bi','debris_removal','professional_fees','other')),
+  sublimit_amount    FLOAT,
+  applies_per        TEXT CHECK (applies_per IN ('occurrence','annual_aggregate','location','event')),
+  section_name       TEXT EXTRACT 'the coverage section this sublimit sits beneath, so a sublimit can be traced back to its section',
+  is_shared          BOOLEAN EXTRACT 'true when this sublimit is shared across locations or sections rather than standing alone',
+  KEY (peril, sublimit_amount, applies_per)  -- the same peril can be sublimited twice on different bases
+) UNDER underwriting.Placement;
+
+-- Schedule of values rows. Keyed on the placement plus the schedule line number,
+-- because addresses collide and line numbers are how the market refers to them.
+CREATE ENTITY underwriting.Location (
+  placement_reference TEXT NOT NULL EXTRACT 'the market reference of the slip this schedule belongs to',
+  location_number    INTEGER NOT NULL EXTRACT 'the line number on the statement of values',
+  site_description   TEXT,
+  country            TEXT,
+  region             TEXT EXTRACT 'the state, province or county, normalised where the document is inconsistent',
+  postcode           TEXT,
+  construction_class TEXT CHECK (construction_class IN ('fire_resistive','non_combustible','masonry_non_combustible','joisted_masonry','frame','mixed','unknown')),
+  occupancy_class    TEXT EXTRACT 'the trade or use of the site, e.g. cold storage, light manufacturing, office',
+  year_built         INTEGER,
+  storeys            INTEGER,
+  sprinkler_coverage TEXT CHECK (sprinkler_coverage IN ('full','partial','none','unknown')),
+  declared_value     FLOAT,
+  flood_zone_flag    BOOLEAN EXTRACT 'true when the document identifies the site as within a designated flood or inundation zone',
+  KEY (placement_reference, location_number)
+) UNDER underwriting.Placement;
+
+-- Subscribing markets carry both written and signed lines. These differ whenever
+-- the risk is oversubscribed, and the difference is analytically important.
+CREATE ENTITY underwriting.SubscribingMarket (
+  market_name        TEXT NOT NULL EXTRACT 'the name of the subscribing syndicate, carrier or reinsurer as written in the security section',
+  market_code        TEXT EXTRACT 'the bureau, syndicate or company code beside the name; the only thing that separates same-named entities',
+  written_line_pct   FLOAT EXTRACT 'the line percentage the market wrote at the point of stamping',
+  signed_line_pct    FLOAT EXTRACT 'the line percentage after signing down; equals the written line when there is no oversubscription',
+  is_slip_leader     BOOLEAN,
+  security_rating    TEXT CHECK (security_rating IN ('tier_1','tier_2','tier_3','unrated','not_stated')),
+  KEY (market_name, market_code)
+) BOUNDED PER DOC;
+
+-- Endorsements are their own root: they arrive as standalone documents,
+-- often months after inception, and must resolve back to the slip by reference.
+CREATE ENTITY underwriting.Endorsement (
+  endorsement_reference TEXT KEY NOT NULL,
+  placement_reference   TEXT NOT NULL EXTRACT 'the market reference of the slip being amended, as quoted on the endorsement',
+  effective_date        DATE,
+  change_type           TEXT CHECK (change_type IN ('limit_change','deductible_change','sublimit_change','location_added','location_removed','wording_change','premium_adjustment','cancellation','extension','administrative')),
+  amount_delta          FLOAT EXTRACT 'the signed monetary change this endorsement makes, negative when cover is reduced',
+  premium_delta         FLOAT,
+  is_material           BOOLEAN EXTRACT 'true when the change alters the scope of cover rather than administrative detail'
+) ROOT SINGULAR PER DOC;
+
+-- Loss runs. One record per claim line; carriers recycle claim references,
+-- so the loss date forms part of the identity.
+CREATE ENTITY underwriting.LossRecord (
+  claim_reference    TEXT NOT NULL,
+  loss_date          DATE NOT NULL,
+  policy_reference   TEXT EXTRACT 'the expiring policy number the claim sits under; the clean join key on machine-generated loss runs',
+  loss_description   TEXT,
+  cause_of_loss      TEXT CHECK (cause_of_loss IN ('fire','flood','windstorm','escape_of_water','theft','impact','machinery_breakdown','liability_bodily_injury','liability_property_damage','business_interruption','other')),
+  paid_amount        FLOAT,
+  reserved_amount    FLOAT EXTRACT 'the outstanding reserve, not the total incurred',
+  claim_status       TEXT CHECK (claim_status IN ('open','closed','reopened','declined','withdrawn')),
+  KEY (claim_reference, loss_date)
+) ROOT;
+
+-- Surveyors' reports, with recommendations broken out because a survey
+-- carries between zero and several dozen of them.
+CREATE ENTITY underwriting.RiskSurvey (
+  survey_reference   TEXT KEY NOT NULL,
+  placement_reference TEXT EXTRACT 'the market reference the survey was commissioned against, where stated',
+  surveyed_site      TEXT EXTRACT 'the site as described by the surveyor, which rarely matches the schedule of values wording',
+  survey_date        DATE,
+  surveying_firm     TEXT,
+  overall_risk_grade TEXT CHECK (overall_risk_grade IN ('excellent','good','adequate','marginal','poor','not_graded')),
+  management_attitude TEXT CHECK (management_attitude IN ('proactive','satisfactory','indifferent','resistant','not_assessed'))
+) ROOT SINGULAR PER DOC;
+
+CREATE ENTITY underwriting.Recommendation (
+  recommendation_number INTEGER NOT NULL,
+  priority           TEXT CHECK (priority IN ('immediate','high','medium','low','advisory')),
+  subject_area       TEXT CHECK (subject_area IN ('fire_protection','housekeeping','electrical','security','natural_hazard','process_safety','business_continuity','maintenance')),
+  description        TEXT,
+  estimated_cost     FLOAT,
+  target_date        DATE,
+  status             TEXT CHECK (status IN ('outstanding','in_progress','completed','rejected','not_applicable')),
+  KEY (recommendation_number, subject_area)
+) UNDER underwriting.RiskSurvey;
+
+-- Edges.
+
+-- Internal: structural, resolved by position inside one document.
+CREATE EDGE underwriting.covers_location
+  ON underwriting.Placement COVERS underwriting.Location;
+
+CREATE EDGE underwriting.sublimits
+  ON underwriting.Placement SUBLIMITS underwriting.Sublimit;
+
+CREATE EDGE underwriting.raises
+  ON underwriting.RiskSurvey RAISES underwriting.Recommendation;
+
+-- Internal: the security section is part of the slip, so the subscribing
+-- markets on a placement are resolved by position within that document.
+-- The cross-document identity of a market is carried by its KEY, so the same
+-- syndicate stamping two slips still resolves to one node.
+CREATE EDGE underwriting.subscribed_by
+  ON underwriting.Placement SUBSCRIBED_BY underwriting.SubscribingMarket;
+
+-- External, EXACT: endorsements quote the market reference verbatim.
+-- Fuzzy here would silently attach an endorsement to the wrong binder.
+CREATE EDGE underwriting.amends
+  ON underwriting.Endorsement AMENDS underwriting.Placement
+  LINK BY placement_reference RESOLVE EXACT;
+
+-- External, EXACT: loss runs are machine-generated and the policy
+-- reference on them is clean.
+CREATE EDGE underwriting.prior_loss_of
+  ON underwriting.LossRecord PRIOR_LOSS_OF underwriting.Placement
+  LINK BY policy_reference RESOLVE EXACT;
+
+-- External, FUZZY: surveyors describe a site in prose; the schedule of values
+-- uses an address. Only an LLM-judged match bridges the two.
+CREATE EDGE underwriting.surveyed
+  ON underwriting.RiskSurvey SURVEYED underwriting.Location
+  LINK BY surveyed_site RESOLVE FUZZY WITHIN underwriting.Location;
+```
+
+## 4. Extraction
+
+```sql
+CREATE CORPUS uw_files
+  ON sharepoint.underwriting_drive.'Placement Files',
+     sharepoint.underwriting_drive.'Risk Engineering'
+  USING ONTOLOGY underwriting
+  PARTITION BY FOLDER LEVEL 2;      -- level 2 is the class-of-business folder
+
+BIND CORPUS uw_files TO ONTOLOGY underwriting;
+
+RUN BINDING uw_files.underwriting;
+```
+
+A hint attaches to a root node of the extraction DAG. `Placement` is a root, so
+this is legal; hinting `Sublimit` would not be, because it is extracted
+inside its parent's invocation. Describe the children from the parent instead.
+
+```sql
+ALTER BINDING uw_files.underwriting
+  SET HINT ON extract_internals WHERE root = Placement AS
+  'Slips in this corpus put the security section on the last one or two pages,
+   often in a table with one row per market. Written and signed lines are
+   distinct columns: when only one percentage is shown, treat it as the written
+   line and leave the signed line null rather than copying it. Total insured
+   value appears in the risk details section and may be labelled sum insured or
+   declared values; do not take it from the statement of values subtotal, which
+   is frequently stale. The primary limit is the headline limit of liability in
+   risk details, distinct from the total insured value; on an excess layer, also
+   capture the amount it attaches excess of. Sublimits are usually indented
+   beneath a coverage heading and sometimes appear only inside an attached
+   endorsement schedule; extract those found on the slip itself only, and record
+   the heading they sat under as the section name.
+   Location rows come from the statement of values and carry a line number,
+   which must be preserved verbatim even when the numbering has gaps.';
+```
+
+Backfilling a column added later, without re-extracting the whole corpus:
+
+```sql
+RUN BINDING uw_files.underwriting
+  EXTRACT (Placement.order_percentage, Placement.wording_is_bespoke);
+```
+
+## 5. Queries that earn their keep
+
+**Which markets carry the most signed line on our poorly graded risks?** An edge
+traversal in both directions off the placement, joining a survey outcome to the
+security section.
+
+```sql
+SELECT m.market_name,
+       COUNT(*)               AS placements,
+       SUM(m.signed_line_pct) AS total_signed_pct
+FROM uw_files.Placement p
+JOIN uw_files.SubscribingMarket m VIA p.subscribed_by
+JOIN uw_files.RiskSurvey s ON s.placement_reference = p.market_reference
+WHERE s.overall_risk_grade IN ('marginal','poor')
+  AND p.status = 'bound'
+GROUP BY m.market_name
+ORDER BY total_signed_pct DESC;
+```
+
+**Where is our declared-value accumulation by country and occupancy?** The
+aggregate that a property underwriter runs before every treaty renewal.
+
+```sql
+SELECT l.country,
+       l.occupancy_class,
+       COUNT(*)             AS sites,
+       SUM(l.declared_value) AS accumulated_value
+FROM uw_files.Placement p
+JOIN uw_files.Location l VIA p.covers_location
+WHERE p.status = 'bound'
+  AND p.line_of_business = 'property'
+GROUP BY l.country, l.occupancy_class
+ORDER BY accumulated_value DESC
+LIMIT 25;
+```
+
+**Which extracted placements should a human check before we trust the numbers?**
+Uses the `_confidence` and `_folder` system columns to route low-confidence
+extractions back to the class-of-business team that owns them.
+
+```sql
+SELECT _folder,
+       market_reference,
+       insured_name,
+       total_insured_value,
+       _confidence,
+       _doc
+FROM uw_files.Placement
+WHERE _confidence < 0.75
+   OR total_insured_value IS NULL
+ORDER BY _confidence ASC;
+```
+
+**Which bound risks carry an outstanding immediate or high-priority survey
+recommendation?** Two hops through the graph plus a correlated existence test.
+
+```sql
+SELECT p.market_reference,
+       p.insured_name,
+       s.survey_reference,
+       r.subject_area,
+       r.description
+FROM uw_files.RiskSurvey s
+JOIN uw_files.Recommendation r VIA s.raises
+JOIN uw_files.Placement p ON p.market_reference = s.placement_reference
+WHERE r.priority IN ('immediate','high')
+  AND r.status IN ('outstanding','in_progress')
+  AND p.status = 'bound'
+  AND p.expiry_date >= DATE '2026-01-01'
+ORDER BY r.priority ASC, p.expiry_date ASC;
+```
+
+**Which placements had a peril sublimited below what we have historically paid
+out on that same peril?** The genuinely hard one. It walks placement to section
+to sublimit, then back out to the loss history on the same binder, and compares
+the cover we sold against the losses we have already seen. Answering this by
+hand means reconciling a schedule of cover against a loss run line by line.
+
+```sql
+WITH peril_losses AS (
+  SELECT lr.policy_reference,
+         lr.cause_of_loss,
+         SUM(lr.paid_amount + lr.reserved_amount) AS incurred
+  FROM uw_files.LossRecord lr
+  WHERE lr.claim_status IN ('open','closed','reopened')
+  GROUP BY lr.policy_reference, lr.cause_of_loss
+)
+SELECT p.market_reference,
+       p.insured_name,
+       sub.section_name,
+       sub.peril,
+       sub.sublimit_amount,
+       pl.incurred,
+       sub.is_shared
+FROM uw_files.Placement p
+JOIN uw_files.Sublimit sub VIA p.sublimits
+JOIN peril_losses pl ON pl.policy_reference = p.market_reference
+                    AND pl.cause_of_loss    = sub.peril
+WHERE sub.sublimit_amount < pl.incurred
+  AND p.status = 'bound'
+ORDER BY pl.incurred DESC;
+```
+
+**Which slips discuss a contamination or pollution exposure that our structured
+fields never captured?** Free text is where the exposures nobody built a column
+for hide. `MATCHES` filters the entities; the columns survive.
+
+```sql
+SELECT p.market_reference,
+       p.insured_name,
+       p.line_of_business,
+       p.total_insured_value
+FROM uw_files.Placement p
+WHERE p MATCHES ('contamination or pollution clean-up exposure' USING default TOP 40)
+  AND p.status = 'bound';
+```
+
+## 6. Views
+
+Named vocabulary, so the questions above become one-liners for the desk.
+
+```sql
+-- Every bound risk with its net signed capacity and its worst survey grade.
+CREATE OR REPLACE VIEW bound_book AS
+SELECT p.market_reference,
+       p.insured_name,
+       p.line_of_business,
+       p.inception_date,
+       p.expiry_date,
+       p.currency,
+       p.total_insured_value,
+       SUM(m.signed_line_pct) AS placed_pct,
+       MIN(s.overall_risk_grade) AS worst_survey_grade
+FROM uw_files.Placement p
+JOIN uw_files.SubscribingMarket m VIA p.subscribed_by
+LEFT JOIN uw_files.RiskSurvey s ON s.placement_reference = p.market_reference
+WHERE p.status = 'bound'
+GROUP BY p.market_reference, p.insured_name, p.line_of_business,
+         p.inception_date, p.expiry_date, p.currency, p.total_insured_value;
+
+-- Accumulated declared value per country and peril-relevant attribute.
+-- The dimension underwriting management actually asks for.
+CREATE OR REPLACE VIEW exposure_by_zone AS
+SELECT l.country,
+       l.region,
+       l.construction_class,
+       l.flood_zone_flag,
+       COUNT(*)              AS sites,
+       SUM(l.declared_value) AS accumulated_value
+FROM uw_files.Placement p
+JOIN uw_files.Location l VIA p.covers_location
+WHERE p.status = 'bound'
+GROUP BY l.country, l.region, l.construction_class, l.flood_zone_flag;
+
+-- Material endorsements that moved cover after inception, with the
+-- placement they eroded. Renewal underwriters open this first.
+CREATE OR REPLACE VIEW post_inception_drift AS
+SELECT p.market_reference,
+       p.insured_name,
+       e.endorsement_reference,
+       e.effective_date,
+       e.change_type,
+       e.amount_delta,
+       e.premium_delta
+FROM uw_files.Endorsement e
+JOIN uw_files.Placement p VIA e.amends
+WHERE e.is_material = true
+  AND e.effective_date > p.inception_date;
+```
+
+</TemplatePage>

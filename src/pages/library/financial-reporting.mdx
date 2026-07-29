@@ -1,0 +1,364 @@
+---
+title: Financial reporting
+description: Statutory accounts, board packs and management reporting
+wrapperClassName: library-detail
+hide_table_of_contents: true
+---
+
+import TemplatePage from '@site/src/components/Library/TemplatePage';
+
+<TemplatePage id="financial-reporting">
+
+## 1. What this models
+
+A finance function accumulates a large, heterogeneous pile of numbers-in-prose: signed statutory accounts, half-year reports, monthly management accounts, board packs, segment schedules and the notes that sit behind every one of them. The numbers are the point, but they arrive embedded in tables whose labels drift, whose units change from thousands to millions when the entity grows, and whose prior-year columns are quietly restated when an error or an accounting-policy change is discovered.
+
+This ontology turns that pile into something you can interrogate. It makes answerable, in one statement, questions that are otherwise a week of manual reconciliation:
+
+- Which line items moved more than fifteen per cent against the same period last year, once units are normalised?
+- Where did a prior-year comparative differ from the figure originally published, and which note explains it?
+- Which segment contributed the revenue growth, and does the sum of segments reconcile to the consolidated total?
+- Which line item appeared in FY24, was material, and has silently vanished from FY25?
+- Which documents talk about going concern, and what was the closing cash balance in each?
+
+## 2. The modelling decisions
+
+**`FinancialReport` is ROOT, and the document kind is a report, not a statement.** The tempting root is `Statement`: a P&L is a thing, a balance sheet is a thing. It is the wrong altitude. One PDF routinely carries three primary statements plus twenty notes plus a segment schedule, and every one of them shares a reporting entity, a presentation currency, a units scale and an audit status. If `Statement` were root, those five facts would be copied onto every statement instance and would drift. Root is the artefact you filed: one document, one report, one set of preparation assumptions. Statements hang `UNDER` it.
+
+**`RestatementNote` is a separate entity, not a `restated BOOLEAN` on `LineItem`.** This is the decision I would defend hardest. The naive schema puts `was_restated BOOLEAN` and `original_amount FLOAT` on the line item. Both columns are null for roughly ninety-nine per cent of rows, which is the tell: a column that is only sometimes populated is a modelling error, not a convenience. Worse, it cannot represent the real shape of the fact. A restatement has its own author (the note), its own cause (error correction versus policy change versus reclassification), its own affected period, and can touch several line items at once with a single explanation. It is an event with attributes. Events get entities. The `restates` edge then does the work of connecting the event to the figures it moved, and finding restated comparatives becomes a traversal rather than a scan for non-null columns.
+
+**Keys are composites almost everywhere, because nothing here is identified by one field.** `FinancialReport` is keyed on `(reporting_entity, period_end, report_type)`: the same legal entity files an interim and a full-year report ending on different dates, and a management pack and a statutory account can share a period end while being entirely different documents. `LineItem` is keyed on `(statement_type, label, period_label)`. "Revenue" alone is not an identity: revenue appears in the P&L and, as a segment revenue, in the segment schedule, and it appears for FY24 and for FY23-comparative inside the same document. The statement scopes it, the period disambiguates the column it was read from. `Segment` is keyed on `(segment_name, period_label)` for the same reason: segments are re-cut between years and a segment named "Wholesale" in FY24 is a different measured thing from "Wholesale" in FY22 after a reorganisation.
+
+**FUZZY where humans wrote the label, EXACT where a system did.** The `reports_line_item` edge resolves FUZZY because line-item labels drift relentlessly across periods and preparers: "Employee benefits expense", "Staff costs", "Personnel expenses" and "Wages, salaries and related costs" are one line in four documents. Exact string matching would shatter that into four unrelated series and quietly break every trend query. `WITHIN` narrows the candidate pool to the line items of the same statement type, so the model is choosing between a few dozen plausible labels rather than every string in the corpus. By contrast, `belongs_to_period` resolves EXACT: `period_label` is a normalised token this ontology controls, and fuzzy-matching periods would be actively dangerous, cheerfully folding "FY24" into "FY24 restated".
+
+**Units and currency live on the report, and the amount is never bare.** Storing `amount FLOAT` and nothing else is the classic trap: 4,200 is four thousand two hundred dollars, or four point two million pounds, or four point two billion yen, and the number alone cannot tell you. Worse, the scale changes mid-corpus when a company crosses a size threshold and switches its accounts from thousands to millions, so a naive `SUM` across periods silently produces a thousand-fold error that looks like explosive growth. `FinancialReport` therefore carries `presentation_currency` and `units_scale` as a CHECK enum, and `LineItem` carries `amount_as_stated` alongside `amount_base_units`, the figure multiplied out to whole currency units. Query the normalised column; keep the stated one so you can always tie back to the printed page.
+
+**What I deliberately did not model: the account-code hierarchy.** There is an obvious temptation to model the chart of accounts, with parent-child rollups so that "Cost of sales" sums its constituent GL codes. I left it out. Published reports do not contain the chart of accounts; they contain its summarised output, and the mapping from code to caption lives in the ledger, not the document. Modelling it would mean inventing a hierarchy the extractor cannot see, and every extraction would be a guess. `LineItem.parent_caption` records the subtotal a line rolled into *where the document states it*, and that is the honest limit of what the paper knows. If you need the full tree, join to the ledger; do not ask the ontology to hallucinate it.
+
+## 3. The schema
+
+```sql
+CREATE ONTOLOGY finrep;
+
+-- ROOT: one filed artefact. Everything about how the numbers should be read
+-- (currency, scale, basis, audit status) belongs here, not on the figures.
+CREATE ENTITY finrep.FinancialReport (
+  reporting_entity      TEXT NOT NULL EXTRACT 'the legal or group entity the accounts are prepared for, not the auditor or preparer',
+  report_type           TEXT NOT NULL CHECK (report_type IN (
+                          'annual_report','statutory_accounts','interim_report',
+                          'management_accounts','board_pack','segment_schedule')),
+  period_end            DATE NOT NULL,
+  period_start          DATE,
+  -- Presentation currency governs every amount in the document.
+  presentation_currency TEXT NOT NULL CHECK (presentation_currency IN ('AUD','GBP','EUR','USD','NZD','SGD','JPY')),
+  -- The scale printed at the head of the tables. Never assume it is stable across periods.
+  units_scale           TEXT NOT NULL CHECK (units_scale IN ('units','thousands','millions','billions')),
+  reporting_basis       TEXT CHECK (reporting_basis IN ('IFRS','AASB','UK_GAAP','US_GAAP','management_basis')),
+  consolidation_level   TEXT CHECK (consolidation_level IN ('consolidated','parent_only','segment','divisional')),
+  audit_status          TEXT CHECK (audit_status IN ('audited','reviewed','unaudited','draft')),
+  approved_on           DATE EXTRACT 'the date the board or directors approved the accounts, not the period end',
+  KEY (reporting_entity, period_end, report_type)
+) ROOT;
+
+-- A primary statement or a note block. SINGULAR PER DOC is wrong here: an annual
+-- report carries several. BOUNDED PER DOC is right: three to thirty, not unbounded.
+CREATE ENTITY finrep.Statement (
+  statement_type   TEXT NOT NULL CHECK (statement_type IN (
+                     'profit_and_loss','balance_sheet','cash_flow','changes_in_equity',
+                     'comprehensive_income','segment_note','notes')),
+  statement_title  TEXT EXTRACT 'the heading as printed, e.g. Consolidated statement of financial position',
+  note_reference   TEXT EXTRACT 'the note number this block is labelled with, if any; blank for primary statements',
+  page_label       TEXT,
+  KEY (statement_type, statement_title)
+) UNDER finrep.FinancialReport BOUNDED PER DOC;
+
+-- The figures. Keyed on statement + label + period because a caption alone is not
+-- an identity: "Revenue" exists in the P&L and the segment note, for two periods each.
+CREATE ENTITY finrep.LineItem (
+  statement_type    TEXT NOT NULL CHECK (statement_type IN (
+                      'profit_and_loss','balance_sheet','cash_flow','changes_in_equity',
+                      'comprehensive_income','segment_note','notes')),
+  label             TEXT NOT NULL EXTRACT 'the caption exactly as printed in the leftmost column of the row',
+  -- Normalised period token, e.g. FY25, FY24, H1_FY25, M07_FY25. This is the join key
+  -- for period-over-period work, so it must be controlled, not free text.
+  period_label      TEXT NOT NULL EXTRACT 'normalise the column heading to a period token such as FY25, H1_FY25 or M07_FY25',
+  column_role       TEXT CHECK (column_role IN ('current','comparative','budget','forecast','variance','restated_comparative')),
+  amount_as_stated  FLOAT EXTRACT 'the number exactly as printed, before any scale multiplication',
+  -- The same figure multiplied out by units_scale. Aggregate on this, never on as_stated.
+  amount_base_units FLOAT EXTRACT 'the figure converted to whole currency units by applying the document scale',
+  sign_convention   TEXT CHECK (sign_convention IN ('as_printed','bracketed_negative','positive_expense')),
+  parent_caption    TEXT EXTRACT 'the subtotal caption this row rolls into, only if the document states it; leave blank rather than infer',
+  is_subtotal       BOOLEAN,
+  KEY (statement_type, label, period_label)
+) UNDER finrep.Statement;
+
+-- Segments are re-cut between years, so the name alone is not stable across periods.
+CREATE ENTITY finrep.Segment (
+  segment_name    TEXT NOT NULL EXTRACT 'the reportable operating segment or division name',
+  segment_kind    TEXT CHECK (segment_kind IN ('operating','geographic','product','other','unallocated')),
+  period_label    TEXT NOT NULL,
+  is_reportable   BOOLEAN EXTRACT 'true if disclosed as a reportable segment rather than aggregated into other',
+  KEY (segment_name, period_label)
+) UNDER finrep.FinancialReport;
+
+-- An event, not a flag. It has a cause, an author and a scope, and it can move
+-- several line items with one explanation.
+CREATE ENTITY finrep.RestatementNote (
+  affected_period    TEXT NOT NULL EXTRACT 'the period token whose figures were restated, e.g. FY24',
+  restatement_cause  TEXT CHECK (restatement_cause IN (
+                       'prior_period_error','accounting_policy_change','reclassification',
+                       'business_combination','discontinued_operation','presentation_change')),
+  -- The caption as written in the restatement note. Deliberately separate from
+  -- LineItem.label: the note often uses a slightly different wording.
+  affected_caption   TEXT NOT NULL EXTRACT 'the line item caption named in the restatement note',
+  originally_stated  FLOAT,
+  as_restated        FLOAT,
+  narrative          TEXT EXTRACT 'the explanatory sentence given for the restatement',
+  KEY (affected_period, affected_caption)
+) UNDER finrep.FinancialReport;
+
+-- Directors' and auditors' prose. Kept separate from Statement because it has no
+-- figures and different questions are asked of it.
+CREATE ENTITY finrep.Commentary (
+  commentary_type  TEXT CHECK (commentary_type IN (
+                     'directors_report','auditor_opinion','going_concern','chair_statement',
+                     'management_discussion','variance_explanation','subsequent_events')),
+  heading          TEXT,
+  body             TEXT,
+  opinion_modifier TEXT CHECK (opinion_modifier IN ('unqualified','qualified','adverse','disclaimer','emphasis_of_matter','not_applicable')),
+  KEY (commentary_type, heading)
+) UNDER finrep.FinancialReport;
+
+-- A single accounting period as a first-class node, so periods resolve across
+-- documents and a comparative in one report is the same node as the current
+-- column in the report a year earlier.
+CREATE ENTITY finrep.ReportingPeriod (
+  period_label   TEXT KEY EXTRACT 'the normalised period token, e.g. FY25, H1_FY25, M07_FY25',
+  period_end     DATE,
+  period_kind    TEXT CHECK (period_kind IN ('full_year','half_year','quarter','month','cumulative')),
+  is_restated    BOOLEAN EXTRACT 'true if this column is labelled restated in the document'
+) UNDER finrep.FinancialReport;
+
+-- Internal edges: structural containment resolved by position within one document.
+CREATE EDGE finrep.contains_statement
+  ON finrep.FinancialReport CONTAINS finrep.Statement;
+
+CREATE EDGE finrep.contains_commentary
+  ON finrep.FinancialReport CONTAINS finrep.Commentary;
+
+-- External, FUZZY: line-item captions drift between periods and preparers.
+-- "Employee benefits expense" and "Staff costs" are one series. WITHIN keeps the
+-- candidate pool to line items rather than every string in the corpus.
+CREATE EDGE finrep.reports_line_item
+  ON finrep.Statement REPORTS finrep.LineItem
+  LINK BY label RESOLVE FUZZY WITHIN finrep.LineItem;
+
+-- External, EXACT: period_label is a token this ontology controls. Fuzzy matching
+-- here would fold FY24 into FY24-restated, which is exactly the error we are hunting.
+CREATE EDGE finrep.belongs_to_period
+  ON finrep.LineItem FOR_PERIOD finrep.ReportingPeriod
+  LINK BY period_label RESOLVE EXACT WITHIN finrep.ReportingPeriod;
+
+-- External, FUZZY: the restatement note's wording rarely matches the statement
+-- caption character for character. This edge is what makes restatements traversable.
+CREATE EDGE finrep.restates
+  ON finrep.RestatementNote RESTATES finrep.LineItem
+  LINK BY affected_caption RESOLVE FUZZY WITHIN finrep.LineItem;
+
+-- External, FUZZY: segment names carry suffixes and abbreviations inconsistently
+-- ("Wholesale", "Wholesale division", "WHL").
+CREATE EDGE finrep.segment_reports
+  ON finrep.Segment REPORTS finrep.LineItem
+  LINK BY segment_name RESOLVE FUZZY WITHIN finrep.LineItem;
+```
+
+## 4. Extraction
+
+Financial documents are almost always filed by period: one folder per financial year, or one per month for management accounts. `PARTITION BY FOLDER` makes that hierarchy queryable through `_folder` instead of forcing string surgery on paths, which matters because the folder is often the only reliable statement of which period a draft management pack belongs to.
+
+```sql
+CREATE CORPUS finance_library
+  ON sharepoint.group_finance.'Statutory Accounts',
+     sharepoint.group_finance.'Board Packs',
+     sharepoint.group_finance.'Management Reporting'
+  USING ONTOLOGY finrep
+  PARTITION BY FOLDER LEVEL 2;   -- level 2 is the period folder: /Statutory Accounts/FY25/
+
+BIND CORPUS finance_library TO ONTOLOGY finrep;
+
+RUN BINDING finance_library.finrep;
+```
+
+The hint attaches to the root, and describes the children from there. This is the single highest-leverage line in the whole template: it is where you tell the extractor about the scale trap and the comparative-column trap, both of which are invisible to a model reading one table in isolation.
+
+```sql
+ALTER BINDING finance_library.finrep
+  SET HINT ON extract_internals WHERE root = FinancialReport AS
+  'Read the units and currency banner at the head of each table (typically "$A000" or "in millions of AUD") and set units_scale and presentation_currency on the report. Every table in the document inherits it unless a table states otherwise. For each LineItem, populate amount_base_units by multiplying amount_as_stated by that scale; a figure printed as 4,200 in a thousands table is 4200000 in base units. Financial tables carry several numeric columns per row: emit one LineItem per row per column, not one per row. Set period_label from the column heading normalised to a token (FY25, H1_FY25, M07_FY25), and set column_role to distinguish the current period from the comparative, budget and forecast columns. If a column heading carries the word "restated", set column_role to restated_comparative and set ReportingPeriod.is_restated. Figures in brackets are negative: record the printed form in sign_convention and the signed value in amount_base_units. Do not infer parent_caption from indentation alone; populate it only where the document names the subtotal.';
+```
+
+Adding a column later does not mean re-running the world. Backfill just that field:
+
+```sql
+ALTER ENTITY finrep.LineItem ADD COLUMN is_subtotal BOOLEAN;
+RUN BINDING finance_library.finrep EXTRACT (LineItem.is_subtotal);
+```
+
+## 5. Queries that earn their keep
+
+**Which line items moved more than fifteen per cent year on year, on normalised units?**
+
+```sql
+WITH cur AS (
+  SELECT li.label, li.statement_type, li.amount_base_units AS amt
+  FROM finance_library.LineItem li
+  WHERE li.period_label = 'FY25' AND li.column_role = 'current'
+),
+pri AS (
+  SELECT li.label, li.statement_type, li.amount_base_units AS amt
+  FROM finance_library.LineItem li
+  WHERE li.period_label = 'FY24' AND li.column_role = 'current'
+)
+SELECT cur.statement_type,
+       cur.label,
+       pri.amt AS fy24,
+       cur.amt AS fy25,
+       (cur.amt - pri.amt) / pri.amt AS pct_move
+FROM cur
+JOIN pri ON cur.label = pri.label AND cur.statement_type = pri.statement_type
+WHERE (cur.amt - pri.amt) / pri.amt > 0.15
+   OR (cur.amt - pri.amt) / pri.amt < -0.15
+ORDER BY pct_move DESC;
+```
+
+**Where was a prior-year comparative restated, and what did the note say?** This is the edge traversal the `RestatementNote` entity exists for.
+
+```sql
+SELECT r.affected_period,
+       r.restatement_cause,
+       li.label,
+       r.originally_stated,
+       r.as_restated,
+       r.as_restated - r.originally_stated AS delta,
+       r.narrative
+FROM finance_library.RestatementNote r
+JOIN finance_library.LineItem li VIA r.restates
+WHERE r.restatement_cause IN ('prior_period_error','accounting_policy_change')
+ORDER BY delta DESC;
+```
+
+**Does the sum of segment revenue reconcile to consolidated revenue?** The IFRS 8 reconciliation, as an aggregate.
+
+```sql
+SELECT s.period_label,
+       COUNT(*)                  AS segments,
+       SUM(li.amount_base_units) AS segment_total
+FROM finance_library.Segment s
+JOIN finance_library.LineItem li VIA s.segment_reports
+WHERE li.label = 'Revenue'
+  AND s.is_reportable = TRUE
+GROUP BY s.period_label
+ORDER BY s.period_label DESC;
+```
+
+**Which period folders produced low-confidence extractions?** A system-column query: `_folder` from the partition, `_confidence` from the extractor. This is the quality gate you run before trusting any of the above.
+
+```sql
+SELECT li._folder,
+       li.statement_type,
+       COUNT(*)             AS items,
+       AVG(li._confidence)  AS mean_conf,
+       MIN(li._confidence)  AS worst_conf
+FROM finance_library.LineItem li
+GROUP BY li._folder, li.statement_type
+ORDER BY mean_conf ASC
+LIMIT 20;
+```
+
+**The hard one: which material line items vanished between periods?** A disappearing caption is either a genuine reclassification, a segment reorganisation or an extraction failure, and all three are worth knowing about. Note that this deliberately reads the raw labels rather than following `reports_line_item`, because the fuzzy edge would helpfully resolve a renamed line to its predecessor and hide the very thing we are looking for.
+
+```sql
+SELECT prev.statement_type, prev.label, prev.amount_base_units AS fy24_amount
+FROM finance_library.LineItem prev
+WHERE prev.period_label = 'FY24'
+  AND prev.column_role = 'current'
+  AND prev.is_subtotal = FALSE
+  AND prev.amount_base_units > 500000
+  AND NOT EXISTS (
+    SELECT 1
+    FROM finance_library.LineItem cur
+    WHERE cur.period_label = 'FY25'
+      AND cur.statement_type = prev.statement_type
+      AND cur.label = prev.label
+  )
+ORDER BY fy24_amount DESC;
+```
+
+**Which reports raise going concern, and what was the closing cash position in each?** Search as a filter, entity rows as the answer.
+
+```sql
+SELECT fr.reporting_entity,
+       fr.period_end,
+       fr.audit_status,
+       c.opinion_modifier,
+       li.amount_base_units AS closing_cash
+FROM finance_library.FinancialReport fr
+JOIN finance_library.Commentary c VIA fr.contains_commentary
+JOIN finance_library.LineItem li USING (_doc)
+WHERE c MATCHES ('material uncertainty related to going concern' USING default TOP 25)
+  AND li.statement_type = 'cash_flow'
+  AND li.label = 'Cash and cash equivalents at end of period'
+ORDER BY fr.period_end DESC;
+```
+
+## 6. Views
+
+Named vocabulary, so the interesting shapes stop being re-derived from scratch by every analyst.
+
+```sql
+-- Every figure with its units already resolved and its report context attached.
+-- This is the view most day-to-day work should start from.
+CREATE OR REPLACE VIEW normalised_figures AS
+SELECT fr.reporting_entity,
+       fr.report_type,
+       fr.presentation_currency,
+       fr.consolidation_level,
+       li.statement_type,
+       li.label,
+       li.period_label,
+       li.column_role,
+       li.amount_base_units,
+       li._confidence,
+       li._folder
+FROM finance_library.FinancialReport fr
+JOIN finance_library.Statement st VIA fr.contains_statement
+JOIN finance_library.LineItem li VIA st.reports_line_item;
+
+-- Every restated figure, its cause and its movement, in one place.
+CREATE OR REPLACE VIEW restatement_register AS
+SELECT r._doc,
+       r.affected_period,
+       r.restatement_cause,
+       li.statement_type,
+       li.label,
+       r.originally_stated,
+       r.as_restated,
+       r.as_restated - r.originally_stated AS restatement_delta,
+       r.narrative
+FROM finance_library.RestatementNote r
+JOIN finance_library.LineItem li VIA r.restates;
+
+-- Segment contribution by period, reportable segments only, units normalised.
+CREATE OR REPLACE VIEW segment_contribution AS
+SELECT s.period_label,
+       s.segment_name,
+       s.segment_kind,
+       li.label,
+       SUM(li.amount_base_units) AS amount
+FROM finance_library.Segment s
+JOIN finance_library.LineItem li VIA s.segment_reports
+WHERE s.is_reportable = TRUE
+GROUP BY s.period_label, s.segment_name, s.segment_kind, li.label;
+```
+
+</TemplatePage>
