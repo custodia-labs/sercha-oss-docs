@@ -3,8 +3,40 @@
  * Palette C - Refined: Neutral, progressive palette with indigo-violet accent
  */
 
-/* Import Inter font for UI */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Chillax is the Sercha brand face, self-hosted and shared with the other
+   sites. JetBrains Mono is loaded for code, where Chillax has no mono cut. */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Light.otf') format('opentype');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/fonts/Chillax-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
 
 /* ===========================
    Sercha Brand Color Palette
@@ -32,8 +64,9 @@
   --sercha-terminal-green: #27C93F; /* Terminal UI decoration */
 
   /* ===== Typography ===== */
-  --ifm-font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-  --ifm-font-family-monospace: 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --ifm-font-family-base: 'Chillax', system-ui, -apple-system, sans-serif;
+  --sercha-font-display: 'Chillax', system-ui, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
 
   /* ===== Docusaurus Color Mappings (Light Mode) ===== */
   /* Primary accent - Sercha Indigo */
@@ -773,20 +806,30 @@ table tbody tr:nth-child(even) td {
    =========================== */
 
 :root {
-  --grid-line: rgba(51, 63, 80, 0.055);
+  --grid-line: rgba(51, 63, 80, 0.07);
+  --edge: #333f50;              /* hard border + offset shadow colour */
+  --hero-bg: #f7f7f9;
+  --band-bg: #f2f2f5;
+  --mark-fg: #ffffff;           /* text sitting on the marker highlight */
+  --step-num-bg: #ffffff;
   --console-bg: #ffffff;
-  --console-bar: #f4f5f7;
-  --console-out: #fbfbfc;
-  --console-hairline: rgba(51, 63, 80, 0.1);
+  --console-bar: #f0f1f4;
+  --console-out: #fafafb;
+  --console-hairline: rgba(51, 63, 80, 0.13);
   --console-fg: #333f50;
 }
 
 [data-theme='dark'] {
-  --grid-line: rgba(255, 255, 255, 0.045);
+  --grid-line: rgba(255, 255, 255, 0.055);
+  --edge: #000000;
+  --hero-bg: #141519;
+  --band-bg: #131418;
+  --mark-fg: #ffffff;
+  --step-num-bg: #1e2024;
   --console-bg: #16171a;
   --console-bar: #1e2024;
   --console-out: #121316;
-  --console-hairline: rgba(255, 255, 255, 0.08);
+  --console-hairline: rgba(255, 255, 255, 0.1);
   --console-fg: #e5e7eb;
 }
 
@@ -848,4 +891,12 @@ table tbody tr:nth-child(even) td {
   .navbar__item.navbar__link {
     font-size: 0.9rem;
   }
+}
+
+/* Display face on headings, so doc pages share the landing page's voice. */
+h1, h2, h3,
+.navbar__title,
+.menu__link--sublist-caret {
+  font-family: var(--sercha-font-display);
+  letter-spacing: -0.012em;
 }
