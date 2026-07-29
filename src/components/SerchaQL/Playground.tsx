@@ -2,7 +2,7 @@ import React, {useMemo, useState} from 'react';
 import styles from './Playground.module.css';
 
 /**
- * Playground — an editable SerchaQL block with syntax highlighting and
+ * Playground - an editable SerchaQL block with syntax highlighting and
  * fixture-backed results.
  *
  * There is no network call: every example ships with the rows it produces, so
@@ -194,7 +194,7 @@ export default function Playground({query, result, caption, open}: PlaygroundPro
 
       {edited && (
         <p className={styles.editedNote}>
-          Edited — results below are the canned response for the original statement.
+          Edited - results below are the canned response for the original statement.
         </p>
       )}
 

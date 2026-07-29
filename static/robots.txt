@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
+# Structured summaries for AI agents and crawlers.
+# See /llms.txt and /agents.txt
 Sitemap: https://docs.sercha.dev/sitemap.xml

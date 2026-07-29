@@ -11,7 +11,7 @@ import Playground from '@site/src/components/SerchaQL/Playground';
 Querying extracted data. Schema statements are in the
 [DDL reference](./ddl.md).
 
-`SELECT` does **not** require admin — it is bounded by the
+`SELECT` does **not** require admin. It is bounded by the
 [permission model](#permissions) instead.
 
 ## Shape
@@ -32,7 +32,7 @@ FROM <source> [<alias>]
 [ (UNION [ALL] | INTERSECT | EXCEPT) <select> ]...
 ```
 
-The corpus is named in `FROM` — there is no trailing scope clause.
+The corpus is named in `FROM`. There is no trailing scope clause.
 
 ## Sources
 
@@ -41,7 +41,7 @@ The corpus is named in `FROM` — there is no trailing scope clause.
 | `FROM <corpus>.<Entity> [alias]` | one row per extracted entity instance |
 | `FROM <corpus> [alias]` | one row per document |
 | `FROM SEARCH(<pipeline>, '<query>', TOP <k>) [alias]` | ranked rows: `doc_id`, `score`, `rank`, `snippet` |
-| `FROM ( <select> ) <alias>` | derived table — the alias is required |
+| `FROM ( <select> ) <alias>` | derived table, alias required |
 | `FROM <cte_name> [alias]` | an inlined CTE |
 | `FROM plugins.<operation> [alias]` | rows fetched live from an external API |
 
@@ -56,7 +56,7 @@ Every entity scan carries provenance columns alongside your declared ones:
 | `_doc` | a source document id from lineage |
 | `_run_id` | the extraction run that wrote this node |
 | `_confidence` | extraction confidence |
-| `_folder` | folder partition key — only when the corpus uses `PARTITION BY FOLDER` |
+| `_folder` | folder partition key, only when the corpus uses `PARTITION BY FOLDER` |
 
 `_doc` is the one worth knowing: it is what the permission filter keys on, and
 what you join through to reach document metadata.
@@ -98,17 +98,17 @@ Operators: `=`, `<>`, `!=`, `<`, `<=`, `>`, `>=`. Precedence is
 
 Three ways to relate two sources:
 
-**`VIA` — traverse a declared edge.** This is the graph join, and the one that
+**`VIA` traverses a declared edge.** This is the graph join, and the one that
 makes the schema pay off.
 
 ```sql
 JOIN <corpus>.<Entity> <alias> VIA <sourceAlias>.<edge_name>
 ```
 
-**`USING (col)` — equi-join on a shared column.** Most often `USING (_doc)`, to
+**`USING (col)` equi-joins on a shared column.** Most often `USING (_doc)`, to
 put two entities from the same document side by side.
 
-**`ON a.col = b.col` — explicit equality.** Both sides must be alias-qualified;
+**`ON a.col = b.col` is explicit equality.** Both sides must be alias-qualified;
 chain with `AND`.
 
 Only `JOIN` and `LEFT [OUTER] JOIN` exist. There is no `RIGHT` or `FULL`.
@@ -129,14 +129,14 @@ LIMIT 3;`}
     ],
     ms: 96,
   }}
-  caption="One author, two papers — the edge resolved both mentions to the same node."
+  caption="One author, two papers. The edge resolved both mentions to the same node."
 />
 
 ## Search
 
 Two ways in, for two different questions.
 
-**`SEARCH(...)` as a table** — when the ranked documents *are* the answer:
+**`SEARCH(...)` as a table**, when the ranked documents *are* the answer:
 
 ```sql
 SELECT s.doc_id, s.snippet, s.score
@@ -144,7 +144,7 @@ FROM SEARCH(default, 'tidal forcing', TOP 5) s
 ORDER BY s.score DESC;
 ```
 
-**`MATCHES` as a predicate** — when you want *entity rows* whose source document
+**`MATCHES` as a predicate**, when you want *entity rows* whose source document
 matched. It is a semi-join, so your columns survive:
 
 ```sql
@@ -188,7 +188,7 @@ parse. Alias the aggregate and filter on the alias:
 
 ## Window functions
 
-`ROW_NUMBER()`, `RANK()` and `DENSE_RANK()` — all requiring `OVER` — plus
+`ROW_NUMBER()`, `RANK()` and `DENSE_RANK()`, all requiring `OVER`, plus
 aggregates used as window functions:
 
 ```sql
@@ -207,8 +207,8 @@ WITH recent AS (
 SELECT title FROM recent;
 ```
 
-`WITH RECURSIVE` is supported for walking hierarchies. Set operations —
-`UNION [ALL]`, `INTERSECT`, `EXCEPT` — are left-associative, and are **not**
+`WITH RECURSIVE` is supported for walking hierarchies. Set operations
+(`UNION [ALL]`, `INTERSECT`, `EXCEPT`) are left-associative, and are **not**
 allowed inside a CTE body.
 
 ## Generated columns
@@ -227,7 +227,7 @@ An optional second argument feeds a subquery's rows to the model as context.
 
 ## External data
 
-`plugins.<operation>` is a virtual table backed by an external API — join it
+`plugins.<operation>` is a virtual table backed by an external API. Join it
 like any other source:
 
 ```sql
@@ -236,7 +236,7 @@ FROM library.Citation c
 LEFT JOIN plugins.registry_lookup x ON x.query = c.cited_title;
 ```
 
-Every declared input column must be bound — by a join condition or a literal in
+Every declared input column must be bound, by a join condition or a literal in
 `WHERE`. Results are cached. If a query would exceed the operation's soft call
 limit, the API returns **202** with an estimate; re-send with `"confirm": true`
 to proceed.
@@ -245,9 +245,9 @@ to proceed.
 
 Three checks, composed with AND, all fail-closed:
 
-1. **Corpus grant** — `SELECT` on the corpus
-2. **Corpus membership** — the documents in the corpus
-3. **Per-document ACL** — intersected with layer 2
+1. **Corpus grant**: `SELECT` on the corpus
+2. **Corpus membership**: the documents in the corpus
+3. **Per-document ACL**: intersected with layer 2
 
 The result is pushed into the scan. Deny-all short-circuits before touching
 storage. `EXPLAIN` shows all three named in the plan.
@@ -260,10 +260,10 @@ EXPLAIN ANALYZE SELECT ...;
 ```
 
 `stats.op_stats` is returned on **every** query, with rows in/out and elapsed
-time per operator — you do not need `EXPLAIN ANALYZE` to profile.
+time per operator, so you do not need `EXPLAIN ANALYZE` to profile.
 
 ## Not available
 
-`INSERT` / `UPDATE` / `DELETE` — data arrives by extraction, not by statement.
+`INSERT` / `UPDATE` / `DELETE`: data arrives by extraction, not by statement.
 No transactions. No backend configuration through SQL. `RESOLVE SEMANTIC`,
 `SEMANTIC JOIN`, `EMBED` and `CREATE SNAPSHOT` are reserved and rejected.

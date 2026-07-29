@@ -47,7 +47,7 @@ CREATE ENTITY <ontology>.<Name> (
 | `DATE` | `date` |
 
 A column with `CHECK (col IN (…))` surfaces as type `enum` with its values
-populated. **Only the `IN`-list form of `CHECK` is supported** — it exists to
+populated. **Only the `IN`-list form of `CHECK` is supported**. It exists to
 constrain a vocabulary, not to express arbitrary predicates.
 
 ### Modifiers
@@ -61,7 +61,7 @@ constrain a vocabulary, not to express arbitrary predicates.
 | `LAZY` | Defer extraction. Parsed; not yet fully enforced. |
 | `STRICT JSON` | Strict-format extraction. Parsed; not yet fully enforced. |
 
-`EXTRACT '<hint>'` on a column tells the extractor what that column means — use
+`EXTRACT '<hint>'` on a column tells the extractor what that column means. Use
 it when the column name alone is ambiguous.
 
 <Playground
@@ -103,7 +103,7 @@ CREATE EDGE <ontology>.<name>
   [WITHIN <ont>.<Scope>];
 ```
 
-`<VERB>` is any identifier — it becomes the edge's display label, case
+`<VERB>` is any identifier. It becomes the edge's display label, case
 preserved. Write the relationship as you would say it: `WROTE`, `CITES`,
 `SUPERSEDES`.
 
@@ -114,7 +114,7 @@ preserved. Write the relationship as you would say it: `WROTE`, `CITES`,
 - **Both present** → an *external* edge: `LINK BY` names the source field whose
   value is matched against the target's `KEY`.
 
-`RESOLVE EXACT` is normalised string equality — no LLM. `RESOLVE FUZZY` is an
+`RESOLVE EXACT` is normalised string equality, no LLM. `RESOLVE FUZZY` is an
 LLM-judged match; `WITHIN` narrows the candidate pool it considers.
 
 <Playground
@@ -135,7 +135,7 @@ CREATE EDGE research.contains_citation
     ],
     ms: 33,
   }}
-  caption="RESOLVE SEMANTIC is reserved and rejected — it is not available yet."
+  caption="RESOLVE SEMANTIC is reserved and rejected; it is not available yet."
 />
 
 ## Corpus
@@ -154,7 +154,7 @@ DROP CORPUS [IF EXISTS] <name> [CASCADE | RESTRICT];
 A target is always three parts: **connector**, **source name**, then a dotted
 container path. Quote any segment containing dots or spaces.
 
-`PARTITION BY FOLDER` makes the folder a first-class dimension — the `_folder`
+`PARTITION BY FOLDER` makes the folder a first-class dimension. The `_folder`
 system column becomes queryable, so "group by client folder" is a `GROUP BY`
 rather than a string operation on paths.
 
@@ -167,7 +167,7 @@ REBIND CORPUS <corpus> TO <ontology>[@<version>];
 ```
 
 `BIND` freezes the ontology draft into an immutable version and pins the
-binding to it. **A corpus binds to exactly one ontology** — a second `BIND` is
+binding to it. **A corpus binds to exactly one ontology**; a second `BIND` is
 an error.
 
 `REBIND` replaces: it tears down the existing entities and edges and
@@ -188,7 +188,7 @@ A hint attaches to one node of the extraction DAG. List the real nodes with
 
 :::caution Hint the root, not the child
 `extract_internals` invocations exist **only for root entities**. An entity
-declared `UNDER` a root is extracted *inside* that root's invocation — so
+declared `UNDER` a root is extracted *inside* that root's invocation, so
 hinting the child fails. Hint the root and describe the children there.
 :::
 
@@ -197,7 +197,7 @@ Two hint mechanisms, for different jobs:
 | | `EXTRACT '<hint>'` on a column | `SET HINT` on a binding |
 |---|---|---|
 | Scope | one column | one DAG node (a whole root's extraction) |
-| Lifetime | permanent — part of the ontology | on the binding; re-settable without rebinding |
+| Lifetime | permanent, part of the ontology | on the binding; re-settable without rebinding |
 | Use for | "this column means X" | "for this root, prefer Y; disambiguate children like Z" |
 
 ## Running extraction
@@ -209,7 +209,7 @@ RUN BINDING <corpus>.<ontology>
 ```
 
 `WHERE document_id` scopes the run to a single document. `EXTRACT (…)` backfills
-only the named fields — this is how you populate a column added after the
+only the named fields. This is how you populate a column added after the
 initial extraction.
 
 ## Pipelines and views
@@ -227,7 +227,7 @@ DROP MATERIALIZED VIEW [IF EXISTS] <name>;
 ```
 
 A **view** is a saved query, expanded on use. A **materialized view** caches its
-rows into its own graph and is versioned — `REFRESH` produces a new version.
+rows into its own graph and is versioned; `REFRESH` produces a new version.
 They are not the same thing as a derived entity: an mview caches *rows*, a
 derived entity creates *nodes*.
 
@@ -256,7 +256,7 @@ DROP GRAPH EDGE <edge_id>;
 ```
 
 `DROP GRAPH EDGE` removes an extracted edge instance. `DROP EDGE` removes the
-edge *type* from the ontology — the word `GRAPH` is what disambiguates them.
+edge *type* from the ontology. The word `GRAPH` is what disambiguates them.
 
 ## Introspection
 
@@ -272,7 +272,7 @@ DESCRIBE <corpus>.<Entity>;
 ```
 
 :::note DESCRIBE takes a corpus
-The left side of `DESCRIBE` is a **corpus**, not an ontology — it reports the
+The left side of `DESCRIBE` is a **corpus**, not an ontology. It reports the
 shape of extracted data, including fill rates, which only exists once something
 has been extracted.
 :::

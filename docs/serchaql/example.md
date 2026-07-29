@@ -26,7 +26,7 @@ The schema is a decision about what matters. Three principles worth borrowing:
 and everything else hangs beneath it.
 
 **A column that is only sometimes true is the wrong schema.** Not every paper
-names a funder. So funding is its own entity — a row exists when there is one —
+names a funder. So funding is its own entity. A row exists when there is one,
 rather than a mostly-empty column on `Paper`.
 
 **Key on what identifies, not on what is convenient.** `KEY` is how two
@@ -78,7 +78,7 @@ identifies a grant on its own, but together they do.
 
 ## 3. Connect the relationships
 
-An author's name appears on the paper as written — "R. Okonkwo" in one, "Rita
+An author's name appears on the paper as written: "R. Okonkwo" in one, "Rita
 Okonkwo" in another. `RESOLVE FUZZY` is what collapses those into one node;
 `WITHIN` keeps the comparison pool tight.
 
@@ -102,7 +102,7 @@ CREATE EDGE research.cites
 
 ## 4. Point it at the documents
 
-The corpus claims a path. Nothing is copied anywhere — the documents stay where
+The corpus claims a path. Nothing is copied anywhere. The documents stay where
 they are, and their permissions come with them.
 
 <Playground
@@ -184,7 +184,7 @@ ORDER BY pre_2015_citations DESC;`}
 
 ## Where to go next
 
-- The schema is a draft until you bind it — reshape freely, then `REBIND`
+- The schema is a draft until you bind it. Reshape freely, then `REBIND`
 - Add a column later and backfill with `RUN BINDING … EXTRACT (…)`
 - Wrong extraction? Hint the **root** entity, not the child
 - `SHOW LINEAGE OF '<node_id>'` traces any row back to the document it came from

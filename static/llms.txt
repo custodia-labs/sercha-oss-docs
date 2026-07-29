@@ -1,0 +1,44 @@
+# Sercha
+
+> A governed platform for querying documents like a database. You declare a
+> schema (entities and edges) over a document corpus in SerchaQL, extraction
+> populates it from documents in the source system, and you query the resulting
+> graph with SQL-like syntax. Every read is permission-bounded at execution and
+> written to a hash-chained audit log.
+
+Sercha is a commercial product, self-hosted by the customer. It runs as a Go
+binary against PostgreSQL with pgvector, OpenSearch for lexical search, and
+OpenFGA for per-document authorization. Documents are read in place from the
+connected source system rather than copied into a new store.
+
+Key concepts:
+
+- **Ontology**: a schema namespace. Mutable draft until bound.
+- **Entity**: a typed object within an ontology. Behaves like a table once
+  extracted. `KEY` marks resolution identity, not a uniqueness constraint.
+- **Edge**: a named directed relationship, resolved at extraction time by exact
+  match or LLM judgement.
+- **Corpus**: a set of documents claimed from a source path.
+- **Binding**: joins a corpus to an ontology and freezes an immutable version.
+  `RUN BINDING` triggers extraction.
+
+Every SerchaQL statement kind (DDL, DCL, DML, SHOW, DESCRIBE, EXPLAIN,
+RUN BINDING) goes through one endpoint: `POST /api/v1/query`.
+
+## Docs
+
+- [What SerchaQL is](https://docs.sercha.dev/serchaql/intro): core concepts, the
+  four nouns, and the three-layer permission model.
+- [DDL reference](https://docs.sercha.dev/serchaql/ddl): every schema, binding
+  and access-control statement.
+- [DML reference](https://docs.sercha.dev/serchaql/dml): SELECT, edge traversal
+  joins, search, aggregation, window functions and set operations.
+- [A worked example](https://docs.sercha.dev/serchaql/example): a document
+  corpus taken end to end, from schema declaration to a granted query.
+- [API reference](https://docs.sercha.dev/api/sercha-enterprise-api): the full
+  REST surface, generated from the OpenAPI spec.
+
+## Optional
+
+- [Execute a SerchaQL statement](https://docs.sercha.dev/api/execute-a-sercha-ql-statement):
+  the single query endpoint, with request and response schemas.

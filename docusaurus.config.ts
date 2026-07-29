@@ -33,18 +33,21 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid', 'docusaurus-theme-openapi-docs'],
 
   plugins: [
-    // Documentation (guides, quickstart, config)
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'guides',
-        path: 'docs/guides',
-        routeBasePath: 'docs',
-        sidebarPath: require.resolve('./sidebars-guides.js'),
-        showLastUpdateAuthor: true,
-        showLastUpdateTime: true,
-      },
-    ],
+    // Documentation (guides, quickstart, config) - DISABLED.
+    // These describe the retired sercha-core OSS search product: the framing is
+    // wrong for the platform and parts reference internal detail. The markdown
+    // stays in docs/guides/ for reference; re-enable this block once rewritten.
+    // [
+    //   '@docusaurus/plugin-content-docs',
+    //   {
+    //     id: 'guides',
+    //     path: 'docs/guides',
+    //     routeBasePath: 'docs',
+    //     sidebarPath: require.resolve('./sidebars-guides.js'),
+    //     showLastUpdateAuthor: true,
+    //     showLastUpdateTime: true,
+    //   },
+    // ],
     // API Reference (auto-generated from OpenAPI spec)
     [
       '@docusaurus/plugin-content-docs',
@@ -58,19 +61,21 @@ const config: Config = {
         docItemComponent: '@theme/ApiItem',
       },
     ],
-    // Connectors (per-source setup guides)
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'connectors',
-        path: 'docs/connectors',
-        routeBasePath: 'connectors',
-        sidebarPath: require.resolve('./sidebars-connectors.js'),
-        showLastUpdateAuthor: true,
-        showLastUpdateTime: true,
-      },
-    ],
-    // SerchaQL — the query language reference and playground
+    // Connectors (per-source setup guides) - DISABLED alongside the guides.
+    // The OAuth walkthroughs are still broadly accurate but they frame Sercha
+    // as a search product and advertise connectors that are not shipped.
+    // [
+    //   '@docusaurus/plugin-content-docs',
+    //   {
+    //     id: 'connectors',
+    //     path: 'docs/connectors',
+    //     routeBasePath: 'connectors',
+    //     sidebarPath: require.resolve('./sidebars-connectors.js'),
+    //     showLastUpdateAuthor: true,
+    //     showLastUpdateTime: true,
+    //   },
+    // ],
+    // SerchaQL - the query language reference and playground
     [
       '@docusaurus/plugin-content-docs',
       {
@@ -134,11 +139,6 @@ const config: Config = {
       },
       items: [
         {
-          to: '/docs',
-          label: 'Documentation',
-          position: 'left',
-        },
-        {
           to: '/serchaql/intro',
           label: 'SerchaQL',
           position: 'left',
@@ -149,18 +149,13 @@ const config: Config = {
           position: 'left',
         },
         {
-          to: '/connectors',
-          label: 'Connectors',
-          position: 'left',
-        },
-        {
           href: 'https://discord.gg/Hpj7e6k6Et',
           position: 'right',
           className: 'header-discord-link',
           'aria-label': 'Discord community',
         },
         {
-          href: 'https://github.com/sercha-oss/sercha-core',
+          href: 'https://sercha.dev',
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
@@ -173,8 +168,6 @@ const config: Config = {
         {
           title: 'Docs',
           items: [
-            {label: 'Quickstart', to: '/docs/quickstart'},
-            {label: 'Configuration', to: '/docs/configuration'},
             {label: 'SerchaQL', to: '/serchaql/intro'},
             {label: 'API Reference', to: '/api/sercha-enterprise-api'},
           ],
@@ -183,12 +176,11 @@ const config: Config = {
           title: 'Community',
           items: [
             {label: 'Discord', href: 'https://discord.gg/Hpj7e6k6Et'},
-            {label: 'GitHub', href: 'https://github.com/sercha-oss/sercha-core'},
-            {label: 'Issues', href: 'https://github.com/sercha-oss/sercha-core/issues'},
+            {label: 'Sercha', href: 'https://sercha.dev'},
           ],
         },
       ],
-      copyright: `Copyright \u00A9 ${new Date().getFullYear()} Sercha. Licensed under Apache 2.0.`,
+      copyright: `Copyright \u00A9 ${new Date().getFullYear()} Sercha.`,
     },
     prism: {
       theme: prismThemes.github,
