@@ -18,7 +18,9 @@ const config: Config = {
   organizationName: 'sercha-oss',
   projectName: 'sercha-oss-docs',
 
-  onBrokenLinks: 'warn',
+  // 'throw' (the Docusaurus default) so a broken link fails the build rather
+  // than shipping. The /blog link 404'd on all 74 pages under 'warn'.
+  onBrokenLinks: 'throw',
 
   i18n: {
     defaultLocale: 'en',
@@ -93,18 +95,10 @@ const config: Config = {
       'classic',
       {
         docs: false,
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          editUrl:
-            'https://github.com/sercha-oss/sercha-oss-docs/tree/main/',
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        // Blog is off until there are posts to publish. With it enabled but
+        // empty, Docusaurus never generates /blog, so the navbar and footer
+        // links to it 404'd on every page.
+        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -138,7 +132,6 @@ const config: Config = {
           label: 'Connectors',
           position: 'left',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://discord.gg/Hpj7e6k6Et',
           position: 'right',
@@ -170,12 +163,6 @@ const config: Config = {
             {label: 'Discord', href: 'https://discord.gg/Hpj7e6k6Et'},
             {label: 'GitHub', href: 'https://github.com/sercha-oss/sercha-core'},
             {label: 'Issues', href: 'https://github.com/sercha-oss/sercha-core/issues'},
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-            {label: 'Blog', to: '/blog'},
           ],
         },
       ],
